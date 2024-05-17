@@ -1,8 +1,10 @@
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json, redirect } from '@remix-run/cloudflare'
-import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from '@remix-run/react'
+import moment from 'moment'
 import { useEffect } from 'react'
+import { useInterval } from 'react-use'
 import invariant from 'tiny-invariant'
 import { AudioIndicator } from '~/components/AudioIndicator'
 import { Button } from '~/components/Button'
@@ -24,32 +26,39 @@ import getUsername from '~/utils/getUsername.server'
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 	const username = await getUsername(request)
 	const trxClientToken = await getClientToken(request)
-	// const roomName = params.roomName
+	const roomName = params.roomName
 	invariant(username)
-	// const host = 'http://localhost:3000';
-	// let doctorToken = await getDoctorToken(request);
-	// console.log('trxClientToken', trxClientToken);
-	// console.log('doctorToken', doctorToken);
-	// const response = await fetch(`${host}/room`, {
-	// 	method: 'post',
-	// 	headers: {
-	// 		'Content-Type': 'application/json'
-	// 	},
-	// 	body: JSON.stringify({
-	// 		roomName: roomName,
-	// 		// roomToken: trxClientToken,
-	// 	})
-	// })
-	// let data = await response.json();
-	// console.log('data', data)
+	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+	let doctorToken = await getDoctorToken(request);
+	console.log('trxClientToken', trxClientToken);
+	console.log('doctorToken', doctorToken);
+	const response = await fetch(`${host}/room`, {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			roomName: roomName,
+			// roomToken: trxClientToken,
+		})
+	})
+	let data = await response.json();
+	console.log('data', data)
+	let datares = data.data;
 
-	return json({ username, trxClientToken })
+	return json({ username, trxClientToken, datares })
 }
 
-let i = 0;
+let seconds = 0;
 export default function Lobby() {
-	const {trxClientToken} = useLoaderData<typeof loader>();
-	console.log('trxClientToken', trxClientToken)
+	const {trxClientToken, datares} = useLoaderData<typeof loader>();
+	const submit = useSubmit();
+	// console.log('datares', datares)
+	const doctorName = datares.doctorName;
+	const trxCallStatus = datares.trxcall.trxCallStatus;
+	const trxCreatedDate = datares.trxcall.trxCreatedDate;
+
+	
 	const { roomName } = useParams()
 	const navigate = useNavigate()
 	const { setJoined, userMedia, room } = useRoomContext()
@@ -62,21 +71,64 @@ export default function Lobby() {
 	const audioUnavailableMessage = userMedia.audioUnavailableReason
 		? errorMessageMap[userMedia.audioUnavailableReason]
 		: null
-		useEffect(() => {
-			// console.log('ixxx', i)
-			if(i == 5) {
-				i = 0;
-				setJoined(true)
-				navigate('room')
+		
+	let showConfirm = false
+	
+	let now = moment(new Date()); //todays date
+	let end = trxCreatedDate; // another date
+	console.log('now', now)
+	console.log('end', end)
+	let duration = moment.duration(now.diff(end));
+
+	const revalidator = useRevalidator();
+	useEffect(() => {
+		// var days = duration.asDays();
+		seconds = (duration.asSeconds());
+		// console.log('days', days)
+		console.log('seconds', seconds)
+		// console.log('room', roomName)
+		console.log('trxCallStatus', trxCallStatus)
+		if(trxCallStatus != 1) {
+			if(seconds == 10) {
+				console.log('should leavexxxx')
+				// submit({}, { method: "post", action: "/leaveroom" });
+				// navigate('/set-username');
+			} else {
+				revalidator.revalidate();
 			}
-			i++
-		})
+		}
+
+		if(trxCallStatus == 1) {
+			setTimeout(function() {
+				setJoined(true)
+				// we navigate here with javascript instead of an a
+				// tag because we don't want it to be possible to join
+				// the room without the JS having loaded
+				navigate('room')	
+			}, 1000);
+			
+		}
+		if(trxCallStatus == 99) {
+			// showConfirm = true;
+		// 	navigate('/set-username')
+			if(showConfirm == false) {
+				showConfirm = true;
+				if (window.confirm("Saat ini dokter tidak tersedia. Silahkan coba beberapa saat lagi.")) {
+					navigate('/set-username')
+				}
+				
+			}
+		}
+		
+	}, [2000, revalidator, seconds]);
 	return (
 		<div className="flex flex-col items-center justify-center h-full p-4">
 			<div className="flex-1"></div>
 			<div className="space-y-4 w-96">
+				
 				<div>
 					<h1 className="text-3xl font-bold">{roomName}</h1>
+					<p>Contacting to <b>{doctorName}</b>... ({seconds.toFixed(0)} detik)</p>
 					<p className="text-sm text-zinc-500 dark:text-zinc-400">
 						{`${joinedUsers} ${
 							joinedUsers === 1 ? 'user' : 'users'
@@ -131,7 +183,7 @@ export default function Lobby() {
 					</div>
 				)}
 				<div className="flex gap-4 text-sm">
-					{audioUnavailableMessage ? (
+					{/* {audioUnavailableMessage ? (
 						<Tooltip content="Unable to join without a mic.">
 							<Button disabled>Join</Button>
 						</Tooltip>
@@ -147,11 +199,11 @@ export default function Lobby() {
 						>
 							Join
 						</Button>
-					)}
+					)} */}
 					<MicButton />
 					<CameraButton />
 					<SettingsButton />
-					<CopyButton></CopyButton>
+					{/* <CopyButton></CopyButton> */}
 				</div>
 			</div>
 			<div className="flex flex-col justify-end flex-1">

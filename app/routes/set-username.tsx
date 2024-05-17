@@ -13,7 +13,7 @@ export const loader = async({request}: LoaderFunctionArgs) => {
 	return json({isfull});
 }
 export const action = async ({ request }: ActionFunctionArgs) => {
-	const host = 'http://localhost:3000';
+	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
 	const url = new URL(request.url);
 	const isFull = url.searchParams.get('isfull');
 	// const fetcher = useFetcher();
@@ -75,7 +75,7 @@ export default function SetUsername() {
 				</Button>
 			</Form>
 			{isfull == '1' ? (
-				<div className="text-danger">Mohon maaf tenaga medis belum tersedia untuk saat ini.<br/> Silahkan tunggu beberapa saat lagi.</div>
+				<div className="text-danger">Mohon maaf tenaga medis belum tersedia untuk saat ini.<br/> Silahkan coba beberapa saat lagi.</div>
 			) : ('')}
 		</div>
 	)

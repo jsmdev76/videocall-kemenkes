@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json, redirect } from '@remix-run/cloudflare'
-import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import { useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from '@remix-run/react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
@@ -36,7 +36,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	const roomName = params.roomName
 	const trxClientToken = await getClientToken(request)
 	// // invariant(username)
-	const host = 'http://localhost:3000';
+	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
 	let doctorToken = await getDoctorToken(request);
 	// console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken', doctorToken);
@@ -68,6 +68,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 		username,
 		bugReportsEnabled: Boolean(context.FEEDBACK_QUEUE && context.FEEDBACK_URL),
 		mode: context.mode,
+		trxcall
 	})
 }
 
@@ -132,12 +133,26 @@ function useGridDebugControls(
 export default function Room() {
 	const { joined } = useRoomContext()
 	const navigate = useNavigate()
+	const submit = useSubmit()
 	const { roomName } = useParams()
-	const { mode, bugReportsEnabled } = useLoaderData<typeof loader>()
-
+	const { mode, bugReportsEnabled, trxcall } = useLoaderData<typeof loader>()
+	const trxCallStatus = trxcall.trxCallStatus;
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
 	}, [joined, mode, navigate, roomName])
+	
+	const revalidator = useRevalidator();
+	useEffect(() => {
+		console.log('trxCallStatus', trxCallStatus)
+		if(trxCallStatus == 1) {
+			revalidator.revalidate();
+		}
+
+		if(trxCallStatus == 2) {
+			submit({}, { method: "post", action: "/leaveroom" });
+		}
+		
+	}, [2000, revalidator]);
 
 	if (!joined && mode !== 'development') return null
 

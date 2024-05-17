@@ -1,5 +1,5 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
-import { Form, Link, useFetcher, useLoaderData, useNavigate, useSubmit } from '@remix-run/react'
+import { Form, Link, useFetcher, useLoaderData, useNavigate, useRevalidator, useSubmit } from '@remix-run/react'
 import { useEffect } from 'react'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
@@ -9,7 +9,7 @@ import getDoctorToken, { setDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
 export const loader = async({request}: LoaderFunctionArgs) => {
-	const host = 'http://localhost:3000';
+	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
 	const url = new URL(request.url)
 	let doctorToken = await getDoctorToken(request);
 	console.log('doctorToken', doctorToken);
@@ -32,7 +32,7 @@ export const loader = async({request}: LoaderFunctionArgs) => {
 	return json({data});
 }
 // export const action = async ({ request }: ActionFunctionArgs) => {
-// 	const host = 'http://localhost:3000';
+// 	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
 // 	const { username, password } = Object.fromEntries(await request.formData())
 // 	invariant(typeof username === 'string')
 // 	invariant(typeof password === 'string')
@@ -65,47 +65,52 @@ export default function DoctorDashboard() {
 	const {data} = useLoaderData<typeof loader>();
 	let doctor = data.doctor
 	let room = doctor.room
+	let pasienName = data.pasienName
 	
-	let intervalID: any = null;
+	const revalidator = useRevalidator();
 	useEffect(() => {
+		console.log('data', data)
 		console.log('room', room)
-		if(!room) {
-			intervalID = setInterval(() => {
-				navigate(`/doctor/dashboard`);
-			}, 3000);
-		}
-	// console.log('doctorIdle', doctorIdle) 
-		return () => clearInterval(intervalID);
+		revalidator.revalidate();
 		
-	}, [room]);
+	}, [2000, revalidator]);
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
 			<h1 className="text-3xl font-bold">Welcome {doctor.name}
 				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
 			</h1>
+			
 			{doctor.room ? (
-				<div className='flex items-end gap-4'>
-					<Form
-						action="/doctor/join"
-						method="post"
-					>
-						<Button className="text-xs" type='submit'>Gabung Meet</Button>
-					</Form>
-					<Form
-						action="denied"
-						method="post"
-					>
-						<Button className="text-xs bg-danger" type='submit'>Tolak Meet</Button>
-					</Form>
+				<div>
+					<p>Pasien <b>{pasienName}</b> menghubungi anda.</p>
+					<br />
+					
+					<div className='flex items-end gap-4'>
+						<Form
+							action="/doctor/join"
+							method="post"
+						>
+							<Button className="text-xs" type='submit'>Terima</Button>
+						</Form>
+						<Form
+							action="/doctor/denied"
+							method="post"
+						>
+							<Button className="text-xs bg-danger" type='submit'>Tolak</Button>
+						</Form>
+					</div>
 				</div>
-			) : ('No Available Room')}
+			) : ('Belum ada pasien yang menghubungi.')}
+			
+			<br />
+			<br />
 			<div>
 			<Form
 				action="/doctor/logout"
 				method="post"
 			>
-				<Button className="text-xs bg-danger" type='submit'>Keluar</Button>
+				<Button className="text-xs bg-danger" type='submit'>Logout</Button>
 			</Form>
 			</div>
 		</div>

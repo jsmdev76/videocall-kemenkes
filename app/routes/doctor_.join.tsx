@@ -7,7 +7,7 @@ export const action = async ({
 	params,
 	request,
   }: ActionFunctionArgs) => {
-	const host = 'http://localhost:3000';
+	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
 	const url = new URL(request.url)
 	let doctorToken = await getDoctorToken(request);
 	console.log('doctorToken', doctorToken);

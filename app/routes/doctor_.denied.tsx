@@ -1,6 +1,6 @@
 import { redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
 import invariant from "tiny-invariant";
-import getDoctorToken, { removeDoctorToken } from "~/utils/getDoctorToken.server";
+import getDoctorToken from "~/utils/getDoctorToken.server";
 import { setUsername } from "~/utils/getUsername.server";
 
 export const action = async ({
@@ -14,7 +14,7 @@ export const action = async ({
 	if(!doctorToken) {
 		throw redirect('/doctor');
 	}
-	const response = await fetch(`${host}/logout`, {
+	const response = await fetch(`${host}/trxcall/denied`, {
 		method: 'post',
 		headers: {
 			'Authorization': 'Bearer '+doctorToken
@@ -24,8 +24,9 @@ export const action = async ({
 	console.log('data', data)
 	// return data;
 	if(!data.success) {
-		throw new Response(data.message, {status: 500});
+		throw redirect('/doctor/dashboard?msg='+data.message);
 	}
-	// clear session
-	return removeDoctorToken(request, `/doctor`);
+	
+	// return data
+	return redirect('/doctor/dashboard');
   };
