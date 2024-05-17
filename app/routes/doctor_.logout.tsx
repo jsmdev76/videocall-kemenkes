@@ -21,7 +21,7 @@ export const action = async ({
 			'Authorization': 'Bearer '+doctorToken
 		}
 	})
-	let data = await response.json();
+	let data:any = await response.json();
 	console.log('data', data)
 	// return data;
 	if(!data.success) {

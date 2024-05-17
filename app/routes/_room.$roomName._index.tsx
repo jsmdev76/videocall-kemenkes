@@ -42,7 +42,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 			// roomToken: trxClientToken,
 		})
 	})
-	let data = await response.json();
+	let data:any  = await response.json();
 	console.log('data', data)
 	let datares = data.data;
 

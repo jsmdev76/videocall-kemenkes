@@ -35,7 +35,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			clientName: username,
 		})
 	})
-	const data = await response.json();
+	const data:any = await response.json();
 	if(!data.success) {
 		if(data.waiting) {
 			throw redirect('/set-username?isfull=1');

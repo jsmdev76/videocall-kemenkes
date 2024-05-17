@@ -22,7 +22,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 			'Authorization': 'Bearer '+doctorToken
 		}
 	})
-	let data = await response.json();
+	let data:any = await response.json();
 	console.log('data', data)
 	// return data;
 	if(!data.success) {
@@ -46,7 +46,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 // 			password: password,
 // 		})
 // 	})
-// 	const data = await response.json();
+// 	const data:any = await response.json();
 // 	if(!data.success) {
 // 		throw new Response("Info doctor gagal didapat. Silahkan coba beberapa saat lagi", {status: 500});
 // 	}

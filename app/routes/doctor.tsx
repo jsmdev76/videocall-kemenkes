@@ -32,7 +32,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			password: password,
 		})
 	})
-	const data = await response.json();
+	const data:any = await response.json();
 	if(!data.success) {
 		throw redirect('/doctor?msg='+data.message);
 	}

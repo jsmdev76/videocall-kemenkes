@@ -29,7 +29,7 @@ export const action = async ({
 			trxClientToken: trxClientToken,
 		})
 	})
-	let data = await response.json();
+	let data:any = await response.json();
 	console.log('data', data)
 	// return data;
 	if(!data.success) {

@@ -50,7 +50,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 			// roomToken: trxClientToken,
 		})
 	})
-	let data = await response.json();
+	let data:any = await response.json();
 	if(!data.success) {
 		throw new Response(data.message, {status: 500});
 	}
