@@ -1,4 +1,4 @@
-name = "orange-meets"
+name = "vcall-meets"
 # https://developers.cloudflare.com/workers/platform/compatibility-dates
 compatibility_date = "2022-04-05"
 account_id = "c1acc80fc2b1b0e907ee63cd080f1e23"
