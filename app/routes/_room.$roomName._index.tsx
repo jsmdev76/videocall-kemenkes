@@ -19,7 +19,7 @@ import { SettingsButton } from '~/components/SettingsDialog'
 import { Tooltip } from '~/components/Tooltip'
 import { useRoomContext } from '~/hooks/useRoomContext'
 import { errorMessageMap } from '~/hooks/useUserMedia'
-import getClientToken from '~/utils/getClientToken.server'
+import getClientToken, { removeClientToken } from '~/utils/getClientToken.server'
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 
@@ -44,20 +44,49 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	})
 	let data:any  = await response.json();
 	console.log('data', data)
+	if(!data.success) {
+		return removeClientToken(request, `/set-username`)
+	}
 	let datares = data.data;
-
-	return json({ username, trxClientToken, datares })
+	const trxCallStatus = datares.trxcall.trxCallStatus;
+	const trxCreatedDate = datares.trxcall.trxCreatedDate;
+	if(trxCallStatus == 99) {
+		// if (window.confirm("Saat ini dokter tidak tersedia. Silahkan coba beberapa saat lagi.")) {
+			return removeClientToken(request, `/set-username`)
+		// }
+	}
+	let now = moment(new Date()); //todays date
+	let end = trxCreatedDate; // another date
+	// console.log('now', now)
+	// console.log('end', end)
+	let duration = moment.duration(now.diff(end));
+	let seconds = duration.asSeconds();
+	// if(seconds > 31) {
+	// 	const response = await fetch(`${host}/trxcall/leave`, {
+	// 		method: 'post',
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		},
+	// 		body: JSON.stringify({
+	// 			trxClientToken: trxClientToken,
+	// 		})
+	// 	})
+	// 	let data:any = await response.json();
+	// 	if(!data.success) {
+	// 		throw new Response(data.message, {status: 500});
+	// 	}
+	// 	return removeClientToken(request, `/set-username`)
+	// }
+	return json({ username, trxClientToken, datares, seconds })
 }
 
-let seconds = 0;
+
 export default function Lobby() {
-	const {trxClientToken, datares} = useLoaderData<typeof loader>();
+	const {trxClientToken, datares, seconds} = useLoaderData<typeof loader>();
 	const submit = useSubmit();
 	// console.log('datares', datares)
 	const doctorName = datares.doctorName;
 	const trxCallStatus = datares.trxcall.trxCallStatus;
-	const trxCreatedDate = datares.trxcall.trxCreatedDate;
-
 	
 	const { roomName } = useParams()
 	const navigate = useNavigate()
@@ -72,33 +101,21 @@ export default function Lobby() {
 		? errorMessageMap[userMedia.audioUnavailableReason]
 		: null
 		
-	let showConfirm = false
-	
-	let now = moment(new Date()); //todays date
-	let end = trxCreatedDate; // another date
-	console.log('now', now)
-	console.log('end', end)
-	let duration = moment.duration(now.diff(end));
-
 	const revalidator = useRevalidator();
+	let intervalID: any = null;
 	useEffect(() => {
-		// var days = duration.asDays();
-		seconds = (duration.asSeconds());
-		// console.log('days', days)
-		console.log('seconds', seconds)
 		// console.log('room', roomName)
 		console.log('trxCallStatus', trxCallStatus)
-		if(trxCallStatus != 1) {
-			if(seconds == 10) {
-				console.log('should leavexxxx')
-				// submit({}, { method: "post", action: "/leaveroom" });
-				// navigate('/set-username');
-			} else {
-				revalidator.revalidate();
-			}
+		if(trxCallStatus == 0) {
+			intervalID = setInterval(() => {
+				if (revalidator.state === "idle") {
+					revalidator.revalidate();
+				}
+			}, 1000)
 		}
 
 		if(trxCallStatus == 1) {
+			clearInterval(intervalID)
 			setTimeout(function() {
 				setJoined(true)
 				// we navigate here with javascript instead of an a
@@ -108,19 +125,9 @@ export default function Lobby() {
 			}, 1000);
 			
 		}
-		if(trxCallStatus == 99) {
-			// showConfirm = true;
-		// 	navigate('/set-username')
-			if(showConfirm == false) {
-				showConfirm = true;
-				if (window.confirm("Saat ini dokter tidak tersedia. Silahkan coba beberapa saat lagi.")) {
-					navigate('/set-username')
-				}
-				
-			}
-		}
-		
-	}, [6000, revalidator, seconds]);
+		return () => clearInterval(intervalID);
+	}, [revalidator]);
+	
 	return (
 		<div className="flex flex-col items-center justify-center h-full p-4">
 			<div className="flex-1"></div>

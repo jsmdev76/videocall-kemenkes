@@ -26,7 +26,7 @@ import useSounds from '~/hooks/useSounds'
 import useStageManager from '~/hooks/useStageManager'
 import { useUserJoinLeaveToasts } from '~/hooks/useUserJoinLeaveToasts'
 import { calculateLayout } from '~/utils/calculateLayout'
-import getClientToken from '~/utils/getClientToken.server'
+import getClientToken, { removeClientToken } from '~/utils/getClientToken.server'
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 import isNonNullable from '~/utils/isNonNullable'
@@ -58,6 +58,9 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	const trxcall = data.data.trxcall;
 	// console.log('[0,1].indexOf(trxcall.trxCallStatus)', [0,1].indexOf(trxcall.trxCallStatus))
 	if([0,1].indexOf(trxcall.trxCallStatus) < 0) {
+		console.log('doctorTokenbeff',doctorToken);
+		await removeClientToken(request, `/set-username`)
+		console.log('doctorTokenbeafff',doctorToken);
 		if(doctorToken)
 			throw redirect('/doctor');
 		else
@@ -142,17 +145,19 @@ export default function Room() {
 	}, [joined, mode, navigate, roomName])
 	
 	const revalidator = useRevalidator();
+	let intervalID: any = null;
 	useEffect(() => {
 		console.log('trxCallStatus', trxCallStatus)
 		if(trxCallStatus == 1) {
-			revalidator.revalidate();
+			intervalID = setInterval(() => {
+				if (revalidator.state === "idle") {
+					revalidator.revalidate();
+				}
+			}, 5000)
 		}
-
-		if(trxCallStatus == 2) {
-			submit({}, { method: "post", action: "/leaveroom" });
-		}
+		return () => clearInterval(intervalID);
 		
-	}, [6000, revalidator]);
+	}, [revalidator]);
 
 	if (!joined && mode !== 'development') return null
 

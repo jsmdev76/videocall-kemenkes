@@ -1,6 +1,7 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
 import { Form, Link, useFetcher, useLoaderData, useNavigate, useRevalidator, useSubmit } from '@remix-run/react'
 import { useEffect } from 'react'
+import { useInterval } from 'react-use'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
@@ -23,7 +24,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 		}
 	})
 	let data:any = await response.json();
-	console.log('data', data)
+	// console.log('data', data)
 	// return data;
 	if(!data.success) {
 		throw redirect('/doctor?msg='+data.message);
@@ -58,7 +59,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 // 	const doctorToken = data.data.token;
 // 	return setDoctorToken(doctorToken, request, '/doctor/dashboard');
 // }
-
+let it = 0;
 export default function DoctorDashboard() {
 	const navigate = useNavigate();
 	const submit = useSubmit();
@@ -68,12 +69,23 @@ export default function DoctorDashboard() {
 	let pasienName = data.pasienName
 	
 	const revalidator = useRevalidator();
+	let intervalID: any = null;
+	
 	useEffect(() => {
-		console.log('data', data)
-		console.log('room', room)
-		revalidator.revalidate();
-		
-	}, [6000, revalidator]);
+		console.log('dataxxx', data)
+		console.log('roomxxx', room)
+		if(!room) {
+			intervalID = setInterval(() => {
+				console.log('it', it);
+				it++;
+				if (revalidator.state === "idle") {
+					revalidator.revalidate();
+				}
+			}, 3000)
+		}
+		// 	revalidator.revalidate();
+		return () => clearInterval(intervalID);
+	}, [revalidator]);
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
