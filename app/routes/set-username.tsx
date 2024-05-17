@@ -28,7 +28,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	const response = await fetch(`${host}/trxcall`, {
 		method: 'post',
 		headers: {
-			'Content-Type': 'application/json'
+			'Accept': 'application/json',
+            'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
 			roomName: roomName,
