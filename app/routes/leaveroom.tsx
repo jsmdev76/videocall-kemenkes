@@ -7,8 +7,9 @@ import { setUsername } from "~/utils/getUsername.server";
 export const action = async ({
 	params,
 	request,
+	context
   }: ActionFunctionArgs) => {
-	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+	const host = context.URL_API;
 	let trxClientToken = await getClientToken(request);
 	let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);

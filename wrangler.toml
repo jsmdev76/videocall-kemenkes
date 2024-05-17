@@ -13,6 +13,7 @@ main = "./build/index.js"
 
 [vars]
 CALLS_APP_ID = "4a469496ab595f316c0ed2d304bc946a"
+URL_API = "http://localhost:3000"
 
 [durable_objects]
  bindings = [

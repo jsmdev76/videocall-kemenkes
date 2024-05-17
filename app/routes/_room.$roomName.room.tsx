@@ -36,7 +36,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	const roomName = params.roomName
 	const trxClientToken = await getClientToken(request)
 	// // invariant(username)
-	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+	const host = context.URL_API;
 	let doctorToken = await getDoctorToken(request);
 	// console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken', doctorToken);

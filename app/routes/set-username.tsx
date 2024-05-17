@@ -4,7 +4,7 @@ import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
-import getClientToken, { setClientToken } from '~/utils/getClientToken.server'
+import getClientToken from '~/utils/getClientToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
 export const loader = async({request}: LoaderFunctionArgs) => {
@@ -12,8 +12,8 @@ export const loader = async({request}: LoaderFunctionArgs) => {
 	let isfull = url.searchParams.get('isfull')
 	return json({isfull});
 }
-export const action = async ({ request }: ActionFunctionArgs) => {
-	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+	const host = context.URL_API;
 	const url = new URL(request.url);
 	const isFull = url.searchParams.get('isfull');
 	// const fetcher = useFetcher();

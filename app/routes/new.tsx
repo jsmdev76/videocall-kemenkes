@@ -1,8 +1,8 @@
 import { redirect, type LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { useFetcher } from '@remix-run/react';
 
-export const loader = async ({request}: LoaderFunctionArgs) => {
-	// const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+export const loader = async ({request, context}: LoaderFunctionArgs) => {
+	// const host = context.URL_API;
 	const url = new URL(request.url);
 	// const fetcher = useFetcher();
 	const roomName = url.searchParams.get('room')

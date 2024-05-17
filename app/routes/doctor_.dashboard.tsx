@@ -8,8 +8,8 @@ import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
 import getDoctorToken, { setDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
-export const loader = async({request}: LoaderFunctionArgs) => {
-	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+export const loader = async({request, context}: LoaderFunctionArgs) => {
+	const host = context.URL_API;
 	const url = new URL(request.url)
 	let doctorToken = await getDoctorToken(request);
 	console.log('doctorToken', doctorToken);
@@ -32,7 +32,7 @@ export const loader = async({request}: LoaderFunctionArgs) => {
 	return json({data});
 }
 // export const action = async ({ request }: ActionFunctionArgs) => {
-// 	const host = 'https://e422-2001-448a-50e0-9999-7dd9-fc46-c819-36ca.ngrok-free.app';
+// 	const host = context.URL_API;
 // 	const { username, password } = Object.fromEntries(await request.formData())
 // 	invariant(typeof username === 'string')
 // 	invariant(typeof password === 'string')
