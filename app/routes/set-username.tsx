@@ -28,7 +28,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	const response = await fetch(`${host}/trxcall`, {
 		method: 'post',
 		headers: {
-			'Accept': 'application/json',
+			Accept: 'application/json',
             'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
@@ -36,6 +36,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			clientName: username,
 		})
 	})
+	console.log('response', response)
 	const data:any = await response.json();
 	if(!data.success) {
 		if(data.waiting) {
