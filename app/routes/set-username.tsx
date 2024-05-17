@@ -36,8 +36,11 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			clientName: username,
 		})
 	})
-	console.log('response', response)
+	// console.log('response', response)
 	const data:any = await response.json();
+	if(!data) {
+		throw new Response("Panggilan gagal. Silahkan coba beberapa saat lagi", {status: 500});
+	}
 	if(!data.success) {
 		if(data.waiting) {
 			throw redirect('/set-username?isfull=1');
