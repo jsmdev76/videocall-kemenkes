@@ -1,0 +1,40 @@
+import { redirect } from '@remix-run/cloudflare'
+import { commitSession, getSession } from '~/session'
+import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from './constants'
+
+// export async function setClientToken(
+// 	trxClientToken: string,
+// 	request: Request,
+// ) {
+// 	const session = await getSession(request.headers.get('Cookie'))
+// 	session.set('clienttoken', trxClientToken)
+// }
+
+export default async function getClientToken(request: Request) {
+	// const accessUsername = request.headers.get(
+	// 	ACCESS_AUTHENTICATED_USER_EMAIL_HEADER
+	// )
+	// if (accessUsername) return accessUsername
+
+	const session = await getSession(request.headers.get('Cookie'))
+	const sessionClientToken = session.get('clienttoken')
+	console.log('sessionClientToken', sessionClientToken)
+	if (typeof sessionClientToken === 'string') return sessionClientToken
+
+	return null
+}
+
+export async function removeClientToken(
+	request: Request,
+	returnUrl: string = '/'
+) {
+	const session = await getSession(request.headers.get('Cookie'))
+	// session.set('doctortoken', '')
+	session.set('clienttoken', '')
+	session.set('username', '')
+	throw redirect(returnUrl, {
+		headers: {
+			'Set-Cookie': await commitSession(session),
+		},
+	})
+}
