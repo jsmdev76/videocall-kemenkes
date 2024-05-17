@@ -73,7 +73,7 @@ export default function DoctorDashboard() {
 		console.log('room', room)
 		revalidator.revalidate();
 		
-	}, [2000, revalidator]);
+	}, [6000, revalidator]);
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			

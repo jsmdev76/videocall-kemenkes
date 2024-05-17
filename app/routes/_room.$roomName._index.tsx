@@ -120,7 +120,7 @@ export default function Lobby() {
 			}
 		}
 		
-	}, [2000, revalidator, seconds]);
+	}, [6000, revalidator, seconds]);
 	return (
 		<div className="flex flex-col items-center justify-center h-full p-4">
 			<div className="flex-1"></div>

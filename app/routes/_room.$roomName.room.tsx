@@ -152,7 +152,7 @@ export default function Room() {
 			submit({}, { method: "post", action: "/leaveroom" });
 		}
 		
-	}, [2000, revalidator]);
+	}, [6000, revalidator]);
 
 	if (!joined && mode !== 'development') return null
 
