@@ -1,5 +1,6 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
 import { Form, useFetcher, useLoaderData, useSubmit } from '@remix-run/react'
+import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
@@ -27,7 +28,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	// 	ACCESS_AUTHENTICATED_USER_EMAIL_HEADER
 	// )
 	// if (accessUsername) throw redirect(returnUrl)
-	const { username } = Object.fromEntries(await request.formData())
+	const { username, latitude, longitude } = Object.fromEntries(await request.formData())
 	invariant(typeof username === 'string')
 	const roomName = crypto.randomUUID().split('-')[0];
 	const response = await fetch(`${host}/trxcall`, {
@@ -39,6 +40,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 		body: JSON.stringify({
 			roomName: roomName,
 			clientName: username,
+			latitude: latitude,
+			longitude: longitude,
 		})
 	})
 	// console.log('response', response)
@@ -61,6 +64,23 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 export default function SetUsername() {
 	const {isfull} = useLoaderData<typeof loader>();
+	const [latitude, setLatitude] = useState(1);
+	const [longitude, setLongitude] = useState(1);
+	// let latitude = 0;
+	// let longitude = 0;
+	// useEffect(() => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition((position) => {
+				console.log('position', position)
+				if(position) {
+					setLatitude(position.coords.latitude);
+					setLongitude(position.coords.longitude);
+				}
+				console.log('latitude', latitude)
+			});
+		}
+	// }, [latitude, longitude])
+	console.log('latitude', latitude)
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
@@ -76,6 +96,8 @@ export default function SetUsername() {
 						id="username"
 						name="username"
 					/>
+					<Input type="hidden" id="latitude" name="latitude" value={latitude}/>
+					<Input type="hidden" id="longitude" name="longitude" value={longitude}/>
 				</div>
 				<Button className="text-xs" type="submit">
 					Submit
