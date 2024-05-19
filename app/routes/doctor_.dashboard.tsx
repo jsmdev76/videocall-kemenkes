@@ -13,6 +13,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 	const host = context.URL_API;
 	const url = new URL(request.url)
 	let doctorToken = await getDoctorToken(request);
+	
 	console.log('doctorToken', doctorToken);
 	if(!doctorToken) {
 		throw redirect('/doctor');

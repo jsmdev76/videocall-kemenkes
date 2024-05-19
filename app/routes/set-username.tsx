@@ -5,11 +5,16 @@ import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
 import getClientToken from '~/utils/getClientToken.server'
+import getDoctorToken from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
 export const loader = async({request}: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	let isfull = url.searchParams.get('isfull')
+	let doctorToken = await getDoctorToken(request);
+	if(doctorToken) {
+		return redirect('/doctor/dashboard');
+	}
 	return json({isfull});
 }
 export const action = async ({ request, context }: ActionFunctionArgs) => {
@@ -38,9 +43,6 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	})
 	// console.log('response', response)
 	const data:any = await response.json();
-	if(!data) {
-		throw new Response("Panggilan gagal. Silahkan coba beberapa saat lagi", {status: 500});
-	}
 	if(!data.success) {
 		if(data.waiting) {
 			throw redirect('/set-username?isfull=1');

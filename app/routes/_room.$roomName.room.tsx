@@ -40,6 +40,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	let doctorToken = await getDoctorToken(request);
 	// console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken', doctorToken);
+	// console.log('doctorToken User', doctorToken);
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
 		headers: {

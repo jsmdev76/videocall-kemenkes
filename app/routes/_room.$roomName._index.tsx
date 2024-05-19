@@ -23,15 +23,16 @@ import getClientToken, { removeClientToken } from '~/utils/getClientToken.server
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 
+let isconfirm = false;
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
 	const username = await getUsername(request)
 	const trxClientToken = await getClientToken(request)
 	const roomName = params.roomName
 	invariant(username)
 	const host = context.URL_API;
-	let doctorToken = await getDoctorToken(request);
+	// let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);
-	console.log('doctorToken', doctorToken);
+	// console.log('doctorToken User', doctorToken);
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
 		headers: {
@@ -50,33 +51,40 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	let datares = data.data;
 	const trxCallStatus = datares.trxcall.trxCallStatus;
 	const trxCreatedDate = datares.trxcall.trxCreatedDate;
-	if(trxCallStatus == 99) {
-		// if (window.confirm("Saat ini dokter tidak tersedia. Silahkan coba beberapa saat lagi.")) {
-			return removeClientToken(request, `/set-username`)
-		// }
-	}
+	// if(trxCallStatus == 99) {
+	// 	return removeClientToken(request, `/set-username`)
+	// }
+	// if(isconfirm) {
+	// 	return removeClientToken(request, `/set-username`)
+	// }
 	let now = moment(new Date()); //todays date
 	let end = trxCreatedDate; // another date
 	// console.log('now', now)
 	// console.log('end', end)
 	let duration = moment.duration(now.diff(end));
-	let seconds = duration.asSeconds();
-	// if(seconds > 31) {
-	// 	const response = await fetch(`${host}/trxcall/leave`, {
-	// 		method: 'post',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		},
-	// 		body: JSON.stringify({
-	// 			trxClientToken: trxClientToken,
-	// 		})
-	// 	})
-	// 	let data:any = await response.json();
-	// 	if(!data.success) {
-	// 		throw new Response(data.message, {status: 500});
-	// 	}
-	// 	return removeClientToken(request, `/set-username`)
-	// }
+	let seconds = Math.floor(duration.asSeconds());
+	console.log('seconds', seconds)
+	if(seconds > 30) {
+		const response = await fetch(`${host}/trxcall/leave`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				trxClientToken: trxClientToken,
+			})
+		})
+		let data:any = await response.json();
+		console.log('data', data)
+		// return data;
+		if(!data.success) {
+			throw new Response(data.message, {status: 500});
+		}
+		// clear session
+		let url = '/set-username';
+		// return url;
+		return removeClientToken(request, url);
+	}
 	return json({ username, trxClientToken, datares, seconds })
 }
 
@@ -105,8 +113,9 @@ export default function Lobby() {
 	let intervalID: any = null;
 	useEffect(() => {
 		// console.log('room', roomName)
-		console.log('trxCallStatus', trxCallStatus)
-		if(trxCallStatus == 0) {
+		// console.log('trxCallStatus', trxCallStatus)
+		// console.log('seconds', seconds)
+		if(trxCallStatus == 0 && seconds < 30) {
 			intervalID = setInterval(() => {
 				if (revalidator.state === "idle") {
 					revalidator.revalidate();
@@ -125,9 +134,24 @@ export default function Lobby() {
 			}, 1000);
 			
 		}
+		
+		if (seconds == 30) {
+			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
+			
+			navigate(`/${roomName}`);
+		}
+			
+		if(trxCallStatus == 99) {
+			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
+			navigate(`/set-username`);
+		}
 		return () => clearInterval(intervalID);
 	}, [revalidator]);
 	
+	
+	
+		
+		
 	return (
 		<div className="flex flex-col items-center justify-center h-full p-4">
 			<div className="flex-1"></div>

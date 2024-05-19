@@ -10,6 +10,9 @@ export async function setDoctorToken(
 	const session = await getSession(request.headers.get('Cookie'))
 	session.set('doctortoken', doctorToken)
 	session.set('username', doctorName)
+	// window.localStorage.setItem("isDoctor", "1");
+	// create cookie localy
+
 	throw redirect(returnUrl, {
 		headers: {
 			'Set-Cookie': await commitSession(session),
@@ -23,6 +26,7 @@ export async function removeDoctorToken(
 ) {
 	const session = await getSession(request.headers.get('Cookie'))
 	session.set('doctortoken', '')
+	// window.localStorage.removeItem("isDoctor");
 	throw redirect(returnUrl, {
 		headers: {
 			'Set-Cookie': await commitSession(session),
