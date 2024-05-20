@@ -66,6 +66,8 @@ export default function DoctorDashboard() {
 	const submit = useSubmit();
 	const {data} = useLoaderData<typeof loader>();
 	let doctor = data.doctor
+	let geolocation = (data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
+	let geolocationUrl = (geolocation && geolocation.latitude != 0) ? `https://www.google.com/maps/@${geolocation.latitude},${geolocation.longitude},21z?hl=id` : null;
 	let room = doctor.room
 	let pasienName = data.pasienName
 	
@@ -96,7 +98,10 @@ export default function DoctorDashboard() {
 			
 			{doctor.room ? (
 				<div>
-					<p>Pasien <b>{pasienName}</b> menghubungi anda.</p>
+					<p>Pasien <b>{pasienName}</b> menghubungi anda. 
+					{geolocationUrl ? (
+						<a href={geolocationUrl} target='_blank' className='txt-link'>(Lihat Lokasi)</a>
+					) : ''}</p>
 					<br />
 					
 					<div className='flex items-end gap-4'>
@@ -115,7 +120,6 @@ export default function DoctorDashboard() {
 					</div>
 				</div>
 			) : ('Belum ada pasien yang menghubungi.')}
-			
 			<br />
 			<br />
 			<div>

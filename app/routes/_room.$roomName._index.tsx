@@ -34,6 +34,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken User', doctorToken);
+	
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
 		headers: {
@@ -50,8 +51,25 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 		return removeClientToken(request, `/set-username`)
 	}
 	let datares = data.data;
+	let trxWaitingDate = (datares.trxcall.trxWaitingDate) ? datares.trxcall.trxWaitingDate : datares.trxcall.trxDate;
+	if(!datares.trxcall.trxWaitingDate) {
+		// update timer
+		const responsetimer = await fetch(`${host}/trxcall/waitingtimer`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				trxClientToken: trxClientToken,
+			})
+		})
+		let datatimer:any  = await responsetimer.json();
+		let datatimerres = datatimer.data;
+		trxWaitingDate = datatimerres.trxcall.trxWaitingDate;
+	}
+
 	const trxCallStatus = datares.trxcall.trxCallStatus;
-	const trxCreatedDate = datares.trxcall.trxCreatedDate;
+	
 	// if(trxCallStatus == 99) {
 	// 	return removeClientToken(request, `/set-username`)
 	// }
@@ -59,17 +77,19 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// 	return removeClientToken(request, `/set-username`)
 	// }
 	let now = moment(new Date()); //todays date
-	let end = trxCreatedDate; // another date
+	let end = trxWaitingDate; // another date
 	// console.log('now', now)
 	// console.log('end', end)
+	console.log('trxWaitingDate', trxWaitingDate);
 	let duration = moment.duration(now.diff(end));
+	console.log('duration', duration);
 	// let durationMin = moment.duration(end.diff(now));
 	// let secondsMin = Math.floor(durationMin.asSeconds());
 	let seconds = Math.floor(duration.asSeconds());
 	let maxsecond = 30 - seconds;
 
-	// console.log('seconds', seconds)
-	// console.log('maxsecond', maxsecond-seconds)
+	console.log('seconds', seconds)
+	console.log('maxsecond', maxsecond-seconds)
 	if(seconds > 30) {
 		const response = await fetch(`${host}/trxcall/leave`, {
 			method: 'post',
@@ -126,7 +146,7 @@ export default function Lobby() {
 				if (revalidator.state === "idle") {
 					revalidator.revalidate();
 				}
-			}, 980)
+			}, 1000)
 		}
 
 		if(trxCallStatus == 1) {

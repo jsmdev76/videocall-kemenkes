@@ -110,3 +110,7 @@
 	background-position: center;
 	background-size: contain;
 }
+.txt-link {
+	text-decoration: underline;
+	color:cadetblue;
+}
