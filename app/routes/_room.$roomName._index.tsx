@@ -23,7 +23,7 @@ import getClientToken, { removeClientToken } from '~/utils/getClientToken.server
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 
-let isconfirm = false;
+
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
 	const username = await getUsername(request)
 	const trxClientToken = await getClientToken(request)
@@ -62,8 +62,13 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// console.log('now', now)
 	// console.log('end', end)
 	let duration = moment.duration(now.diff(end));
+	// let durationMin = moment.duration(end.diff(now));
+	// let secondsMin = Math.floor(durationMin.asSeconds());
 	let seconds = Math.floor(duration.asSeconds());
-	console.log('seconds', seconds)
+	let maxsecond = 30 - seconds;
+
+	// console.log('seconds', seconds)
+	// console.log('maxsecond', maxsecond-seconds)
 	if(seconds > 30) {
 		const response = await fetch(`${host}/trxcall/leave`, {
 			method: 'post',
@@ -85,14 +90,14 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 		// return url;
 		return removeClientToken(request, url);
 	}
-	return json({ username, trxClientToken, datares, seconds })
+	return json({ username, trxClientToken, datares, seconds, maxsecond })
 }
 
 
 export default function Lobby() {
-	const {trxClientToken, datares, seconds} = useLoaderData<typeof loader>();
+	const {trxClientToken, datares, seconds, maxsecond} = useLoaderData<typeof loader>();
 	const submit = useSubmit();
-	// console.log('datares', datares)
+	console.log('datares', datares)
 	const doctorName = datares.doctorName;
 	const trxCallStatus = datares.trxcall.trxCallStatus;
 	
@@ -155,7 +160,7 @@ export default function Lobby() {
 				
 				<div>
 					<h1 className="text-3xl font-bold">{roomName}</h1>
-					<p>Contacting to <b>{doctorName}</b>... ({seconds.toFixed(0)} detik)</p>
+					<p>Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</p>
 					<p className="text-sm text-zinc-500 dark:text-zinc-400">
 						{`${joinedUsers} ${
 							joinedUsers === 1 ? 'user' : 'users'
