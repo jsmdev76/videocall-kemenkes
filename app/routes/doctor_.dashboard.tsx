@@ -6,7 +6,7 @@ import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
-import getDoctorToken, { setDoctorToken } from '~/utils/getDoctorToken.server'
+import getDoctorToken, { removeDoctorToken, setDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
 export const loader = async({request, context}: LoaderFunctionArgs) => {
@@ -27,10 +27,11 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 	let data:any = await response.json();
 	// console.log('data', data)
 	// return data;
-	// if(!data.success) {
-	// 	throw new Response(data.message, {status: 500});
-	// }
-	data = (data) ? data.data : null;
+	if(!data.success) {
+		return removeDoctorToken(request, `/doctor`);
+		// throw redirect('/doctor?msg='+data.message);
+	}
+	data = data.data
 	return json({data});
 }
 // export const action = async ({ request }: ActionFunctionArgs) => {
@@ -64,11 +65,11 @@ export default function DoctorDashboard() {
 	const navigate = useNavigate();
 	const submit = useSubmit();
 	const {data} = useLoaderData<typeof loader>();
-	let doctor = (data) ? data.doctor : null;
-	let geolocation = (data && data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
+	let doctor = data.doctor
+	let geolocation = (data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
 	let geolocationUrl = (geolocation && geolocation.latitude != 0) ? `https://www.google.com/maps/@${geolocation.latitude},${geolocation.longitude},21z?hl=id` : null;
-	let room = (doctor) ? doctor.room : null;
-	let pasienName = (data) ? data.pasienName : null
+	let room = doctor.room
+	let pasienName = data.pasienName
 	
 	const revalidator = useRevalidator();
 	let intervalID: any = null;
@@ -90,11 +91,11 @@ export default function DoctorDashboard() {
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
-			<h1 className="text-3xl font-bold">Welcome {(doctor) ? doctor.name : '' }
+			<h1 className="text-3xl font-bold">Welcome {doctor.name}
 				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
 			</h1>
 			
-			{doctor && doctor.room ? (
+			{doctor.room ? (
 				<div>
 					<p>Pasien <b>{pasienName}</b> menghubungi anda. 
 					{geolocationUrl ? (
