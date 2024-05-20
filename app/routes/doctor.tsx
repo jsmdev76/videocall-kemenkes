@@ -12,9 +12,9 @@ export const loader = async({request}: LoaderFunctionArgs) => {
 	let msg = url.searchParams.get('msg')
 	let doctorToken = await getDoctorToken(request);
 	console.log('doctorToken', doctorToken);
-	if(doctorToken) {
-		throw redirect('/doctor/dashboard');
-	}
+	// if(doctorToken) {
+	// 	throw redirect('/doctor/dashboard');
+	// }
 	return json({msg});
 }
 export const action = async ({ request, context }: ActionFunctionArgs) => {
