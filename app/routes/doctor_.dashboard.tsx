@@ -30,7 +30,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 	// if(!data.success) {
 	// 	throw new Response(data.message, {status: 500});
 	// }
-	data = data.data
+	data = (data) ? data.data : null;
 	return json({data});
 }
 // export const action = async ({ request }: ActionFunctionArgs) => {
@@ -64,11 +64,11 @@ export default function DoctorDashboard() {
 	const navigate = useNavigate();
 	const submit = useSubmit();
 	const {data} = useLoaderData<typeof loader>();
-	let doctor = data.doctor
+	let doctor = (data) ? data.doctor : null;
 	let geolocation = (data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
 	let geolocationUrl = (geolocation && geolocation.latitude != 0) ? `https://www.google.com/maps/@${geolocation.latitude},${geolocation.longitude},21z?hl=id` : null;
-	let room = doctor.room
-	let pasienName = data.pasienName
+	let room = (doctor) ? doctor.room : null;
+	let pasienName = (data) ? data.pasienName : null
 	
 	const revalidator = useRevalidator();
 	let intervalID: any = null;
@@ -90,7 +90,7 @@ export default function DoctorDashboard() {
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
-			<h1 className="text-3xl font-bold">Welcome {doctor.name}
+			<h1 className="text-3xl font-bold">Welcome {(doctor) ? doctor.name : }
 				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
 			</h1>
 			
