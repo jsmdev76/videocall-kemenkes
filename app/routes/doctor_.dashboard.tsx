@@ -60,7 +60,6 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 // 	const doctorToken = data.data.token;
 // 	return setDoctorToken(doctorToken, request, '/doctor/dashboard');
 // }
-let it = 0;
 export default function DoctorDashboard() {
 	const navigate = useNavigate();
 	const submit = useSubmit();
@@ -75,17 +74,16 @@ export default function DoctorDashboard() {
 	let intervalID: any = null;
 	
 	useEffect(() => {
-		console.log('dataxxx', data)
-		console.log('roomxxx', room)
-		if(!room) {
+		
+		// if(!room) {
 			intervalID = setInterval(() => {
-				console.log('it', it);
-				it++;
+				console.log('dataxxx', data)
+				console.log('roomxxx', room)
 				if (revalidator.state === "idle") {
 					revalidator.revalidate();
 				}
-			}, 3000)
-		}
+			}, 1000)
+		// }
 		// 	revalidator.revalidate();
 		return () => clearInterval(intervalID);
 	}, [revalidator]);
