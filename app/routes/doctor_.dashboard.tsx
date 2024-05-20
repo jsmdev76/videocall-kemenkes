@@ -27,9 +27,9 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 	let data:any = await response.json();
 	// console.log('data', data)
 	// return data;
-	if(!data.success) {
-		throw redirect('/doctor?msg='+data.message);
-	}
+	// if(!data.success) {
+	// 	throw new Response(data.message, {status: 500});
+	// }
 	data = data.data
 	return json({data});
 }
