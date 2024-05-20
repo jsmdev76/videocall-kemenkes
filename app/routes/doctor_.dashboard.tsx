@@ -90,7 +90,7 @@ export default function DoctorDashboard() {
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
-			<h1 className="text-3xl font-bold">Welcome {(doctor) ? doctor.name : }
+			<h1 className="text-3xl font-bold">Welcome {(doctor) ? doctor.name : '' }
 				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
 			</h1>
 			
