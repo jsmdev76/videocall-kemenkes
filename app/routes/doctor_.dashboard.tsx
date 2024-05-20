@@ -8,6 +8,7 @@ import { Input } from '~/components/Input'
 import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
 import getDoctorToken, { removeDoctorToken, setDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
+import { playSound } from '~/utils/playSound'
 // import DataApi from '~/api/dataApi.server'
 export const loader = async({request, context}: LoaderFunctionArgs) => {
 	const host = context.URL_API;
@@ -32,6 +33,9 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 		// throw redirect('/doctor?msg='+data.message);
 	}
 	data = data.data
+	if(data.trxCallStatus == 1) {
+		return redirect(`/${data.doctor.room}/room`);
+	}
 	return json({data});
 }
 // export const action = async ({ request }: ActionFunctionArgs) => {
@@ -70,6 +74,7 @@ export default function DoctorDashboard() {
 	let geolocationUrl = (geolocation && geolocation.latitude != 0) ? `https://www.google.com/maps/@${geolocation.latitude},${geolocation.longitude},21z?hl=id` : null;
 	let room = doctor.room
 	let pasienName = data.pasienName
+	let trxCallStatus = data.trxCallStatus
 	
 	const revalidator = useRevalidator();
 	let intervalID: any = null;
@@ -88,6 +93,9 @@ export default function DoctorDashboard() {
 		// 	revalidator.revalidate();
 		return () => clearInterval(intervalID);
 	}, [revalidator]);
+	if(room) {
+		playSound('raiseHand');
+	}
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
@@ -95,7 +103,7 @@ export default function DoctorDashboard() {
 				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
 			</h1>
 			
-			{doctor.room ? (
+			{doctor.room && trxCallStatus == 0 ? (
 				<div>
 					<p>Pasien <b>{pasienName}</b> menghubungi anda. 
 					{geolocationUrl ? (
