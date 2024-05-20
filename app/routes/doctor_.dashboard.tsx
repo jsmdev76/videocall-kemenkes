@@ -65,7 +65,7 @@ export default function DoctorDashboard() {
 	const submit = useSubmit();
 	const {data} = useLoaderData<typeof loader>();
 	let doctor = (data) ? data.doctor : null;
-	let geolocation = (data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
+	let geolocation = (data && data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
 	let geolocationUrl = (geolocation && geolocation.latitude != 0) ? `https://www.google.com/maps/@${geolocation.latitude},${geolocation.longitude},21z?hl=id` : null;
 	let room = (doctor) ? doctor.room : null;
 	let pasienName = (data) ? data.pasienName : null
