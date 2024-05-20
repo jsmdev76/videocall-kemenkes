@@ -28,6 +28,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	const username = await getUsername(request)
 	const trxClientToken = await getClientToken(request)
 	const roomName = params.roomName
+	
 	invariant(username)
 	const host = context.URL_API;
 	// let doctorToken = await getDoctorToken(request);
@@ -125,7 +126,7 @@ export default function Lobby() {
 				if (revalidator.state === "idle") {
 					revalidator.revalidate();
 				}
-			}, 1000)
+			}, 980)
 		}
 
 		if(trxCallStatus == 1) {
