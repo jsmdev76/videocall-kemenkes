@@ -90,12 +90,13 @@ export default function DoctorDashboard() {
 				}
 			}, 1000)
 		// }
+		
+		if(room) {
+			playSound('raiseHand');
+		}
 		// 	revalidator.revalidate();
 		return () => clearInterval(intervalID);
 	}, [revalidator]);
-	if(room) {
-		playSound('raiseHand');
-	}
 	return (
 		<div className="grid h-full gap-4 place-content-center">
 			
