@@ -94,7 +94,7 @@ export default function DoctorDashboard() {
 				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
 			</h1>
 			
-			{doctor.room ? (
+			{doctor && doctor.room ? (
 				<div>
 					<p>Pasien <b>{pasienName}</b> menghubungi anda. 
 					{geolocationUrl ? (
