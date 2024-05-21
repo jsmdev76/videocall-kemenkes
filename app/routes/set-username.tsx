@@ -81,22 +81,22 @@ export default function SetUsername() {
 			});
 		}
 
-		if(navigator.mediaDevices) {
-			navigator.mediaDevices
-			.getUserMedia({
-				video: true,
-				audio: true,
-			})
-			.then((ms) => {
-				ms.getTracks().forEach((t) => t.stop())
-				setAllowAudio(1);
-			})
-			.catch(() => {
-				setAllowAudio(2);
-				// if (mountedRef.current) setPermissionState('denied')
+		// if(navigator.mediaDevices) {
+		// 	navigator.mediaDevices
+		// 	.getUserMedia({
+		// 		video: true,
+		// 		audio: true,
+		// 	})
+		// 	.then((ms) => {
+		// 		ms.getTracks().forEach((t) => t.stop())
+		// 		setAllowAudio(1);
+		// 	})
+		// 	.catch(() => {
+		// 		setAllowAudio(2);
+		// 		// if (mountedRef.current) setPermissionState('denied')
 				
-			})
-		}
+		// 	})
+		// }
 		// if(allowAudio == 2) {
 		// 	alert('Silahkan aktifkan microphone untuk memulai sesi.');
 		// }
