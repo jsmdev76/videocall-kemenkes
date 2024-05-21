@@ -54,7 +54,7 @@ export default class Signal {
 
 	connect() {
 		this.connected = new Promise((resolve, reject) => {
-			let hostname = window.location.host
+			let hostname = 'vcall-meets.dyas-nata-91.workers.dev'//window.location.host
 			// const wss = document.location.protocol === 'http:' ? 'ws://' : 'wss://'
 			const wss = 'wss://'
 			const params = new URLSearchParams(window.location.search)
