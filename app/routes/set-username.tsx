@@ -124,7 +124,7 @@ export default function SetUsername() {
 					Submit
 				</Button>
 			</Form>
-			{allowAudio == 2 ? (<div className='text-danger'>Silahkan aktifkan microphone untuk memulai sesi.</div>) : ''}
+			{/* {allowAudio == 2 ? (<div className='text-danger'>Silahkan aktifkan microphone untuk memulai sesi.</div>) : ''} */}
 			{isfull == '1' ? (
 				<div className="text-danger">Mohon maaf tenaga medis belum tersedia untuk saat ini.<br/> Silahkan coba beberapa saat lagi.</div>
 			) : ('')}
