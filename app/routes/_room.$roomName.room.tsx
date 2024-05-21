@@ -145,20 +145,20 @@ export default function Room() {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
 	}, [joined, mode, navigate, roomName])
 	
-	const revalidator = useRevalidator();
-	let intervalID: any = null;
-	useEffect(() => {
-		console.log('trxCallStatus', trxCallStatus)
-		if(trxCallStatus == 1) {
-			intervalID = setInterval(() => {
-				if (revalidator.state === "idle") {
-					revalidator.revalidate();
-				}
-			}, 5000)
-		}
-		return () => clearInterval(intervalID);
+	// const revalidator = useRevalidator();
+	// let intervalID: any = null;
+	// useEffect(() => {
+	// 	console.log('trxCallStatus', trxCallStatus)
+	// 	if(trxCallStatus == 1) {
+	// 		intervalID = setInterval(() => {
+	// 			if (revalidator.state === "idle") {
+	// 				revalidator.revalidate();
+	// 			}
+	// 		}, 5000)
+	// 	}
+	// 	return () => clearInterval(intervalID);
 		
-	}, [revalidator]);
+	// }, [revalidator]);
 
 	if (!joined && mode !== 'development') return null
 
