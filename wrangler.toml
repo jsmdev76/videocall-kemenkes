@@ -7,13 +7,14 @@ main = "./build/index.js"
 [site]
   bucket = "./public"
 
-[[build.upload.rules]]
+#[[build.upload.rules]]
+[[rules]]
   type = "ESModule"
   globs = ["**/*.js"]
 
 [vars]
 CALLS_APP_ID = "4a469496ab595f316c0ed2d304bc946a"
-URL_API = "http://localhost:3000"
+URL_API = "http://vcallapi.kacanata.com"
 
 [durable_objects]
  bindings = [
