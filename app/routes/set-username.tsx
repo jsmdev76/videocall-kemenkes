@@ -66,7 +66,7 @@ export default function SetUsername() {
 	const {isfull} = useLoaderData<typeof loader>();
 	const [latitude, setLatitude] = useState(1);
 	const [longitude, setLongitude] = useState(1);
-	const [allowAudio, setAllowAudio] = useState(1);
+	// const [allowAudio, setAllowAudio] = useState(1);
 	// let latitude = 0;
 	// let longitude = 0;
 	// useEffect(() => {
