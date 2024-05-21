@@ -66,10 +66,10 @@ export default function SetUsername() {
 	const {isfull} = useLoaderData<typeof loader>();
 	const [latitude, setLatitude] = useState(1);
 	const [longitude, setLongitude] = useState(1);
-	// const [allowAudio, setAllowAudio] = useState(1);
+	const [allowAudio, setAllowAudio] = useState(1);
 	// let latitude = 0;
 	// let longitude = 0;
-	// useEffect(() => {
+	useEffect(() => {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition((position) => {
 				console.log('position', position)
@@ -81,26 +81,26 @@ export default function SetUsername() {
 			});
 		}
 
-		// if(navigator.mediaDevices) {
-		// 	navigator.mediaDevices
-		// 	.getUserMedia({
-		// 		video: true,
-		// 		audio: true,
-		// 	})
-		// 	.then((ms) => {
-		// 		ms.getTracks().forEach((t) => t.stop())
-		// 		setAllowAudio(1);
-		// 	})
-		// 	.catch(() => {
-		// 		setAllowAudio(2);
-		// 		// if (mountedRef.current) setPermissionState('denied')
+		if(navigator.mediaDevices) {
+			navigator.mediaDevices
+			.getUserMedia({
+				video: true,
+				audio: true,
+			})
+			.then((ms) => {
+				ms.getTracks().forEach((t) => t.stop())
+				setAllowAudio(1);
+			})
+			.catch(() => {
+				setAllowAudio(2);
+				// if (mountedRef.current) setPermissionState('denied')
 				
-		// 	})
-		// }
+			})
+		}
 		// if(allowAudio == 2) {
 		// 	alert('Silahkan aktifkan microphone untuk memulai sesi.');
 		// }
-	// }, [latitude, longitude])
+	}, [latitude, longitude])
 	// console.log('latitude', latitude)
 	// console.log(allowAudio,'allowAudio')
 	return (
@@ -124,7 +124,7 @@ export default function SetUsername() {
 					Submit
 				</Button>
 			</Form>
-			{/* {allowAudio == 2 ? (<div className='text-danger'>Silahkan aktifkan microphone untuk memulai sesi.</div>) : ''} */}
+			{allowAudio == 2 ? (<div className='text-danger'>Silahkan aktifkan microphone untuk memulai sesi.</div>) : ''}
 			{isfull == '1' ? (
 				<div className="text-danger">Mohon maaf tenaga medis belum tersedia untuk saat ini.<br/> Silahkan coba beberapa saat lagi.</div>
 			) : ('')}
