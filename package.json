@@ -1,5 +1,5 @@
 {
-	"name": "orange-meets",
+	"name": "vcall-meets",
 	"module": "worker.js",
 	"private": true,
 	"sideEffects": false,
