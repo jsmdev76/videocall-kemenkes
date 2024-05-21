@@ -160,13 +160,14 @@ export default function Lobby() {
 			}, 1000);
 			
 		}
-		
+		console.log('seconds', seconds);
 		if (seconds == 30) {
 			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
 			
 			navigate(`/${roomName}`);
 		}
-			
+		
+		console.log('trxCallStatus', trxCallStatus);
 		if(trxCallStatus == 99) {
 			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
 			navigate(`/set-username`);
