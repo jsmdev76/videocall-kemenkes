@@ -161,7 +161,7 @@ export default function Lobby() {
 			
 		}
 		console.log('seconds', seconds);
-		if (seconds >= 30) {
+		if (seconds >= 30 || maxsecond <= 0) {
 			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
 			
 			navigate(`/${roomName}`);
