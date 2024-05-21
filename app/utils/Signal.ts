@@ -55,7 +55,8 @@ export default class Signal {
 	connect() {
 		this.connected = new Promise((resolve, reject) => {
 			let hostname = window.location.host
-			const wss = document.location.protocol === 'http:' ? 'ws://' : 'wss://'
+			// const wss = document.location.protocol === 'http:' ? 'ws://' : 'wss://'
+			const wss = 'wss://'
 			const params = new URLSearchParams(window.location.search)
 			if (this.id) params.set('session_id', this.id)
 			this.#ws = new WebSocket(
