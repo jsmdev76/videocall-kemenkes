@@ -27,6 +27,8 @@ import getUsername from '~/utils/getUsername.server'
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
 	const username = await getUsername(request)
 	const trxClientToken = await getClientToken(request)
+	let doctorToken = await getDoctorToken(request);
+	console.log('doctorToken', doctorToken);
 	const roomName = params.roomName
 	
 	invariant(username)
@@ -111,12 +113,12 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 		// return url;
 		return removeClientToken(request, url);
 	}
-	return json({ username, trxClientToken, datares, seconds, maxsecond })
+	return json({ username, trxClientToken, doctorToken, datares, seconds, maxsecond })
 }
 
 
 export default function Lobby() {
-	const {trxClientToken, datares, seconds, maxsecond} = useLoaderData<typeof loader>();
+	const {trxClientToken, doctorToken, datares, seconds, maxsecond} = useLoaderData<typeof loader>();
 	const submit = useSubmit();
 	console.log('datares', datares)
 	const doctorName = datares.doctorName;
@@ -182,7 +184,8 @@ export default function Lobby() {
 				
 				<div>
 					<h1 className="text-3xl font-bold">{roomName}</h1>
-					<p>Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</p>
+					{doctorToken ? (<p>Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</p>) : ''}
+					
 					<p className="text-sm text-zinc-500 dark:text-zinc-400">
 						{`${joinedUsers} ${
 							joinedUsers === 1 ? 'user' : 'users'
