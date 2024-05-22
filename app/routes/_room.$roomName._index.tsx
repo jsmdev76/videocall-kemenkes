@@ -184,7 +184,7 @@ export default function Lobby() {
 				
 				<div>
 					<h1 className="text-3xl font-bold">{roomName}</h1>
-					{doctorToken ? (<p>Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</p>) : ''}
+					{!doctorToken ? (<p>Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</p>) : ''}
 					
 					<p className="text-sm text-zinc-500 dark:text-zinc-400">
 						{`${joinedUsers} ${
