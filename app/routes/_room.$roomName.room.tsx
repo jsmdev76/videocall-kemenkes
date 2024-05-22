@@ -59,11 +59,11 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	const trxcall = data.data.trxcall;
 	// console.log('[0,1].indexOf(trxcall.trxCallStatus)', [0,1].indexOf(trxcall.trxCallStatus))
 	if(trxcall.trxCallStatus >= 2) {
-		console.log('doctorTokenbeff',doctorToken);
-		await removeClientToken(request, `/set-username`)
-		console.log('doctorTokenbeafff',doctorToken);
+		// console.log('doctorTokenbeff',doctorToken);
+		// await removeClientToken(request, `/set-username`)
+		// console.log('doctorTokenbeafff',doctorToken);
 		if(doctorToken)
-			throw redirect('/doctor');
+			throw redirect('/doctor/dashboard');
 		else
 			throw redirect('/set-username');
 	}
