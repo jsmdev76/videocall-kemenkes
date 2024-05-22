@@ -58,7 +58,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	console.log('data', data)
 	const trxcall = data.data.trxcall;
 	// console.log('[0,1].indexOf(trxcall.trxCallStatus)', [0,1].indexOf(trxcall.trxCallStatus))
-	if([0,1].indexOf(trxcall.trxCallStatus) < 0) {
+	if(trxcall.trxCallStatus > 3) {
 		console.log('doctorTokenbeff',doctorToken);
 		await removeClientToken(request, `/set-username`)
 		console.log('doctorTokenbeafff',doctorToken);
