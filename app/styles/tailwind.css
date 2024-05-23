@@ -117,3 +117,8 @@
 /* .rounded-full {
 	border-color: darkseagreen;
 } */
+.box-logo {
+	width: 100px;
+    height: 100px;
+    margin: auto;
+}

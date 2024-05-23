@@ -178,11 +178,11 @@ export default function Lobby() {
 	}, [revalidator]);
 
 	return (
-		<div className="flex flex-col items-center justify-center h-full p-4">
+		<div className="flex flex-col items-center justify-center p-4">
 			<div className="flex-1"></div>
 			<div className="space-y-4 w-5/12">
 				
-				<div>
+				{/* <div> */}
 					{/* <h1 className="text-3xl font-bold">{roomName}</h1> */}
 					{!doctorToken ? (<h1 className="text-3xl">Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</h1>) : ''}
 					
@@ -191,7 +191,7 @@ export default function Lobby() {
 							joinedUsers === 1 ? 'user' : 'users'
 						} in the room.`}{' '}
 					</p> */}
-				</div>
+				{/* </div> */}
 				<div className="relative">
 					<SelfView
 						className="aspect-[4/3] w-full"
