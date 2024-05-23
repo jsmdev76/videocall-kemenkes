@@ -92,27 +92,27 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 
 	console.log('seconds', seconds)
 	console.log('maxsecond', maxsecond-seconds)
-	// if(seconds > 30) {
-	// 	const response = await fetch(`${host}/trxcall/leave`, {
-	// 		method: 'post',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		},
-	// 		body: JSON.stringify({
-	// 			trxClientToken: trxClientToken,
-	// 		})
-	// 	})
-	// 	let data:any = await response.json();
-	// 	console.log('data', data)
-	// 	// return data;
-	// 	if(!data.success) {
-	// 		throw new Response(data.message, {status: 500});
-	// 	}
-	// 	// clear session
-	// 	let url = '/set-username';
-	// 	// return url;
-	// 	return removeClientToken(request, url);
-	// }
+	if(seconds > 30) {
+		const response = await fetch(`${host}/trxcall/leave`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				trxClientToken: trxClientToken,
+			})
+		})
+		let data:any = await response.json();
+		console.log('data', data)
+		// return data;
+		if(!data.success) {
+			throw new Response(data.message, {status: 500});
+		}
+		// clear session
+		let url = '/set-username';
+		// return url;
+		return removeClientToken(request, url);
+	}
 	return json({ username, trxClientToken, doctorToken, datares, seconds, maxsecond })
 }
 
@@ -163,11 +163,11 @@ export default function Lobby() {
 			
 		}
 		console.log('seconds', seconds);
-		// if (seconds >= 30 || maxsecond <= 0) {
-		// 	const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
+		if (seconds >= 30 || maxsecond <= 0) {
+			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
 			
-		// 	navigate(`/${roomName}`);
-		// }
+			navigate(`/${roomName}`);
+		}
 		
 		console.log('trxCallStatus', trxCallStatus);
 		if(trxCallStatus == 99) {
