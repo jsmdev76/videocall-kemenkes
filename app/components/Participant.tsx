@@ -198,7 +198,7 @@ export const Participant = forwardRef<
 						{user.speaking && (
 							<div
 								className={cn(
-									'pointer-events-none absolute inset-0 h-full w-full border-4 border-orange-400',
+									'pointer-events-none absolute inset-0 h-full w-full border-4 border-blue-400',
 									!pinned && 'rounded-xl'
 								)}
 							></div>

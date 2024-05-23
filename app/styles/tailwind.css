@@ -29,7 +29,7 @@
 
 	* {
 		outline-offset: 0.25rem;
-		outline-color: theme('colors.orange[500]');
+		outline-color: theme('colors.blue[500]');
 	}
 }
 
@@ -114,3 +114,6 @@
 	text-decoration: underline;
 	color:cadetblue;
 }
+/* .rounded-full {
+	border-color: darkseagreen;
+} */

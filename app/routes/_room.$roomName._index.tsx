@@ -92,27 +92,27 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 
 	console.log('seconds', seconds)
 	console.log('maxsecond', maxsecond-seconds)
-	if(seconds > 30) {
-		const response = await fetch(`${host}/trxcall/leave`, {
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				trxClientToken: trxClientToken,
-			})
-		})
-		let data:any = await response.json();
-		console.log('data', data)
-		// return data;
-		if(!data.success) {
-			throw new Response(data.message, {status: 500});
-		}
-		// clear session
-		let url = '/set-username';
-		// return url;
-		return removeClientToken(request, url);
-	}
+	// if(seconds > 30) {
+	// 	const response = await fetch(`${host}/trxcall/leave`, {
+	// 		method: 'post',
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		},
+	// 		body: JSON.stringify({
+	// 			trxClientToken: trxClientToken,
+	// 		})
+	// 	})
+	// 	let data:any = await response.json();
+	// 	console.log('data', data)
+	// 	// return data;
+	// 	if(!data.success) {
+	// 		throw new Response(data.message, {status: 500});
+	// 	}
+	// 	// clear session
+	// 	let url = '/set-username';
+	// 	// return url;
+	// 	return removeClientToken(request, url);
+	// }
 	return json({ username, trxClientToken, doctorToken, datares, seconds, maxsecond })
 }
 
@@ -163,11 +163,11 @@ export default function Lobby() {
 			
 		}
 		console.log('seconds', seconds);
-		if (seconds >= 30 || maxsecond <= 0) {
-			const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
+		// if (seconds >= 30 || maxsecond <= 0) {
+		// 	const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
 			
-			navigate(`/${roomName}`);
-		}
+		// 	navigate(`/${roomName}`);
+		// }
 		
 		console.log('trxCallStatus', trxCallStatus);
 		if(trxCallStatus == 99) {
@@ -180,17 +180,17 @@ export default function Lobby() {
 	return (
 		<div className="flex flex-col items-center justify-center h-full p-4">
 			<div className="flex-1"></div>
-			<div className="space-y-4 w-96">
+			<div className="space-y-4 w-5/12">
 				
 				<div>
-					<h1 className="text-3xl font-bold">{roomName}</h1>
-					{!doctorToken ? (<p>Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</p>) : ''}
+					{/* <h1 className="text-3xl font-bold">{roomName}</h1> */}
+					{!doctorToken ? (<h1 className="text-3xl">Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</h1>) : ''}
 					
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">
+					{/* <p className="text-sm text-zinc-500 dark:text-zinc-400">
 						{`${joinedUsers} ${
 							joinedUsers === 1 ? 'user' : 'users'
 						} in the room.`}{' '}
-					</p>
+					</p> */}
 				</div>
 				<div className="relative">
 					<SelfView
@@ -263,9 +263,9 @@ export default function Lobby() {
 					{/* <CopyButton></CopyButton> */}
 				</div>
 			</div>
-			<div className="flex flex-col justify-end flex-1">
+			{/* <div className="flex flex-col justify-end flex-1">
 				<Disclaimer className="pt-6" />
-			</div>
+			</div> */}
 		</div>
 	)
 }
