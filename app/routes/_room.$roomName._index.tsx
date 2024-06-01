@@ -36,6 +36,10 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken User', doctorToken);
+	if(doctorToken)
+		throw redirect('/doctor/dashboard');
+	else
+		throw redirect('/set-username');
 	
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
@@ -54,28 +58,21 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	}
 	let datares = data.data;
 	let trxWaitingDate = (datares.trxcall.trxWaitingDate) ? datares.trxcall.trxWaitingDate : datares.trxcall.trxDate;
-	// if(!datares.trxcall.trxWaitingDate) {
-	// 	console.log('trxClientToken', trxClientToken)
-	// 	if(!trxClientToken) {
-	// 		if(doctorToken)
-	// 			throw redirect('/doctor/dashboard');
-	// 		else
-	// 			throw redirect('/set-username');
-	// 	}
-	// 	// update timer
-	// 	const responsetimer = await fetch(`${host}/trxcall/waitingtimer`, {
-	// 		method: 'post',
-	// 		headers: {
-	// 			'Content-Type': 'application/json'
-	// 		},
-	// 		body: JSON.stringify({
-	// 			trxClientToken: trxClientToken,
-	// 		})
-	// 	})
-	// 	let datatimer:any  = await responsetimer.json();
-	// 	let datatimerres = datatimer.data;
-	// 	trxWaitingDate = datatimerres.trxcall.trxWaitingDate;
-	// }
+	if(!datares.trxcall.trxWaitingDate) {
+		// update timer
+		const responsetimer = await fetch(`${host}/trxcall/waitingtimer`, {
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				trxClientToken: trxClientToken,
+			})
+		})
+		let datatimer:any  = await responsetimer.json();
+		let datatimerres = datatimer.data;
+		trxWaitingDate = datatimerres.trxcall.trxWaitingDate;
+	}
 
 	const trxCallStatus = datares.trxcall.trxCallStatus;
 	
