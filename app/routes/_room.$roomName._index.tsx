@@ -36,10 +36,12 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken User', doctorToken);
-	if(doctorToken)
-		throw redirect('/doctor/dashboard');
-	else
-		throw redirect('/set-username');
+	if(!trxClientToken) {
+		if(doctorToken)
+			throw redirect('/doctor/dashboard');
+		else
+			throw redirect('/set-username');
+	}
 	
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
