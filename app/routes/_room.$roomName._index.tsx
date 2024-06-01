@@ -55,6 +55,12 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	let datares = data.data;
 	let trxWaitingDate = (datares.trxcall.trxWaitingDate) ? datares.trxcall.trxWaitingDate : datares.trxcall.trxDate;
 	if(!datares.trxcall.trxWaitingDate) {
+		if(!trxClientToken) {
+			if(doctorToken)
+				throw redirect('/doctor/dashboard');
+			else
+				throw redirect('/set-username');
+		}
 		// update timer
 		const responsetimer = await fetch(`${host}/trxcall/waitingtimer`, {
 			method: 'post',
