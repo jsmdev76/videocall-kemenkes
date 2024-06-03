@@ -13,6 +13,7 @@ import { CameraButton } from '~/components/CameraButton'
 import { CopyButton } from '~/components/CopyButton'
 import { Disclaimer } from '~/components/Disclaimer'
 import { Icon } from '~/components/Icon/Icon'
+import { LeaveRoomButton } from '~/components/LeaveRoomButton'
 import { MicButton } from '~/components/MicButton'
 
 import { SelfView } from '~/components/SelfView'
@@ -277,6 +278,7 @@ export default function Lobby() {
 					<MicButton />
 					<CameraButton />
 					<SettingsButton />
+					<LeaveRoomButton />
 					{/* <CopyButton></CopyButton> */}
 				</div>
 			</div>
