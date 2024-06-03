@@ -61,12 +61,12 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 	// console.log('[0,1].indexOf(trxcall.trxCallStatus)', [0,1].indexOf(trxcall.trxCallStatus))
 	if(trxcall.trxCallStatus >= 2) {
 		console.log('doctorTokenbeff',doctorToken);
-		await removeClientToken(request, `/set-username`)
+		await removeClientToken(request, `/end-room`)
 		console.log('doctorTokenbeafff',doctorToken);
 		if(doctorToken)
 			throw redirect('/doctor');
 		else
-			throw redirect('/set-username');
+			throw redirect('/end-room');
 	}
 
 	return json({

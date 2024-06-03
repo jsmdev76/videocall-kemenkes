@@ -47,10 +47,12 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 	if (!username && url.pathname !== '/set-username') {
 		console.log('url.pathname',url.pathname)
 		if(url.pathname.indexOf('doctor') < 0) {
-			const redirectUrl = new URL(url)
-			redirectUrl.pathname = '/set-username'
-			redirectUrl.searchParams.set('return-url', request.url)
-			throw redirect(redirectUrl.toString())
+			if(url.pathname.indexOf('end-room') < 0) {
+				const redirectUrl = new URL(url)
+				redirectUrl.pathname = '/set-username'
+				redirectUrl.searchParams.set('return-url', request.url)
+				throw redirect(redirectUrl.toString())
+			}
 		}
 	}
 
@@ -156,6 +158,7 @@ const Document: FC<{ children?: ReactNode }> = ({ children }) => {
 				/>
 				<Meta />
 				<Links />
+				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
 			</head>
 			<body
 				className={cn(

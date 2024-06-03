@@ -243,6 +243,14 @@ button {
 .bg-gradient-blue {
 	background: linear-gradient(351.82deg, #017D9F 26.22%, #46A9C4 89.59%, #B3EFFF 136.11%);
 }
+.btn-link {
+	background-color: green;
+	padding: 10px 30px;
+	width: 100px;
+	color: #fff;
+	width: 245px;
+	border-radius: 30px;
+}
 @media screen and (max-width: 991px) {
 	#root > div {
 		padding: 15px;
