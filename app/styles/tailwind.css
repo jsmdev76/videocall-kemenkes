@@ -244,7 +244,7 @@ button {
 	background: linear-gradient(351.82deg, #017D9F 26.22%, #46A9C4 89.59%, #B3EFFF 136.11%);
 }
 .btn-link {
-	background-color: green;
+	/* background-color: green; */
 	padding: 10px 30px;
 	width: 100px;
 	color: #fff;

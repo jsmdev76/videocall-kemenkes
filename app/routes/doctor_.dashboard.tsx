@@ -6,6 +6,7 @@ import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
+import { setClientToken } from '~/utils/getClientToken.server'
 import getDoctorToken, { removeDoctorToken, setDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 import { playSound } from '~/utils/playSound'
@@ -34,7 +35,8 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 	}
 	data = data.data
 	if(data.trxCallStatus == 1) {
-		return redirect(`/${data.doctor.room}/room`);
+		return setClientToken(request, `/${data.doctor.room}/room`, data.trxClientToken);
+		// return redirect();
 	}
 	return json({data});
 }

@@ -1,5 +1,5 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
-import { Form, useFetcher, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, useFetcher, useLoaderData, useNavigation, useSubmit } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
@@ -67,6 +67,7 @@ export default function SetUsername() {
 	const [latitude, setLatitude] = useState(1);
 	const [longitude, setLongitude] = useState(1);
 	const [allowAudio, setAllowAudio] = useState(1);
+	const navigation = useNavigation();
 	// let latitude = 0;
 	// let longitude = 0;
 	useEffect(() => {
@@ -122,9 +123,11 @@ export default function SetUsername() {
 					<Input type="hidden" id="latitude" name="latitude" value={latitude}/>
 					<Input type="hidden" id="longitude" name="longitude" value={longitude}/>
 				</div>
-				<Button className="text-xs bg-blue" type="submit">
-					Hubungi Konselor
-				</Button>
+				{navigation.state === 'idle' ? (
+					<Button className="text-xs bg-blue" type="submit">
+						Hubungi Konselor
+					</Button>
+				) : 'Menghubungi Konselor...'}
 			</Form>
 			{allowAudio == 2 ? (<div className='text-danger'>Silahkan aktifkan microphone untuk memulai sesi.</div>) : ''}
 			{isfull == '1' ? (

@@ -1,5 +1,5 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
-import { Form, useFetcher, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, useFetcher, useLoaderData, useNavigation, useSubmit } from '@remix-run/react'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
@@ -49,6 +49,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 export default function Doctor() {
 	const {msg} = useLoaderData<typeof loader>();
+	const navigation = useNavigation();
 	return (
 		<div className="grid h-full gap-4 place-content-center bg-login">
 			<div className="bg-kemenkes box-logo"></div>
@@ -82,9 +83,11 @@ export default function Doctor() {
 						className='mb-1.5'
 					/>
 				</div>
+				{navigation.state === 'idle' ? (
 				<Button className="text-xs" type="submit">
 					Login
 				</Button>
+				) : 'Proses login...'}
 			</Form>
 			{msg != '' ? (
 				<div className="text-danger">{msg}</div>
