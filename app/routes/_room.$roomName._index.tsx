@@ -61,6 +61,9 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	}
 	let datares = data.data;
 	let trxWaitingDate = (datares.trxcall.trxWaitingDate) ? datares.trxcall.trxWaitingDate : datares.trxcall.trxDate;
+	if(datares.trxcall.trxCallStatus == 2) {
+		return removeClientToken(request, `/set-username`)
+	}
 	if(!datares.trxcall.trxWaitingDate) {
 		// update timer
 		const responsetimer = await fetch(`${host}/trxcall/waitingtimer`, {
