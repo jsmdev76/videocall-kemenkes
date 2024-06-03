@@ -25,6 +25,12 @@ export const action = async ({
 	console.log('data', data)
 	// return data;
 	if(!data.success) {
+		if(data.data != undefined) {
+			if(data.data.isfound == false) {
+				// clear session
+				return removeDoctorToken(request, `/doctor`);
+			}
+		}
 		throw new Response(data.message, {status: 500});
 	}
 	// clear session
