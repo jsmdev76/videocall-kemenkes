@@ -106,9 +106,10 @@
 	border-color: red!important;
 }
 .bg-kemenkes {
-	background-image: url('/logo-kemenkes.jpg');
+	background-image: url('/logo-kemenkes.png');
 	background-position: center;
 	background-size: contain;
+	background-repeat: no-repeat;
 }
 .txt-link {
 	text-decoration: underline;
@@ -118,7 +119,167 @@
 	border-color: darkseagreen;
 } */
 .box-logo {
+	width: 150px;
+    /* height: 150px; */
+    height: 36px;
+    /* margin: auto; */
+}
+.text-center {
+	text-align: center;
+}
+.margin-0 {
+	margin: auto;
+}
+input[type=text] {
+	border-color: #007474;
+}
+.text-blue {
+	color: #007474;
+}
+.bg-blue {
+	background-color: #2F9EBD;
+	border-color: #2F9EBD;
+	color: #fff;
+}
+button {
+	border-radius: 15px;
+}
+.bg-login {
+	background-image: url('/bg-login.png');
+	background-repeat: no-repeat;
+	background-position: top right;
+}
+.bg-doctor {
+	background-image: url('/bg-doctor.png');
+	background-repeat: no-repeat;
+	background-position: top;
+	/* background-size: ; */
+}
+#root {
+	background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgb(240 254 249) 62%, rgb(240 254 249) 100%);
+}
+.link-logout {
+	background-color: transparent!important;
+	border-color: transparent!important;
+	color: red!important;
+}
+.doctor-icon {
+	background-image: url('/doctor-icon.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	width: 150px;
+	height: 150px;
+	margin: auto;
+}
+.call-icon {
+	background-image: url('/call-icon.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	width: 150px;
+	height: 150px;
+	margin: auto;
+}
+.btn-w100 {
 	width: 100px;
-    height: 100px;
-    margin: auto;
+}
+.doctor-incall-box {
+	background: linear-gradient(351.82deg, #017D9F 26.22%, #46A9C4 89.59%, #B3EFFF 136.11%);
+	padding: 30px;
+	border-radius: 15px;
+	color: #fff!important;
+}
+.doctor-incall-box a {
+	color: #fff!important;
+}
+.bg-green {
+	background-color: Green!important;
+	border-color: Green!important;
+}
+.loader-icon {
+	background-image: url('/loader.gif');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	width: 100px;
+	height: 10px;
+	margin: auto auto 30px auto;
+}
+.tool-call-box {
+	border-radius: 15px 15px 0 0;
+	background-color: #014557;
+	margin-top: -30px!important;
+	z-index: 9999;
+	padding: 5px 15px;
+	text-align: center;
+}
+.tool-incall-box {
+	border-radius: 15px 15px 0 0;
+	background-color: #014557;
+	margin-top: -14px!important;
+	z-index: 9999;
+	padding: 5px 15px;
+	text-align: center;
+}
+.video-index-box {
+	z-index: -1;
+}
+.wording-call-box {
+	text-align: center;
+    position: absolute;
+    z-index: 1;
+    top: 50px;
+	width: 41%;
+	color: #fff;
+}
+.wording-call-box h1 {
+	font-size: 15px;
+
+}
+.btn-leave {
+	padding: 7px 70px!important;
+}
+.bg-gradient-blue {
+	background: linear-gradient(351.82deg, #017D9F 26.22%, #46A9C4 89.59%, #B3EFFF 136.11%);
+}
+@media screen and (max-width: 991px) {
+	#root > div {
+		padding: 15px;
+	}
+	.bg-login {
+		/* background-position: top right; */
+		background-size: 250px;
+		place-content: baseline!important;
+	}
+	.bg-doctor {
+		/* background-size: 250px; */
+		place-content: baseline!important;
+	}
+	.bg-login form {
+		display: block;
+	}
+	.bg-login form button {
+		margin-top: 15px;
+	}
+	.bg-login h1, .bg-doctor h1 {
+		font-size: 1.5rem;
+		line-height: 2rem;
+	}
+	.video-box .w-5\/12 {
+		width: 100%;	
+		background-color: #2F9EBD;
+	}
+	.wording-call-box {
+		width: 97%;
+	}
+	.wording-call-box .call-icon {
+		height: 25px;
+	}
+	.video-index-box video {
+		height: 96vh;
+	}
+	.video-box {
+		padding: 0px!important;
+	}
 }

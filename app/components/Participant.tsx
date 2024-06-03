@@ -72,7 +72,7 @@ export const Participant = forwardRef<
 
 		return (
 			<div
-				className="grow shrink text-base basis-[calc(var(--flex-container-width)_-_var(--gap)_*_3)]"
+				className="grow shrink bg-gradient-blue text-base basis-[calc(var(--flex-container-width)_-_var(--gap)_*_3)]"
 				ref={ref}
 			>
 				<Flipped flipId={flipId + pinned}>

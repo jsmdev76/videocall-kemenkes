@@ -8,7 +8,7 @@ export const Input = forwardRef<
 	<input
 		className={cn(
 			'w-full',
-			'rounded',
+			'rounded-full',
 			'border-2',
 			'border-zinc-500',
 			'text-zinc-900',

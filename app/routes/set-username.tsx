@@ -104,20 +104,13 @@ export default function SetUsername() {
 	// console.log('latitude', latitude)
 	// console.log(allowAudio,'allowAudio')
 	return (
-		<div className="grid h-full gap-4 place-content-center">
+		<div className="grid h-full gap-4 place-content-center bg-login">
 			<div className="bg-kemenkes box-logo"></div>
-			<h1 className="text-3xl font-bold">
-				{/* <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools --> */}
-				<svg width="50px" height="50px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8V11C17 13.7614 14.7614 16 12 16C9.23858 16 7 13.7614 7 11V8Z" stroke="#1C274C" strokeWidth="1.5"/>
-					<path opacity="0.5" d="M11 8H13" stroke="#1C274C" strokeWidth="1.5" strokeLinecap="round"/>
-					<path opacity="0.5" d="M10 11L14 11" stroke="#1C274C" strokeWidth="1.5" strokeLinecap="round"/>
-					<path opacity="0.5" d="M20 10V11C20 15.4183 16.4183 19 12 19M4 10V11C4 15.4183 7.58172 19 12 19M12 19V22" stroke="#1C274C" strokeWidth="1.5" strokeLinecap="round"/>
-				</svg>
-				 Doctor Meets</h1>
+			<h1 className="text-3xl font-bold text-blue">Konseling healing119.id</h1>
+			<p className='text-blue'>Anda akan terhubung ke layanan konseling 24 jam dengan durasi 30 menit per sesi. <br />Izinkan akses lokasi agar konselor dapat memberikan pelayanan yang optimal. </p>
 			<Form className="flex items-end gap-4" method="post">
 				<div className="grid gap-3">
-					<label htmlFor="username">Enter your display name</label>
+					<label htmlFor="username" className='text-blue'>Masukkan nama Anda untuk memulai</label>
 					<Input
 						autoComplete="off"
 						autoFocus
@@ -129,8 +122,8 @@ export default function SetUsername() {
 					<Input type="hidden" id="latitude" name="latitude" value={latitude}/>
 					<Input type="hidden" id="longitude" name="longitude" value={longitude}/>
 				</div>
-				<Button className="text-xs" type="submit">
-					Submit
+				<Button className="text-xs bg-blue" type="submit">
+					Hubungi Konselor
 				</Button>
 			</Form>
 			{allowAudio == 2 ? (<div className='text-danger'>Silahkan aktifkan microphone untuk memulai sesi.</div>) : ''}

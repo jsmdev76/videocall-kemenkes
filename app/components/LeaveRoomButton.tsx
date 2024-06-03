@@ -14,6 +14,7 @@ export const LeaveRoomButton: FC<LeaveRoomButtonProps> = () => {
 		<Tooltip content="Leave">
 			<Button
 				displayType="danger"
+				className='btn-leave'
 				onClick={() => {
 					// navigate('/set-username')
 					submit({}, { method: "post", action: "/leaveroom" });

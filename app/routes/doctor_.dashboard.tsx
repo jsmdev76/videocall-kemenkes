@@ -98,46 +98,60 @@ export default function DoctorDashboard() {
 		return () => clearInterval(intervalID);
 	}, [revalidator]);
 	return (
-		<div className="grid h-full gap-4 place-content-center">
-			
-			<h1 className="text-3xl font-bold">Welcome {doctor.name}
-				{/* <a href='#' className='text-danger' onClick={logOut}>keluar</a> */}
-			</h1>
-			
+		<div className="grid h-full gap-4 place-content-center bg-doctor">
+			<div className='grid grid-cols-2 gap-4'>
+				<div className='grid gap-2'>
+					<div className="bg-kemenkes box-logo"></div>
+				</div>
+				<div className='grid gap-2'>
+					<Form
+						action="/doctor/logout"
+						method="post"
+						className='text-right'
+					>
+						<Button className="text-xs bg-danger link-logout" type='submit'>Logout</Button>
+					</Form>
+				</div>
+			</div>
 			{doctor.room ? (
-				<div>
-					<p>Pasien <b>{pasienName}</b> menghubungi anda. 
+				<div className='grid place-content-center doctor-incall-box text-center'>
+					<div className="call-icon"></div>
+					<p className='mb-3'>Panggilan masuk dari klien.</p>
+					<p className='mb-3'><b>{pasienName} &nbsp;
 					{geolocationUrl ? (
 						<a href={geolocationUrl} target='_blank' className='txt-link'>(Lihat Lokasi)</a>
-					) : ''}</p>
-					<br />
-					
-					<div className='flex items-end gap-4'>
-						<Form
-							action="/doctor/join"
-							method="post"
-						>
-							<Button className="text-xs" type='submit'>Terima</Button>
-						</Form>
+					) : ''}
+					</b>
+					</p>
+					<div className="loader-icon"></div>
+					<div className='flex items-end gap-4 place-content-center'>
 						<Form
 							action="/doctor/denied"
 							method="post"
+							className='text-center'
 						>
-							<Button className="text-xs bg-danger" type='submit'>Tolak</Button>
+							<Button className="text-xs bg-danger" type='submit'>x</Button>
+							<br />
+							Tolak
+						</Form>
+						<Form
+							action="/doctor/join"
+							method="post"
+							className='text-center'
+						>
+							<Button className="text-xs btn-w100 bg-green" type='submit'>&#10003;</Button>
+							<br />
+							Terima
 						</Form>
 					</div>
 				</div>
-			) : ('Belum ada pasien yang menghubungi.')}
-			<br />
-			<br />
+			) : (
 			<div>
-			<Form
-				action="/doctor/logout"
-				method="post"
-			>
-				<Button className="text-xs bg-danger" type='submit'>Logout</Button>
-			</Form>
-			</div>
+				<h1 className="text-3xl text-center font-bold text-blue"><small>Selamat datang,</small> <br /> {doctor.name}</h1>
+				<div className="doctor-icon"></div>
+				<div className='text-blue'>Saat ini belum ada panggilan konsultasi dari klien.</div>
+			</div>)}
+			<br />
 		</div>
 	)
 }

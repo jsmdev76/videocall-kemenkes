@@ -2,6 +2,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json, redirect } from '@remix-run/cloudflare'
 import { useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from '@remix-run/react'
+import { div } from '@tensorflow/tfjs-core'
 import moment from 'moment'
 import { useEffect } from 'react'
 import { useInterval } from 'react-use'
@@ -184,13 +185,20 @@ export default function Lobby() {
 	}, [revalidator]);
 
 	return (
-		<div className="flex flex-col items-center justify-center p-4">
+		<div className="flex flex-col items-center justify-center p-4 video-box">
 			<div className="flex-1"></div>
 			<div className="space-y-4 w-5/12">
 				
 				{/* <div> */}
 					{/* <h1 className="text-3xl font-bold">{roomName}</h1> */}
-					{!doctorToken ? (<h1 className="text-3xl">Contacting to <b>{doctorName}</b>... ({maxsecond} detik)</h1>) : ''}
+					{!doctorToken ? (
+						<div className='wording-call-box'>
+							<div className="call-icon"></div>
+							<h1 className="text-3xl">Menghubungkan anda dengan konselor <br></br> <b>{doctorName}</b>...</h1>
+							<div className="loader-icon"></div>
+							<p>({maxsecond} detik)</p>
+						</div>
+					) : ''}
 					
 					{/* <p className="text-sm text-zinc-500 dark:text-zinc-400">
 						{`${joinedUsers} ${
@@ -198,7 +206,7 @@ export default function Lobby() {
 						} in the room.`}{' '}
 					</p> */}
 				{/* </div> */}
-				<div className="relative">
+				<div className="relative video-index-box">
 					<SelfView
 						className="aspect-[4/3] w-full"
 						videoTrack={videoStreamTrack}
@@ -245,7 +253,7 @@ export default function Lobby() {
 						)}
 					</div>
 				)}
-				<div className="flex gap-4 text-sm">
+				<div className="flex gap-4 text-sm tool-call-box justify-center">
 					{/* {audioUnavailableMessage ? (
 						<Tooltip content="Unable to join without a mic.">
 							<Button disabled>Join</Button>

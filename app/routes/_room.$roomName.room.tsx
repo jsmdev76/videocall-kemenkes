@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json, redirect } from '@remix-run/cloudflare'
-import { useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from '@remix-run/react'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useBeforeUnload, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from '@remix-run/react'
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
 import { Button } from '~/components/Button'
@@ -49,6 +49,7 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 		body: JSON.stringify({
 			roomName: roomName,
 			// roomToken: trxClientToken,
+			isDoctor: (doctorToken) ? true : false,
 		})
 	})
 	let data:any = await response.json();
@@ -72,7 +73,8 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 		username,
 		bugReportsEnabled: Boolean(context.FEEDBACK_QUEUE && context.FEEDBACK_URL),
 		mode: context.mode,
-		trxcall
+		trxcall,
+		doctorToken
 	})
 }
 
@@ -139,7 +141,7 @@ export default function Room() {
 	const navigate = useNavigate()
 	const submit = useSubmit()
 	const { roomName } = useParams()
-	const { mode, bugReportsEnabled, trxcall } = useLoaderData<typeof loader>()
+	const { mode, bugReportsEnabled, trxcall, doctorToken } = useLoaderData<typeof loader>()
 	const trxCallStatus = trxcall.trxCallStatus;
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
@@ -148,7 +150,7 @@ export default function Room() {
 	const revalidator = useRevalidator();
 	let intervalID: any = null;
 	useEffect(() => {
-		console.log('trxCallStatus', trxCallStatus)
+		// console.log('trxCallStatus', trxCallStatus)
 		if(trxCallStatus == 1) {
 			intervalID = setInterval(() => {
 				if (revalidator.state === "idle") {
@@ -162,6 +164,40 @@ export default function Room() {
 
 	if (!joined && mode !== 'development') return null
 
+	console.log('doctorToken', doctorToken)
+	if(!doctorToken) {
+		// let closeWindow = false;
+		// console.log('closeWindow', closeWindow)
+		// useBeforeUnload(React.useCallback(() => {
+			
+		// }, [closeWindow]))
+
+		useEffect(() => {
+			
+	// function handleUnload() {
+	// 	// let c = window.confirm('Sesi akan berakhir jika anda keluar.');
+	// 	// if(c) {
+	// 		// closeWindow = true;
+	// 		// submit({}, { method: "post", action: "/leaveroom" });
+	// 	// }
+	// 	// alert('oioi');
+	// 	return 'Abc?';
+	// }
+
+			// window.addEventListener("beforeunload", handleUnload);
+			
+			// return () => window.removeEventListener("beforeunload", handleUnload);
+			window.onbeforeunload = confirmExit;
+			function confirmExit() {
+				return "Sesi akan berakhir jika anda keluar. Anda yakin?";
+			}
+			
+			// window.onunload = function() {
+			// // 	alert('keluar');
+			// 	submit({}, { method: "post", action: "/leaveroom" });
+			// }
+		});
+	}
 	return (
 		<Toast.Provider>
 			<JoinedRoom bugReportsEnabled={bugReportsEnabled} />
@@ -341,7 +377,7 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 					</div>
 					<Toast.Viewport />
 				</Flipper>
-				<div className="flex flex-wrap items-center justify-center gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base">
+				<div className="flex flex-wrap items-center justify-center gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
 					<GridDebugControls />
 					<MicButton warnWhenSpeakingWhileMuted />
 					<CameraButton />
