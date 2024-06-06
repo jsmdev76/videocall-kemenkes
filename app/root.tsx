@@ -100,19 +100,19 @@ export const links: LinksFunction = () => [
 	{
 		rel: 'apple-touch-icon',
 		sizes: '180x180',
-		href: '/apple-touch-icon.png?v=orange-emoji',
+		href: '/doctor-icon.png?v=doctor-emoji',
 	},
 	{
 		rel: 'icon',
 		type: 'image/png',
 		sizes: '32x32',
-		href: '/favicon-32x32.png?v=orange-emoji',
+		href: '/doctor-icon.png?v=doctor-emoji',
 	},
 	{
 		rel: 'icon',
 		type: 'image/png',
 		sizes: '16x16',
-		href: '/favicon-16x16.png?v=orange-emoji',
+		href: '/doctor-icon.png?v=doctor-emoji',
 	},
 	{
 		rel: 'manifest',
@@ -121,12 +121,12 @@ export const links: LinksFunction = () => [
 	},
 	{
 		rel: 'mask-icon',
-		href: '/safari-pinned-tab.svg?v=orange-emoji',
+		href: '/doctor-icon.png?v=doctor-emoji',
 		color: '#faa339',
 	},
 	{
 		rel: 'shortcut icon',
-		href: '/favicon.ico?v=orange',
+		href: '/doctor-icon.png?v=doctor',
 	},
 ]
 
