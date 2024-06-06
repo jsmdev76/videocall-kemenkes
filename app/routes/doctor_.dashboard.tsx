@@ -1,5 +1,6 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
 import { Form, Link, useFetcher, useLoaderData, useNavigate, useRevalidator, useSubmit } from '@remix-run/react'
+import moment from 'moment'
 import { useEffect } from 'react'
 import { useInterval } from 'react-use'
 import invariant from 'tiny-invariant'
@@ -38,7 +39,22 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 		return setClientToken(request, `/${data.doctor.room}/room`, data.trxClientToken);
 		// return redirect();
 	}
-	return json({data});
+	let now = moment(new Date()); //todays date
+	let end = (data.trxWaitingDate) ? data.trxWaitingDate : data.trxDate; // another date
+	// console.log('now', now)
+	// console.log('end', end)
+	// console.log('trxWaitingDate', end);
+	let duration = moment.duration(now.diff(end));
+	console.log('duration', duration);
+	// let durationMin = moment.duration(end.diff(now));
+	// let secondsMin = Math.floor(durationMin.asSeconds());
+	let seconds = Math.floor(duration.asSeconds());
+	let maxsecond = 30 - seconds;
+
+	console.log('seconds', seconds)
+	console.log('maxsecond', maxsecond-seconds)
+
+	return json({data, seconds, maxsecond});
 }
 // export const action = async ({ request }: ActionFunctionArgs) => {
 // 	const host = context.URL_API;
@@ -70,7 +86,7 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 export default function DoctorDashboard() {
 	const navigate = useNavigate();
 	const submit = useSubmit();
-	const {data} = useLoaderData<typeof loader>();
+	const {data, seconds, maxsecond} = useLoaderData<typeof loader>();
 	let doctor = data.doctor
 	let geolocation = (data.trxGeoLocation) ? JSON.parse(data.trxGeoLocation) : null;
 	let geolocationUrl = (geolocation && geolocation.latitude != 0) ? `https://www.google.com/maps/@${geolocation.latitude},${geolocation.longitude},21z?hl=id` : null;
@@ -97,6 +113,8 @@ export default function DoctorDashboard() {
 			playSound('raiseHand');
 		}
 		// 	revalidator.revalidate();
+
+		
 		return () => clearInterval(intervalID);
 	}, [revalidator]);
 	return (
@@ -124,6 +142,8 @@ export default function DoctorDashboard() {
 						<a href={geolocationUrl} target='_blank' className='txt-link'>(Lihat Lokasi)</a>
 					) : ''}
 					</b>
+					<br />
+					({maxsecond} detik)
 					</p>
 					<div className="loader-icon"></div>
 					<div className='flex items-end gap-4 place-content-center'>

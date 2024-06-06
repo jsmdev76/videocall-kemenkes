@@ -194,8 +194,8 @@ button {
 	color: #fff!important;
 }
 .bg-green {
-	background-color: Green!important;
-	border-color: Green!important;
+	background-color: #66c61c!important;
+	border-color: #66c61c!important;
 }
 .loader-icon {
 	background-image: url('/loader.gif');

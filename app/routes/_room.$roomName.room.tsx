@@ -69,6 +69,19 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 			throw redirect('/end-room');
 	}
 
+	let startDate = new Date(trxcall.trxUserDate);
+	let endDate = new Date();
+	// console.log('startDate', startDate);
+	// console.log('endDate', endDate);
+	// console.log('trxcall.trxUserDate', trxcall.trxUserDate)
+	let diff = endDate.getTime() - startDate.getTime();
+	let diffMinutes = diff / 60000;
+	console.log('diffMinutesxxx', diffMinutes)
+	if(diffMinutes > 1) {
+		if(doctorToken)
+			throw redirect('/doctor');
+	}
+
 	return json({
 		username,
 		bugReportsEnabled: Boolean(context.FEEDBACK_QUEUE && context.FEEDBACK_URL),
@@ -165,7 +178,7 @@ export default function Room() {
 	if (!joined && mode !== 'development') return null
 
 	console.log('doctorToken', doctorToken)
-	if(!doctorToken) {
+	// if(!doctorToken) {
 		// let closeWindow = false;
 		// console.log('closeWindow', closeWindow)
 		// useBeforeUnload(React.useCallback(() => {
@@ -197,7 +210,7 @@ export default function Room() {
 			// 	submit({}, { method: "post", action: "/leaveroom" });
 			// }
 		});
-	}
+	// }
 	return (
 		<Toast.Provider>
 			<JoinedRoom bugReportsEnabled={bugReportsEnabled} />
