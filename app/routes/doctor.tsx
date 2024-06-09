@@ -53,7 +53,7 @@ export default function Doctor() {
 	return (
 		<div className="grid h-full gap-4 place-content-center bg-login">
 			<div className="bg-kemenkes box-logo"></div>
-			<h1 className="text-3xl font-bold text-blue">Login konselor healing119.id</h1>
+			<h1 className="text-3xl font-bold text-blue">Login Agen konselor</h1>
 			<p className='text-blue'>Halo, Konselor hebat!
 			<br />
 			Terima kasih atas dedikasi Anda untuk melayani masyarakat.  
