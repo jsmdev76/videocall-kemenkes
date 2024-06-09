@@ -142,8 +142,8 @@ export default function DoctorDashboard() {
 						<a href={geolocationUrl} target='_blank' className='txt-link'>(Lihat Lokasi)</a>
 					) : ''}
 					</b>
-					<br />
-					({maxsecond} detik)
+					{/* <br /> */}
+					{/* ({maxsecond} detik) */}
 					</p>
 					<div className="loader-icon"></div>
 					<div className='flex items-end gap-4 place-content-center'>
