@@ -14,7 +14,7 @@ export const Input = forwardRef<
 			'text-zinc-900',
 			'dark:text-zinc-50',
 			'bg-zinc-50',
-			'dark:bg-zinc-700',
+			'bg-zinc-700',
 			'px-2',
 			'py-1',
 			className
