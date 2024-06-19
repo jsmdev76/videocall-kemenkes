@@ -7,7 +7,7 @@ import getUsername from '~/utils/getUsername.server'
 import { handleErrors } from '~/utils/handleErrors.server'
 
 type Session = {
-	heartbeatTimeout: NodeJS.Timer | null
+	heartbeatTimeout: NodeJS.Timeout | null
 	webSocket?: WebSocket
 	blockedMessages: ServerMessage[]
 	messageQueue: ServerMessage[]
@@ -28,7 +28,7 @@ export class ChatRoom {
 	env: AppLoadContext
 	sessions: Session[]
 	lastTimestamp: number
-	stateSyncInterval: NodeJS.Timer | null = null
+	stateSyncInterval: NodeJS.Timeout | null = null
 
 	constructor(state: DurableObjectState, env: AppLoadContext) {
 		this.storage = state.storage

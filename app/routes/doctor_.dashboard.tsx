@@ -101,8 +101,6 @@ export default function DoctorDashboard() {
 		
 		// if(!room) {
 			intervalID = setInterval(() => {
-				console.log('dataxxx', data)
-				console.log('roomxxx', room)
 				if (revalidator.state === "idle") {
 					revalidator.revalidate();
 				}

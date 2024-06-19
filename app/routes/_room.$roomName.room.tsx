@@ -1,7 +1,12 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json, redirect } from '@remix-run/cloudflare'
-import { useBeforeUnload, useLoaderData, useNavigate, useParams, useRevalidator, useSubmit } from '@remix-run/react'
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+	useLoaderData,
+	useNavigate,
+	useParams,
+	useRevalidator,
+} from '@remix-run/react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
 import { Button } from '~/components/Button'
@@ -13,11 +18,8 @@ import { LeaveRoomButton } from '~/components/LeaveRoomButton'
 import { MicButton } from '~/components/MicButton'
 import { OverflowMenu } from '~/components/OverflowMenu'
 import { Participant } from '~/components/Participant'
-import { ParticipantsButton } from '~/components/ParticipantsMenu'
 import { PullAudioTracks } from '~/components/PullAudioTracks'
 import { PullVideoTrack } from '~/components/PullVideoTrack'
-import { RaiseHandButton } from '~/components/RaiseHandButton'
-import { ScreenshareButton } from '~/components/ScreenshareButton'
 import Toast from '~/components/Toast'
 import useBroadcastStatus from '~/hooks/useBroadcastStatus'
 import useIsSpeaking from '~/hooks/useIsSpeaking'
@@ -26,60 +28,57 @@ import useSounds from '~/hooks/useSounds'
 import useStageManager from '~/hooks/useStageManager'
 import { useUserJoinLeaveToasts } from '~/hooks/useUserJoinLeaveToasts'
 import { calculateLayout } from '~/utils/calculateLayout'
-import getClientToken, { removeClientToken } from '~/utils/getClientToken.server'
+import getClientToken, {
+	removeClientToken,
+} from '~/utils/getClientToken.server'
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 import isNonNullable from '~/utils/isNonNullable'
 
-export const loader = async ({ request, context, params }: LoaderFunctionArgs) => {
+export const loader = async ({
+	request,
+	context,
+	params,
+}: LoaderFunctionArgs) => {
+	const url = new URL(request.url)
+	const listener = url.searchParams.get('listener')
 	const username = await getUsername(request)
 	const roomName = params.roomName
 	const trxClientToken = await getClientToken(request)
-	// // invariant(username)
-	const host = context.URL_API;
-	let doctorToken = await getDoctorToken(request);
-	// console.log('trxClientToken', trxClientToken);
-	// console.log('doctorToken', doctorToken);
-	// console.log('doctorToken User', doctorToken);
+	const host = context.URL_API
+	const doctorToken = await getDoctorToken(request)
+
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
 			roomName: roomName,
-			// roomToken: trxClientToken,
-			isDoctor: (doctorToken) ? true : false,
-		})
+			isDoctor: doctorToken ? true : false,
+		}),
 	})
-	let data:any = await response.json();
-	if(!data.success) {
-		throw new Response(data.message, {status: 500});
-	}
-	console.log('data', data)
-	const trxcall = data.data.trxcall;
-	// console.log('[0,1].indexOf(trxcall.trxCallStatus)', [0,1].indexOf(trxcall.trxCallStatus))
-	if(trxcall.trxCallStatus >= 2) {
-		console.log('doctorTokenbeff',doctorToken);
-		await removeClientToken(request, `/end-room`)
-		console.log('doctorTokenbeafff',doctorToken);
-		if(doctorToken)
-			throw redirect('/doctor');
-		else
-			throw redirect('/end-room');
+
+	const data: any = await response.json()
+	if (!data.success) {
+		throw new Response(data.message, { status: 500 })
 	}
 
-	let startDate = new Date(trxcall.trxUserDate);
-	let endDate = new Date();
-	// console.log('startDate', startDate);
-	// console.log('endDate', endDate);
-	// console.log('trxcall.trxUserDate', trxcall.trxUserDate)
-	let diff = endDate.getTime() - startDate.getTime();
-	let diffMinutes = diff / 60000;
-	console.log('diffMinutesxxx', diffMinutes)
-	if(diffMinutes > 1) {
-		if(doctorToken)
-			throw redirect('/doctor');
+	const trxcall = data.data.trxcall
+	if (trxcall.trxCallStatus >= 2) {
+		await removeClientToken(request, `/end-room`)
+		if (doctorToken) {
+			throw redirect('/doctor')
+		} else {
+			throw redirect('/end-room')
+		}
+	}
+
+	const startDate = new Date(trxcall.trxUserDate)
+	const endDate = new Date()
+	const diffMinutes = (endDate.getTime() - startDate.getTime()) / 60000
+	if (diffMinutes > 1 && doctorToken) {
+		throw redirect('/doctor')
 	}
 
 	return json({
@@ -87,7 +86,8 @@ export const loader = async ({ request, context, params }: LoaderFunctionArgs) =
 		bugReportsEnabled: Boolean(context.FEEDBACK_QUEUE && context.FEEDBACK_URL),
 		mode: context.mode,
 		trxcall,
-		doctorToken
+		doctorToken,
+		listener,
 	})
 }
 
@@ -152,79 +152,56 @@ function useGridDebugControls(
 export default function Room() {
 	const { joined } = useRoomContext()
 	const navigate = useNavigate()
-	const submit = useSubmit()
 	const { roomName } = useParams()
-	const { mode, bugReportsEnabled, trxcall, doctorToken } = useLoaderData<typeof loader>()
-	const trxCallStatus = trxcall.trxCallStatus;
+	const { mode, bugReportsEnabled, trxcall, doctorToken, listener } =
+		useLoaderData<typeof loader>()
+	const trxCallStatus = trxcall.trxCallStatus
+
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
 	}, [joined, mode, navigate, roomName])
-	
-	const revalidator = useRevalidator();
-	let intervalID: any = null;
+
+	const revalidator = useRevalidator()
 	useEffect(() => {
-		// console.log('trxCallStatus', trxCallStatus)
-		if(trxCallStatus == 1) {
-			intervalID = setInterval(() => {
-				if (revalidator.state === "idle") {
-					revalidator.revalidate();
+		if (trxCallStatus == 1) {
+			const intervalID = setInterval(() => {
+				if (revalidator.state === 'idle') {
+					revalidator.revalidate()
 				}
 			}, 5000)
+			return () => clearInterval(intervalID)
 		}
-		return () => clearInterval(intervalID);
-		
-	}, [revalidator]);
+	}, [revalidator, trxCallStatus])
+
+	useEffect(() => {
+		window.onbeforeunload = () =>
+			'Sesi akan berakhir jika anda keluar. Anda yakin?'
+	}, [])
 
 	if (!joined && mode !== 'development') return null
 
-	console.log('doctorToken', doctorToken)
-	// if(!doctorToken) {
-		// let closeWindow = false;
-		// console.log('closeWindow', closeWindow)
-		// useBeforeUnload(React.useCallback(() => {
-			
-		// }, [closeWindow]))
-
-		useEffect(() => {
-			
-	// function handleUnload() {
-	// 	// let c = window.confirm('Sesi akan berakhir jika anda keluar.');
-	// 	// if(c) {
-	// 		// closeWindow = true;
-	// 		// submit({}, { method: "post", action: "/leaveroom" });
-	// 	// }
-	// 	// alert('oioi');
-	// 	return 'Abc?';
-	// }
-
-			// window.addEventListener("beforeunload", handleUnload);
-			
-			// return () => window.removeEventListener("beforeunload", handleUnload);
-			window.onbeforeunload = confirmExit;
-			function confirmExit() {
-				return "Sesi akan berakhir jika anda keluar. Anda yakin?";
-			}
-			
-			// window.onunload = function() {
-			// // 	alert('keluar');
-			// 	submit({}, { method: "post", action: "/leaveroom" });
-			// }
-		});
-	// }
 	return (
 		<Toast.Provider>
-			<JoinedRoom bugReportsEnabled={bugReportsEnabled} />
+			<JoinedRoom bugReportsEnabled={bugReportsEnabled} listener={listener} />
 		</Toast.Provider>
 	)
 }
 
-function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
+function JoinedRoom({
+	bugReportsEnabled,
+	listener,
+}: {
+	bugReportsEnabled: boolean
+	listener: string | null
+}) {
 	const {
 		userMedia,
 		peer,
 		pushedTracks,
 		room: { otherUsers, signal, identity },
 	} = useRoomContext()
+
+	console.log(identity, userMedia)
 
 	const { GridDebugControls, fakeUsers } = useGridDebugControls({
 		defaultEnabled: false,
@@ -261,7 +238,6 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 	useUserJoinLeaveToasts(otherUsers)
 
 	const { width } = useWindowSize()
-
 	const stageLimit = width < 600 ? 2 : 8
 
 	const { recordActivity, actorsOnStage } = useStageManager(
@@ -289,7 +265,6 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 			'%',
 		[totalUsers, containerHeight, containerWidth]
 	)
-
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
@@ -304,9 +279,7 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 						style={
 							{
 								'--gap': '1rem',
-								// the flex basis that is needed to achieve row layout
 								'--flex-container-width': flexContainerWidth,
-								// the size of the first user's flex container
 								'--participant-max-width': firstFlexChildWidth + 'px',
 							} as any
 						}
@@ -352,7 +325,7 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 											audioTrack={audioTrack}
 											pinnedId={pinnedId}
 											setPinnedId={setPinnedId}
-										></Participant>
+										/>
 									)}
 								</PullVideoTrack>
 								{user.tracks.screenshare && user.tracks.screenShareEnabled && (
@@ -385,8 +358,27 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 									flipId={uid.toString()}
 									pinnedId={pinnedId}
 									setPinnedId={setPinnedId}
-								></Participant>
+								/>
 							))}
+
+						{listener && (
+							<Participant
+								className="hidden"
+								user={{
+									id: 'listener',
+									joined: true,
+									name: listener,
+									raisedHand: false,
+									speaking: false,
+									tracks: {},
+								}}
+								isSelf={false}
+								key={listener}
+								flipId={listener}
+								pinnedId={pinnedId}
+								setPinnedId={setPinnedId}
+							/>
+						)}
 					</div>
 					<Toast.Viewport />
 				</Flipper>
@@ -395,15 +387,15 @@ function JoinedRoom({ bugReportsEnabled }: { bugReportsEnabled: boolean }) {
 					<MicButton warnWhenSpeakingWhileMuted />
 					<CameraButton />
 					{/* <ScreenshareButton />
-					<RaiseHandButton
-						raisedHand={raisedHand}
-						onClick={() => setRaisedHand(!raisedHand)}
-					/>
-					<ParticipantsButton
-						identity={identity}
-						otherUsers={otherUsers}
-						className="hidden md:block"
-					></ParticipantsButton> */}
+                    <RaiseHandButton
+                        raisedHand={raisedHand}
+                        onClick={() => setRaisedHand(!raisedHand)}
+                    />
+                    <ParticipantsButton
+                        identity={identity}
+                        otherUsers={otherUsers}
+                        className="hidden md:block"
+                    /> */}
 					<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
 					<LeaveRoomButton />
 				</div>

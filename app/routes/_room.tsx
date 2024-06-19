@@ -1,12 +1,13 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json } from '@remix-run/cloudflare'
 import { Outlet, useLoaderData, useParams } from '@remix-run/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { EnsureOnline } from '~/components/EnsureOnline'
 import { EnsurePermissions } from '~/components/EnsurePermissions'
 import { Icon } from '~/components/Icon/Icon'
 
+import useScreenRecorder from '~/hooks/useScreenRecorder'
 import { usePeerConnection } from '~/hooks/usePeerConnection'
 import usePushedTrack from '~/hooks/usePushedTrack'
 import useRoom from '~/hooks/useRoom'
@@ -87,6 +88,16 @@ function Room() {
 	const [joined, setJoined] = useState(false)
 	const { roomName } = useParams()
 	invariant(roomName)
+	const {
+		blobUrl,
+		pauseRecording,
+		resetRecording,
+		resumeRecording,
+		startRecording,
+		status,
+		stopRecording,
+	} = useScreenRecorder({ audio: true })
+	const videoRef = useRef<HTMLVideoElement | null>(null)
 
 	const {
 		mode,
@@ -107,10 +118,64 @@ function Room() {
 		iceServers,
 	})
 
+	const [recordedChunks, setRecordedChunks] = useState<Blob[]>([])
+	const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+
+	// useEffect(() => {
+	// 	const startRecording = async () => {
+	// 	  try {
+	// 		const combinedStream = new MediaStream([
+	// 		  ...(userMedia.videoStreamTrack ? [userMedia.videoStreamTrack] : []),
+	// 		  ...(userMedia.audioStreamTrack ? [userMedia.audioStreamTrack] : []),
+	// 		]);
+	// 		const options = { mimeType: 'video/webm; codecs=vp8' };
+	// 		const recorder = new MediaRecorder(combinedStream, options);
+	// 		recorder.ondataavailable = (event) => {
+	// 		  if (event.data.size > 0) {
+	// 			console.log('data vid',event)
+	// 			setRecordedChunks((prev) => [...prev, event.data]);
+	// 		  }
+	// 		};
+	// 		recorder.onstop = () => {
+	// 		  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+	// 		  const url = URL.createObjectURL(blob);
+	// 		  const a = document.createElement('a');
+	// 		  a.href = url;
+	// 		  a.download = `${roomName}_meeting_recording.webm`;
+	// 		  document.body.appendChild(a);
+	// 		  a.click();
+	// 		  setTimeout(() => {
+	// 			URL.revokeObjectURL(url);
+	// 			document.body.removeChild(a);
+	// 		  }, 100);
+	// 		  setRecordedChunks([]);
+	// 		};
+	// 		mediaRecorderRef.current = recorder;
+	// 		recorder.start();
+	// 		console.log('Meeting recording started');
+	// 	  } catch (err) {
+	// 		console.error('Error starting meeting recording:', err);
+	// 	  }
+	// 	};
+	// 	const stopRecording = () => {
+	// 	  if (mediaRecorderRef.current) {
+	// 		mediaRecorderRef.current.stop();
+	// 		console.log('Meeting recording stopped');
+	// 	  }
+	// 	};
+	// 	if (joined) {
+	// 	  startRecording();
+	// 	}
+	// 	return () => {
+	// 	  stopRecording();
+	// 	};
+	// }, [joined, roomName, userMedia.videoStreamTrack, userMedia.audioStreamTrack])
+
+	console.log({"aw":room.roomState.users})
+
 	const scaleResolutionDownBy = useMemo(() => {
 		const videoStreamTrack = userMedia.videoStreamTrack
 		const { height, width } = tryToGetDimensions(videoStreamTrack)
-		// we need to do this in case camera is in portrait mode
 		const smallestDimension = Math.min(height, width)
 		return Math.max(smallestDimension / maxWebcamQualityLevel, 1)
 	}, [maxWebcamQualityLevel, userMedia.videoStreamTrack])
@@ -146,5 +211,7 @@ function Room() {
 		},
 	}
 
-	return <Outlet context={context} />
+	return (
+			<Outlet context={context} />
+	)
 }

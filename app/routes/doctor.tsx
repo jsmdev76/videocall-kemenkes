@@ -44,6 +44,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	// return data;
 	const doctorToken = data.data.token;
 	const doctor = data.data.doctor;
+	// return {doctor,doctorToken,request}
 	return setDoctorToken(doctorToken, doctor.name, request, '/doctor/dashboard');
 }
 
@@ -84,7 +85,7 @@ export default function Doctor() {
 					/>
 				</div>
 				{navigation.state === 'idle' ? (
-				<Button className="text-xs" type="submit">
+				<Button id='submit' className="text-xs" type="submit">
 					Login
 				</Button>
 				) : 'Proses login...'}
