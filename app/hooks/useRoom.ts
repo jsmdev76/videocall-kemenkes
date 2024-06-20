@@ -4,6 +4,7 @@ import type { MessageFromServer, RoomState } from '~/types/Messages'
 import assertNever from '~/utils/assertNever'
 import useSignal from './useSignal'
 import type { UserMedia } from './useUserMedia'
+import { useParams, useSearchParams } from '@remix-run/react'
 
 export default function useRoom({
 	roomName,

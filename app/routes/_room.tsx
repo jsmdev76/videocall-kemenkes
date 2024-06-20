@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { json } from '@remix-run/cloudflare'
-import { Outlet, useLoaderData, useParams } from '@remix-run/react'
+import { Outlet, useLoaderData, useParams, useSearchParams } from '@remix-run/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { EnsureOnline } from '~/components/EnsureOnline'

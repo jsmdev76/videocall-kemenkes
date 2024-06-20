@@ -121,6 +121,7 @@ export const Participant = forwardRef<
 								</div>
 							</div>
 						)}
+						<h1>{user.name}</h1>
 						<VideoSrcObject
 							className={cn(
 								'absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity',

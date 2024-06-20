@@ -42,6 +42,7 @@ export const loader = async ({
 }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	const listener = url.searchParams.get('listener')
+	console.log(listener)
 	const username = await getUsername(request)
 	const roomName = params.roomName
 	const trxClientToken = await getClientToken(request)
@@ -201,8 +202,6 @@ function JoinedRoom({
 		room: { otherUsers, signal, identity },
 	} = useRoomContext()
 
-	console.log(identity, userMedia)
-
 	const { GridDebugControls, fakeUsers } = useGridDebugControls({
 		defaultEnabled: false,
 		initialCount: 0,
@@ -265,6 +264,8 @@ function JoinedRoom({
 			'%',
 		[totalUsers, containerHeight, containerWidth]
 	)
+
+	console.log("id: ",identity)
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
@@ -345,7 +346,7 @@ function JoinedRoom({
 							</Fragment>
 						))}
 
-						{identity &&
+						{/* {identity &&
 							userMedia.audioStreamTrack &&
 							userMedia.videoStreamTrack &&
 							fakeUsers.map((uid) => (
@@ -359,15 +360,14 @@ function JoinedRoom({
 									pinnedId={pinnedId}
 									setPinnedId={setPinnedId}
 								/>
-							))}
+							))} */}
 
 						{listener && (
 							<Participant
-								className="hidden"
 								user={{
 									id: 'listener',
 									joined: true,
-									name: listener,
+									name: 'Listener',
 									raisedHand: false,
 									speaking: false,
 									tracks: {},

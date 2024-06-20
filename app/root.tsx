@@ -35,6 +35,8 @@ function addOneDay(date: Date): Date {
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	const username = await getUsername(request)
+	const listener = url.searchParams.get('listener')
+const whisper = url.searchParams.get('whisper')
 	// const doctorToken = await getDoctorToken(request)
 	// console.log('username', username)
 	// console.log('url.pathname', url.pathname)
@@ -44,17 +46,32 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 		redirectUrl.searchParams.set('return-url', request.url)
 		throw redirect(redirectUrl.toString())
 	}
+
 	if (!username && url.pathname !== '/set-username') {
-		console.log('url.pathname',url.pathname)
-		if(url.pathname.indexOf('doctor') < 0) {
-			if(url.pathname.indexOf('end-room') < 0) {
-				const redirectUrl = new URL(url)
-				redirectUrl.pathname = '/set-username'
-				redirectUrl.searchParams.set('return-url', request.url)
-				throw redirect(redirectUrl.toString())
-			}
-		}
-	}
+        if (!listener && !whisper) {
+            console.log('url.pathname', url.pathname)
+            if (url.pathname.indexOf('doctor') < 0) {
+                if (url.pathname.indexOf('end-room') < 0) {
+                    const redirectUrl = new URL(url)
+                    redirectUrl.pathname = '/set-username'
+                    redirectUrl.searchParams.set('return-url', request.url)
+                    throw redirect(redirectUrl.toString())
+                }
+            }
+        }
+    }
+
+	// if (!username && url.pathname !== '/set-username') {
+	// 	console.log('url.pathname',url.pathname)
+	// 	if(url.pathname.indexOf('doctor') < 0) {
+	// 		if(url.pathname.indexOf('end-room') < 0) {
+	// 			const redirectUrl = new URL(url)
+	// 			redirectUrl.pathname = '/set-username'
+	// 			redirectUrl.searchParams.set('return-url', request.url)
+	// 			throw redirect(redirectUrl.toString())
+	// 		}
+	// 	}
+	// }
 
 	const defaultResponse = json({
 		userDirectoryUrl: context.USER_DIRECTORY_URL,

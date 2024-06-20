@@ -27,6 +27,10 @@ import getUsername from '~/utils/getUsername.server'
 
 
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
+	const url = new URL(request.url)
+    const listener = url.searchParams.get('listener')
+    const whisper = url.searchParams.get('whisper')
+
 	const username = await getUsername(request)
 	const trxClientToken = await getClientToken(request)
 	let doctorToken = await getDoctorToken(request);
@@ -38,12 +42,14 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);
 	// console.log('doctorToken User', doctorToken);
-	if(!trxClientToken) {
-		if(doctorToken)
-			throw redirect('/doctor/dashboard');
-		else
-			throw redirect('/set-username');
-	}
+	if (!trxClientToken) {
+        if (doctorToken) {
+            throw redirect('/doctor/dashboard')
+        } else if (!listener && !whisper) {
+            throw redirect('/set-username')
+        }
+    }
+
 	
 	const response = await fetch(`${host}/room`, {
 		method: 'post',
