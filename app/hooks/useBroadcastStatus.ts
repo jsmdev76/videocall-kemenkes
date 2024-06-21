@@ -9,7 +9,7 @@ import type { UserMedia } from './useUserMedia'
 interface Config {
 	userMedia: UserMedia
 	peer: Peer | null
-	identity?: User
+	identity?: User | null
 	signal: Signal
 	pushedTracks: RoomContextType['pushedTracks']
 	raisedHand: boolean
@@ -30,13 +30,15 @@ export default function useBroadcastStatus({
 
 	const id = identity?.id
 	const name = identity?.name
+	const role = identity?.role
 	useEffect(() => {
-		if (id && name) {
+		if (id && name && role) {
 			signal.sendMessage({
 				type: 'userUpdate',
 				user: {
 					id,
 					name,
+					role,
 					joined: true,
 					raisedHand,
 					speaking,
@@ -55,6 +57,7 @@ export default function useBroadcastStatus({
 	}, [
 		id,
 		name,
+		role,
 		signal,
 		peer?.sessionId,
 		audio,
@@ -68,12 +71,13 @@ export default function useBroadcastStatus({
 	])
 
 	useUnmount(() => {
-		if (id && name) {
+		if (id && name && role) {
 			signal.sendMessage({
 				type: 'userUpdate',
 				user: {
 					id,
 					name,
+					role,
 					joined: false,
 					raisedHand,
 					speaking,

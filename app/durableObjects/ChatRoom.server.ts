@@ -3,6 +3,7 @@ import type { ClientMessage, ServerMessage, User } from '~/types/Messages'
 import { assertError } from '~/utils/assertError'
 import assertNever from '~/utils/assertNever'
 import { assertNonNullable } from '~/utils/assertNonNullable'
+import { getRole } from '~/utils/getRole'
 import getUsername from '~/utils/getUsername.server'
 import { handleErrors } from '~/utils/handleErrors.server'
 
@@ -192,6 +193,7 @@ export class ChatRoom {
 			user: {
 				id,
 				name: username,
+				role: getRole(username),
 				joined: false,
 				raisedHand: false,
 				speaking: false,

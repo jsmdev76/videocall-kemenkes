@@ -1,6 +1,7 @@
 export type User = {
 	id: string
 	name: string
+	role: string
 	transceiverSessionId?: string
 	raisedHand: boolean
 	speaking: boolean

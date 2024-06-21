@@ -158,6 +158,7 @@ export default function Room() {
 		useLoaderData<typeof loader>()
 	const trxCallStatus = trxcall.trxCallStatus
 
+	console.log('apa', listener)
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
 	}, [joined, mode, navigate, roomName])
@@ -265,7 +266,7 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
-	console.log("id: ",identity)
+	console.log('id: ', identity)
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
@@ -329,7 +330,7 @@ function JoinedRoom({
 										/>
 									)}
 								</PullVideoTrack>
-								{user.tracks.screenshare && user.tracks.screenShareEnabled && (
+								{/* {user.tracks.screenshare && user.tracks.screenShareEnabled && (
 									<PullVideoTrack video={user.tracks.screenshare}>
 										{({ videoTrack }) => (
 											<Participant
@@ -342,9 +343,27 @@ function JoinedRoom({
 											/>
 										)}
 									</PullVideoTrack>
-								)}
+								)} */}
 							</Fragment>
 						))}
+						{/* {listener && (
+							<Participant
+								user={{
+									id: 'listener',
+									joined: false,
+									name: 'Listener',
+									role: 'listener',
+									raisedHand: false,
+									speaking: false,
+									tracks: {},
+								}}
+								isSelf={false}
+								key={listener}
+								flipId={listener}
+								pinnedId={pinnedId}
+								setPinnedId={setPinnedId}
+							/>
+						)} */}
 
 						{/* {identity &&
 							userMedia.audioStreamTrack &&
@@ -361,24 +380,6 @@ function JoinedRoom({
 									setPinnedId={setPinnedId}
 								/>
 							))} */}
-
-						{listener && (
-							<Participant
-								user={{
-									id: 'listener',
-									joined: true,
-									name: 'Listener',
-									raisedHand: false,
-									speaking: false,
-									tracks: {},
-								}}
-								isSelf={false}
-								key={listener}
-								flipId={listener}
-								pinnedId={pinnedId}
-								setPinnedId={setPinnedId}
-							/>
-						)}
 					</div>
 					<Toast.Viewport />
 				</Flipper>

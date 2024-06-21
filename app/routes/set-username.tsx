@@ -44,7 +44,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			longitude: longitude,
 		})
 	})
-	// console.log('response', response)
+	console.log('response', response)
 	const data:any = await response.json();
 	if(!data.success) {
 		if(data.waiting) {
