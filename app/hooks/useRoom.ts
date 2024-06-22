@@ -81,7 +81,7 @@ export default function useRoom({
 	const identity = useMemo(() => {
 		if (listener) {
 			return {
-				id: 'listener',
+				id: crypto.randomUUID(),
 				name: 'Listener',
 				role: 'listener',
 				raisedHand: false,
@@ -98,17 +98,23 @@ export default function useRoom({
 
 	const otherUsers = useMemo(() => {
 		const users = roomState.users.filter((u) => u.id !== userId && u.joined)
-		// if (listener) {
-		// 	users.push({
-		// 		id: 'listener',
-		// 		name: 'Listener',
-		// 		role: 'listener',
-		// 		raisedHand: false,
-		// 		speaking: false,
-		// 		joined: true,
-		// 		tracks: {},
-		// 	})
-		// }
+		if (identity?.role === 'listener') {
+			return users.filter(u => u.role !== 'listener').map(user => ({
+				...user,
+				role: getRole(user.name)
+			}))
+		}
+		if (listener) {
+			users.push({
+				id: 'listener',
+				name: 'Listener',
+				role: 'listener',
+				raisedHand: false,
+				speaking: false,
+				joined: true,
+				tracks: {},
+			})
+		}
 		return users.map(user => ({
 			...user,
 			role: getRole(user.name)

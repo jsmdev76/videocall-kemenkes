@@ -171,8 +171,6 @@ function Room() {
 	// 	};
 	// }, [joined, roomName, userMedia.videoStreamTrack, userMedia.audioStreamTrack])
 
-	console.log({"aw":room.roomState.users})
-
 	const scaleResolutionDownBy = useMemo(() => {
 		const videoStreamTrack = userMedia.videoStreamTrack
 		const { height, width } = tryToGetDimensions(videoStreamTrack)
@@ -212,6 +210,8 @@ function Room() {
 	}
 
 	return (
+		<>
 			<Outlet context={context} />
+		</>
 	)
 }

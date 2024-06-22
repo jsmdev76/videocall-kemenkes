@@ -11,6 +11,7 @@ import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
 import { Button } from '~/components/Button'
 import { CameraButton } from '~/components/CameraButton'
+import ChatButton from '~/components/ChatButton'
 import { HighPacketLossWarningsToast } from '~/components/HighPacketLossWarningsToast'
 import { IceDisconnectedToast } from '~/components/IceDisconnectedToast'
 import { Icon } from '~/components/Icon/Icon'
@@ -41,8 +42,6 @@ export const loader = async ({
 	params,
 }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
-	const listener = url.searchParams.get('listener')
-	console.log(listener)
 	const username = await getUsername(request)
 	const roomName = params.roomName
 	const trxClientToken = await getClientToken(request)
@@ -88,7 +87,6 @@ export const loader = async ({
 		mode: context.mode,
 		trxcall,
 		doctorToken,
-		listener,
 	})
 }
 
@@ -154,11 +152,10 @@ export default function Room() {
 	const { joined } = useRoomContext()
 	const navigate = useNavigate()
 	const { roomName } = useParams()
-	const { mode, bugReportsEnabled, trxcall, doctorToken, listener } =
+	const { mode, bugReportsEnabled, trxcall, doctorToken } =
 		useLoaderData<typeof loader>()
 	const trxCallStatus = trxcall.trxCallStatus
 
-	console.log('apa', listener)
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
 	}, [joined, mode, navigate, roomName])
@@ -184,17 +181,15 @@ export default function Room() {
 
 	return (
 		<Toast.Provider>
-			<JoinedRoom bugReportsEnabled={bugReportsEnabled} listener={listener} />
+			<JoinedRoom bugReportsEnabled={bugReportsEnabled} />
 		</Toast.Provider>
 	)
 }
 
 function JoinedRoom({
 	bugReportsEnabled,
-	listener,
 }: {
 	bugReportsEnabled: boolean
-	listener: string | null
 }) {
 	const {
 		userMedia,
@@ -266,7 +261,6 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
-	console.log('id: ', identity)
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
@@ -300,7 +294,7 @@ function JoinedRoom({
 							/>
 						)}
 
-						{identity &&
+						{/* {identity &&
 							userMedia.screenShareVideoTrack &&
 							userMedia.screenShareEnabled && (
 								<Participant
@@ -312,8 +306,10 @@ function JoinedRoom({
 									pinnedId={pinnedId}
 									setPinnedId={setPinnedId}
 								/>
-							)}
-						{actorsOnStage.map((user) => (
+							)} */}
+						{actorsOnStage.map((user) => {
+							if (identity?.role === "client" && user.role === "listener") return null
+							return(
 							<Fragment key={user.id}>
 								<PullVideoTrack
 									video={user.tracks.video}
@@ -345,7 +341,7 @@ function JoinedRoom({
 									</PullVideoTrack>
 								)} */}
 							</Fragment>
-						))}
+						)})}
 						{/* {listener && (
 							<Participant
 								user={{
