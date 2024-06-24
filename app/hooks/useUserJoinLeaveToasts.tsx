@@ -38,7 +38,7 @@ export function useUserJoinLeaveToasts(users: User[]) {
 	const [trackedUsers, setTrackedUsers] = useState(users)
 	const dispatchToast = useDispatchToast()
 
-	console.log(users)
+	console.log({trackedUsers})
 	useEffect(() => {
 		const newUsers = users.filter(
 			(u) => !trackedUsers.some((tu) => tu.id === u.id && u.name.startsWith('anonymous'))
@@ -48,13 +48,17 @@ export function useUserJoinLeaveToasts(users: User[]) {
 			(u) => !users.some((tu) => tu.id === u.id && u.name.startsWith('anonymous'))
 		)
 
-		newUsers.forEach((u) =>
-			dispatchToast(<UserJoinedOrLeftToast user={u} type="joined" />)
-		)
+		newUsers.forEach((u) =>{
+			if (!u.name.startsWith("anonymous")) {
+				dispatchToast(<UserJoinedOrLeftToast user={u} type="joined" />)
+			}
+		})
 
-		usersLeft.forEach((u) =>
-			dispatchToast(<UserJoinedOrLeftToast user={u} type="left" />)
-		)
+		usersLeft.forEach((u) =>{
+			if (!u.name.startsWith("anonymous")) {
+				dispatchToast(<UserJoinedOrLeftToast user={u} type="left" />)
+			}
+		})
 	}, [dispatchToast, trackedUsers, users])
 
 	useEffect(() => {

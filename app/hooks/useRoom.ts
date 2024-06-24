@@ -25,15 +25,7 @@ export default function useRoom({
 			case 'roomState':
 				// prevent updating state if nothing has changed
 				if (JSON.stringify(message.state) === JSON.stringify(roomState)) break
-
-				const updatedState = {
-					...message.state,
-					users: message.state.users.map(user => 
-						user.name.startsWith('anonymous') ? { ...user, speaking: false, tracks: {audioEnabled: false} } : user
-					)
-				}
-
-				setRoomState(updatedState)
+				setRoomState(message.state)
 				// setRoomState(message.state)
 				break
 			case 'error':
