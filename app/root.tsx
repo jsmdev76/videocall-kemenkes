@@ -24,7 +24,6 @@ import tailwind from '~/styles/tailwind.css'
 import { elementNotContainedByClickTarget } from './utils/elementNotContainedByClickTarget'
 import getUsername from './utils/getUsername.server'
 import { cn } from './utils/style'
-import getDoctorToken from './utils/getDoctorToken.server'
 
 function addOneDay(date: Date): Date {
 	const result = new Date(date)
@@ -36,30 +35,37 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	const username = await getUsername(request)
 	const listener = url.searchParams.get('listener')
-const whisper = url.searchParams.get('whisper')
+	const whisper = url.searchParams.get('whisper')
+
+	if (listener || whisper) {
+		return json({
+			userDirectoryUrl: context.USER_DIRECTORY_URL,
+		})
+	}
+
 	// const doctorToken = await getDoctorToken(request)
 	// console.log('username', username)
 	// console.log('url.pathname', url.pathname)
-	if(url.pathname === '/') {
+	if (url.pathname === '/') {
 		const redirectUrl = new URL(url)
 		redirectUrl.pathname = '/set-username'
 		redirectUrl.searchParams.set('return-url', request.url)
 		throw redirect(redirectUrl.toString())
 	}
 
-	if (!username && url.pathname !== '/set-username') {
-        if (!listener && !whisper) {
-            console.log('url.pathname', url.pathname)
-            if (url.pathname.indexOf('doctor') < 0) {
-                if (url.pathname.indexOf('end-room') < 0) {
-                    const redirectUrl = new URL(url)
-                    redirectUrl.pathname = '/set-username'
-                    redirectUrl.searchParams.set('return-url', request.url)
-                    throw redirect(redirectUrl.toString())
-                }
-            }
-        }
-    }
+	// if (!username && url.pathname !== '/set-username') {
+	// 	if (!listener && !whisper) {
+	// 		console.log('url.pathname', url.pathname)
+	// 		if (url.pathname.indexOf('doctor') < 0) {
+	// 			if (url.pathname.indexOf('end-room') < 0) {
+	// 				const redirectUrl = new URL(url)
+	// 				redirectUrl.pathname = '/set-username'
+	// 				redirectUrl.searchParams.set('return-url', request.url)
+	// 				throw redirect(redirectUrl.toString())
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	// if (!username && url.pathname !== '/set-username') {
 	// 	console.log('url.pathname',url.pathname)
@@ -175,7 +181,10 @@ const Document: FC<{ children?: ReactNode }> = ({ children }) => {
 				/>
 				<Meta />
 				<Links />
-				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+				<link
+					rel="stylesheet"
+					href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+				></link>
 			</head>
 			<body
 				className={cn(

@@ -55,6 +55,7 @@ export default class Signal {
 	connect() {
 		this.connected = new Promise((resolve, reject) => {
 			let hostname = window.location.host
+			console.log(hostname)
 			const wss = document.location.protocol === 'http:' ? 'ws://' : 'wss://'
 			const params = new URLSearchParams(window.location.search)
 			if (this.id) params.set('session_id', this.id)
@@ -76,10 +77,10 @@ export default class Signal {
 				resolve(event)
 			})
 			this.#ws.addEventListener('error', (event) => {
-				console.log('WebSocket error')
+				console.log('WebSocket error', event)
 				clearInterval(this.heartBeatInterval)
-				this.#eventTarget.dispatchEvent(new CustomEvent('error'))
-				this.#eventTarget.dispatchEvent(new CustomEvent('disconnected'))
+				this.#eventTarget.dispatchEvent(new CustomEvent('error', {detail: event}))
+				this.#eventTarget.dispatchEvent(new CustomEvent('disconnected', {detail: event}))
 				reject(event)
 				this.connected = null
 				if (!this.disposed && navigator.onLine) {
@@ -89,8 +90,8 @@ export default class Signal {
 			this.#ws.addEventListener('close', (event) => {
 				console.log('WebSocket closed')
 				clearInterval(this.heartBeatInterval)
-				this.#eventTarget.dispatchEvent(new CustomEvent('error'))
-				this.#eventTarget.dispatchEvent(new CustomEvent('disconnected'))
+				this.#eventTarget.dispatchEvent(new CustomEvent('error', {detail: event}))
+				this.#eventTarget.dispatchEvent(new CustomEvent('disconnected',{detail: event}))
 				reject(event)
 				this.connected = null
 				if (!this.disposed && navigator.onLine) {

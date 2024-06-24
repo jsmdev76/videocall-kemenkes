@@ -11,7 +11,6 @@ import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
 import { Button } from '~/components/Button'
 import { CameraButton } from '~/components/CameraButton'
-import ChatButton from '~/components/ChatButton'
 import { HighPacketLossWarningsToast } from '~/components/HighPacketLossWarningsToast'
 import { IceDisconnectedToast } from '~/components/IceDisconnectedToast'
 import { Icon } from '~/components/Icon/Icon'
@@ -42,9 +41,10 @@ export const loader = async ({
 	params,
 }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
+	const isListener = url.searchParams.has('listener')
 	const username = await getUsername(request)
 	const roomName = params.roomName
-	const trxClientToken = await getClientToken(request)
+	// const trxClientToken = await getClientToken(request)
 	const host = context.URL_API
 	const doctorToken = await getDoctorToken(request)
 
@@ -87,6 +87,7 @@ export const loader = async ({
 		mode: context.mode,
 		trxcall,
 		doctorToken,
+		isListener,
 	})
 }
 
@@ -152,7 +153,7 @@ export default function Room() {
 	const { joined } = useRoomContext()
 	const navigate = useNavigate()
 	const { roomName } = useParams()
-	const { mode, bugReportsEnabled, trxcall, doctorToken } =
+	const { mode, bugReportsEnabled, trxcall, doctorToken, isListener } =
 		useLoaderData<typeof loader>()
 	const trxCallStatus = trxcall.trxCallStatus
 
@@ -161,6 +162,8 @@ export default function Room() {
 	}, [joined, mode, navigate, roomName])
 
 	const revalidator = useRevalidator()
+
+	console.log(isListener)
 	useEffect(() => {
 		if (trxCallStatus == 1) {
 			const intervalID = setInterval(() => {
@@ -181,15 +184,20 @@ export default function Room() {
 
 	return (
 		<Toast.Provider>
-			<JoinedRoom bugReportsEnabled={bugReportsEnabled} />
+			<JoinedRoom
+				bugReportsEnabled={bugReportsEnabled}
+				isListener={isListener}
+			/>
 		</Toast.Provider>
 	)
 }
 
 function JoinedRoom({
 	bugReportsEnabled,
+	isListener,
 }: {
 	bugReportsEnabled: boolean
+	isListener: boolean
 }) {
 	const {
 		userMedia,
@@ -208,7 +216,7 @@ function JoinedRoom({
 	const [firstFlexChildRef, { width: firstFlexChildWidth }] =
 		useMeasure<HTMLDivElement>()
 
-	const totalUsers = 1 + fakeUsers.length + otherUsers.length
+	const totalUsers =1 + fakeUsers.length + otherUsers.length + (isListener ? 1 : 0)
 
 	const [raisedHand, setRaisedHand] = useState(false)
 	const speaking = useIsSpeaking(userMedia.audioStreamTrack)
@@ -261,6 +269,8 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
+	console.log(totalUsers)
+
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
@@ -284,7 +294,7 @@ function JoinedRoom({
 						{identity && userMedia.audioStreamTrack && (
 							<Participant
 								user={identity}
-								isSelf
+								// isSelf
 								flipId={'identity user'}
 								ref={firstFlexChildRef}
 								videoTrack={userMedia.videoStreamTrack}
@@ -293,6 +303,18 @@ function JoinedRoom({
 								setPinnedId={setPinnedId}
 							/>
 						)}
+						{/* {identity && identity.name !== 'anonymous_$43567243567u' && userMedia.audioStreamTrack && (
+							<Participant
+								user={identity}
+								isSelf
+								flipId={'identity user'}
+								ref={firstFlexChildRef}
+								videoTrack={userMedia.videoStreamTrack}
+								audioTrack={userMedia.audioStreamTrack}
+								pinnedId={pinnedId}
+								setPinnedId={setPinnedId}
+							/>
+						)} */}
 
 						{/* {identity &&
 							userMedia.screenShareVideoTrack &&
@@ -308,25 +330,27 @@ function JoinedRoom({
 								/>
 							)} */}
 						{actorsOnStage.map((user) => {
-							if (identity?.role === "client" && user.role === "listener") return null
-							return(
-							<Fragment key={user.id}>
-								<PullVideoTrack
-									video={user.tracks.video}
-									audio={user.tracks.audio}
-								>
-									{({ videoTrack, audioTrack }) => (
-										<Participant
-											user={user}
-											flipId={user.id}
-											videoTrack={videoTrack}
-											audioTrack={audioTrack}
-											pinnedId={pinnedId}
-											setPinnedId={setPinnedId}
-										/>
-									)}
-								</PullVideoTrack>
-								{/* {user.tracks.screenshare && user.tracks.screenShareEnabled && (
+							if (user.name.startsWith("anonymous")) return null
+							if (identity?.role === 'client' && user.role === 'listener')
+								return null
+							return (
+								<Fragment key={user.id}>
+									<PullVideoTrack
+										video={user.tracks.video}
+										audio={user.tracks.audio}
+									>
+										{({ videoTrack, audioTrack }) => (
+											<Participant
+												user={user}
+												flipId={user.id}
+												videoTrack={videoTrack}
+												audioTrack={audioTrack}
+												pinnedId={pinnedId}
+												setPinnedId={setPinnedId}
+											/>
+										)}
+									</PullVideoTrack>
+									{/* {user.tracks.screenshare && user.tracks.screenShareEnabled && (
 									<PullVideoTrack video={user.tracks.screenshare}>
 										{({ videoTrack }) => (
 											<Participant
@@ -340,8 +364,27 @@ function JoinedRoom({
 										)}
 									</PullVideoTrack>
 								)} */}
-							</Fragment>
-						)})}
+								</Fragment>
+							)
+						})}
+
+						{/* {isListener || identity?.role === "agent" && (
+							<Participant
+								user={{
+									id: 'listener',
+									joined: true,
+									name: 'Listener',
+									role: 'listener',
+									raisedHand: false,
+									speaking: false,
+									tracks: {},
+								}}
+								isSelf={false}
+								flipId="listener"
+								pinnedId={pinnedId}
+								setPinnedId={setPinnedId}
+							/>
+						)} */}
 						{/* {listener && (
 							<Participant
 								user={{
