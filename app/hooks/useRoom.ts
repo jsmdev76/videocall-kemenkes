@@ -23,10 +23,18 @@ export default function useRoom({
 		const { message } = e.data
 		switch (message.type) {
 			case 'roomState':
-				console.log("events :",message.state.users)
 				// prevent updating state if nothing has changed
 				if (JSON.stringify(message.state) === JSON.stringify(roomState)) break
-				setRoomState(message.state)
+
+				const updatedState = {
+					...message.state,
+					users: message.state.users.map(user => 
+						user.name === 'anonymous' ? { ...user, speaking: false } : user
+					)
+				}
+
+				setRoomState(updatedState)
+				// setRoomState(message.state)
 				break
 			case 'error':
 				console.error('Received error message from WebSocket')
