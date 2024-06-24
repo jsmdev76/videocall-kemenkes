@@ -29,7 +29,7 @@ export default function useRoom({
 				const updatedState = {
 					...message.state,
 					users: message.state.users.map(user => 
-						user.name === 'anonymous' ? { ...user, speaking: false } : user
+						user.name.startsWith('anonymous') ? { ...user, speaking: false, tracks: {audioEnabled: false} } : user
 					)
 				}
 
