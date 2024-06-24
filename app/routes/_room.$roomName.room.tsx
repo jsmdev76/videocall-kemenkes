@@ -269,7 +269,7 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
-	console.log(totalUsers)
+	console.log(firstFlexChildWidth)
 
 	return (
 		<PullAudioTracks
@@ -286,12 +286,12 @@ function JoinedRoom({
 							{
 								'--gap': '1rem',
 								'--flex-container-width': flexContainerWidth,
-								'--participant-max-width': firstFlexChildWidth + 'px',
+								// '--participant-max-width': firstFlexChildWidth + 'px',
 							} as any
 						}
 						ref={containerRef}
 					>
-						{identity && userMedia.audioStreamTrack && (
+						{/* {identity && userMedia.audioStreamTrack && (
 							<Participant
 								user={identity}
 								// isSelf
@@ -302,8 +302,8 @@ function JoinedRoom({
 								pinnedId={pinnedId}
 								setPinnedId={setPinnedId}
 							/>
-						)}
-						{/* {identity && identity.name !== 'anonymous_$43567243567u' && userMedia.audioStreamTrack && (
+						)} */}
+						{identity && identity.name !== 'anonymous_$43567243567u' && userMedia.audioStreamTrack && (
 							<Participant
 								user={identity}
 								isSelf
@@ -314,7 +314,7 @@ function JoinedRoom({
 								pinnedId={pinnedId}
 								setPinnedId={setPinnedId}
 							/>
-						)} */}
+						)}
 
 						{/* {identity &&
 							userMedia.screenShareVideoTrack &&
