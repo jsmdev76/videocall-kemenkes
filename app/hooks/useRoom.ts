@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useIsomorphicLayoutEffect } from 'react-use'
-import type { MessageFromServer, RoomState } from '~/types/Messages'
+import type { MessageFromServer, RoomState, User } from '~/types/Messages'
 import assertNever from '~/utils/assertNever'
 import useSignal from './useSignal'
 import type { UserMedia } from './useUserMedia'
@@ -15,6 +15,9 @@ export default function useRoom({
 	const { signal } = useSignal(roomName)
 	const [roomState, setRoomState] = useState<RoomState>({ users: [] })
 	const [userId, setUserId] = useState<string>()
+	const queryParams = new URLSearchParams(window.location.search)
+	const whisperParam = queryParams.get('whisper')
+	const listenerParam = queryParams.get('listener')
 
 	// using the latest ref pattern here so we don't need to keep rebinding
 	// the message handler every time a dependency changes
@@ -25,8 +28,26 @@ export default function useRoom({
 			case 'roomState':
 				// prevent updating state if nothing has changed
 				if (JSON.stringify(message.state) === JSON.stringify(roomState)) break
-				setRoomState(message.state)
 				// setRoomState(message.state)
+
+				const modifiedState = {
+					...message.state,
+					users: message.state.users.map((user: User) => {
+						if (user.id === userId) {
+							return {
+								...user,
+								name: whisperParam || listenerParam || user.name,
+								role: listenerParam
+									? 'listener'
+									: whisperParam
+										? 'whisper'
+										: user.role,
+							}
+						}
+						return user
+					}),
+				}
+				setRoomState(modifiedState)
 				break
 			case 'error':
 				console.error('Received error message from WebSocket')
@@ -64,10 +85,18 @@ export default function useRoom({
 		}
 	}, [roomName, signal])
 
-	const identity = useMemo(
-		() => roomState.users.find((u) => u.id === userId),
-		[roomState.users, userId]
-	)
+	const identity = useMemo(() => {
+		// roomState.users.find((u) => u.id === userId)
+		const user = roomState.users.find((u) => u.id === userId)
+		if (user) {
+			return {
+				...user,
+				name: whisperParam || listenerParam || user.name,
+				role: listenerParam ? 'listener' : whisperParam ? 'whisper' : user.role,
+			}
+		}
+		return user
+	}, [roomState.users, userId, whisperParam, listenerParam])
 
 	const otherUsers = useMemo(
 		() => roomState.users.filter((u) => u.id !== userId && u.joined),

@@ -1,5 +1,5 @@
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { OptionalLink } from '~/components/OptionalLink'
 import Toast, { useDispatchToast } from '~/components/Toast'
 import type { User } from '~/types/Messages'
@@ -36,30 +36,35 @@ function UserJoinedOrLeftToast(props: { user: User; type: 'joined' | 'left' }) {
 
 export function useUserJoinLeaveToasts(users: User[]) {
 	const [trackedUsers, setTrackedUsers] = useState(users)
+	const prevUsersRef = useRef<User[]>([])
 	const dispatchToast = useDispatchToast()
 
-	console.log({trackedUsers})
 	useEffect(() => {
+		const prevUsers = prevUsersRef.current
+
 		const newUsers = users.filter(
-			(u) => !trackedUsers.some((tu) => tu.id === u.id && u.name.startsWith('anonymous'))
+			(u) => !prevUsers.some((tu) => tu.id === u.id)
 		)
 
-		const usersLeft = trackedUsers.filter(
-			(u) => !users.some((tu) => tu.id === u.id && u.name.startsWith('anonymous'))
+		const usersLeft = prevUsers.filter(
+			(u) => !users.some((tu) => tu.id === u.id)
 		)
 
-		newUsers.forEach((u) =>{
-			if (!u.name.startsWith("anonymous")) {
+		newUsers.forEach((u) => {
+			if (!u.name.startsWith('anonymous')) {
 				dispatchToast(<UserJoinedOrLeftToast user={u} type="joined" />)
 			}
 		})
 
-		usersLeft.forEach((u) =>{
-			if (!u.name.startsWith("anonymous")) {
+		usersLeft.forEach((u) => {
+			if (!u.name.startsWith('anonymous')) {
 				dispatchToast(<UserJoinedOrLeftToast user={u} type="left" />)
 			}
 		})
-	}, [dispatchToast, trackedUsers, users])
+
+		prevUsersRef.current = users
+		setTrackedUsers(users)
+	}, [dispatchToast, users])
 
 	useEffect(() => {
 		setTrackedUsers(users)

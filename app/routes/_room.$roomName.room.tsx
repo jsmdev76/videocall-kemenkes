@@ -11,6 +11,7 @@ import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
 import { Button } from '~/components/Button'
 import { CameraButton } from '~/components/CameraButton'
+import FloatingChat from '~/components/FloatingChat'
 import { HighPacketLossWarningsToast } from '~/components/HighPacketLossWarningsToast'
 import { IceDisconnectedToast } from '~/components/IceDisconnectedToast'
 import { Icon } from '~/components/Icon/Icon'
@@ -28,9 +29,7 @@ import useSounds from '~/hooks/useSounds'
 import useStageManager from '~/hooks/useStageManager'
 import { useUserJoinLeaveToasts } from '~/hooks/useUserJoinLeaveToasts'
 import { calculateLayout } from '~/utils/calculateLayout'
-import getClientToken, {
-	removeClientToken,
-} from '~/utils/getClientToken.server'
+import { removeClientToken } from '~/utils/getClientToken.server'
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 import isNonNullable from '~/utils/isNonNullable'
@@ -42,7 +41,8 @@ export const loader = async ({
 }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	const isListener = url.searchParams.has('listener')
-	const username = await getUsername(request)
+	const isWhisper = url.searchParams.has('whisper')
+	let username = await getUsername(request)
 	const roomName = params.roomName
 	// const trxClientToken = await getClientToken(request)
 	const host = context.URL_API
@@ -216,9 +216,12 @@ function JoinedRoom({
 	const [firstFlexChildRef, { width: firstFlexChildWidth }] =
 		useMeasure<HTMLDivElement>()
 
-	const totalUsers =1 + fakeUsers.length + otherUsers.length + (isListener ? 1 : 0)
+	const totalUsers =
+		1 + fakeUsers.length + otherUsers.length + (isListener ? 1 : 0)
 
 	const [raisedHand, setRaisedHand] = useState(false)
+	const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+
 	const speaking = useIsSpeaking(userMedia.audioStreamTrack)
 
 	useMount(() => {
@@ -269,7 +272,7 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
-	console.log(firstFlexChildWidth)
+	console.log(identity)
 
 	return (
 		<PullAudioTracks
@@ -303,18 +306,20 @@ function JoinedRoom({
 								setPinnedId={setPinnedId}
 							/>
 						)} */}
-						{identity && identity.name !== 'anonymous_$43567243567u' && userMedia.audioStreamTrack && (
-							<Participant
-								user={identity}
-								isSelf
-								flipId={'identity user'}
-								ref={firstFlexChildRef}
-								videoTrack={userMedia.videoStreamTrack}
-								audioTrack={userMedia.audioStreamTrack}
-								pinnedId={pinnedId}
-								setPinnedId={setPinnedId}
-							/>
-						)}
+						{identity &&
+							identity.name !== 'anonymous_$43567243567u' &&
+							userMedia.audioStreamTrack && (
+								<Participant
+									user={identity}
+									isSelf
+									flipId={'identity user'}
+									ref={firstFlexChildRef}
+									videoTrack={userMedia.videoStreamTrack}
+									audioTrack={userMedia.audioStreamTrack}
+									pinnedId={pinnedId}
+									setPinnedId={setPinnedId}
+								/>
+							)}
 
 						{/* {identity &&
 							userMedia.screenShareVideoTrack &&
@@ -330,9 +335,13 @@ function JoinedRoom({
 								/>
 							)} */}
 						{actorsOnStage.map((user) => {
-							if (user.name.startsWith("anonymous")) return null
-							if (identity?.role === 'client' && user.role === 'listener')
+							if (user.name.startsWith('anonymous')) return null
+							if (
+								(identity?.role === 'client' && user.role === 'listener') ||
+								user.role === 'whisper'
+							)
 								return null
+
 							return (
 								<Fragment key={user.id}>
 									<PullVideoTrack
@@ -423,6 +432,13 @@ function JoinedRoom({
 					<Toast.Viewport />
 				</Flipper>
 				<div className="flex flex-wrap items-center justify-center gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
+					{identity?.role === 'agent' || identity?.role === 'whisper' ? (
+						<FloatingChat
+							isOpen={isChatOpen}
+							onClose={() => setIsChatOpen(false)}
+							onOpen={() => setIsChatOpen(true)}
+						/>
+					) : null}
 					<GridDebugControls />
 					<MicButton warnWhenSpeakingWhileMuted />
 					<CameraButton />
