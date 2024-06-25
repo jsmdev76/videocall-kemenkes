@@ -297,7 +297,7 @@ function JoinedRoom({
 						{/* {identity && userMedia.audioStreamTrack && (
 							<Participant
 								user={identity}
-								// isSelf
+								isSelf
 								flipId={'identity user'}
 								ref={firstFlexChildRef}
 								videoTrack={userMedia.videoStreamTrack}

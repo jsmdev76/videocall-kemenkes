@@ -93,6 +93,10 @@ export default function useRoom({
 				...user,
 				name: whisperParam || listenerParam || user.name,
 				role: listenerParam ? 'listener' : whisperParam ? 'whisper' : user.role,
+				speaking: false,
+				tracks: {
+					audioEnabled:false
+				}
 			}
 		}
 		return user
