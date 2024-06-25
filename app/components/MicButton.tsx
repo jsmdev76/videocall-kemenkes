@@ -24,7 +24,14 @@ export const MicButton: FC<
 			audioUnavailableReason,
 			audioMonitorStreamTrack,
 		},
+		room: {
+			identity
+		}
 	} = useRoomContext()
+
+	if (identity?.name.startsWith("anonymous")) {
+		turnMicOff()
+	}
 
 	const toggle = () => {
 		audioEnabled ? turnMicOff() : turnMicOn()
@@ -37,6 +44,8 @@ export const MicButton: FC<
 		}
 		return false
 	}, toggle)
+
+	console.log(audioMonitorStreamTrack)
 
 	const isSpeaking = useIsSpeaking(audioMonitorStreamTrack)
 

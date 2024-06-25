@@ -85,18 +85,16 @@ export default function useRoom({
 		}
 	}, [roomName, signal])
 
+	
 	const identity = useMemo(() => {
 		// roomState.users.find((u) => u.id === userId)
 		const user = roomState.users.find((u) => u.id === userId)
+		console.log(user?.name.startsWith("anonymous") || listenerParam || whisperParam ? false : true)
 		if (user) {
 			return {
 				...user,
 				name: whisperParam || listenerParam || user.name,
 				role: listenerParam ? 'listener' : whisperParam ? 'whisper' : user.role,
-				speaking: user.name.startsWith("anonymous") || listenerParam || whisperParam ? false : true,
-				tracks: {
-					audioEnabled: user.name.startsWith("anonymous") || listenerParam || whisperParam ? false : true
-				}
 			}
 		}
 		return user
