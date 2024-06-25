@@ -29,7 +29,7 @@ export const MicButton: FC<
 		}
 	} = useRoomContext()
 
-	if (identity?.name.startsWith("anonymous")) {
+	if (identity?.name.startsWith("anonymous") || identity?.role === "whisper" || identity?.role === "listener" ) {
 		turnMicOff()
 	}
 
