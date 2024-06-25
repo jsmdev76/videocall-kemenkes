@@ -30,7 +30,7 @@ export default async function getUsername(request: Request) {
 	)
 	const url = new URLSearchParams()
 	const listener = url.get("listener")
-	console.log("ini listener =>",listener)
+	// console.log("ini listener =>",listener)
 
 	console.log(accessUsername)
 	if (accessUsername) return accessUsername

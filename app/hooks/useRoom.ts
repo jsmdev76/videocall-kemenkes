@@ -14,6 +14,9 @@ export default function useRoom({
 }) {
 	const { signal } = useSignal(roomName)
 	const [roomState, setRoomState] = useState<RoomState>({ users: [] })
+	const [messages, setMessages] = useState<{ from: string; message: string }[]>(
+		[]
+	)
 	const [userId, setUserId] = useState<string>()
 	const queryParams = new URLSearchParams(window.location.search)
 	const whisperParam = queryParams.get('whisper')
@@ -63,6 +66,12 @@ export default function useRoom({
 			case 'muteMic':
 				userMedia.turnMicOff()
 				break
+			case 'chatMessage':
+				setMessages((prevMessages) => [
+					...prevMessages,
+					{ from: message.from, message: message.message },
+				])
+				break
 			default:
 				assertNever(message)
 				break
@@ -84,9 +93,8 @@ export default function useRoom({
 		return () => {
 			signal.removeEventListener('message', messageHandler)
 		}
-	}, [roomName, signal])
+	}, [roomName, signal, messages])
 
-	
 	const identity = useMemo(() => {
 		// roomState.users.find((u) => u.id === userId)
 		const user = roomState.users.find((u) => u.id === userId)
@@ -105,5 +113,15 @@ export default function useRoom({
 		[userId, roomState.users]
 	)
 
-	return { identity, otherUsers, signal, roomState }
+	const sendChat = ({ message, to }: { message: string; to: string }) => {
+		if (identity) {
+			signal.sendChat({
+				from: identity.id,
+				to,
+				message,
+			})
+		}
+	}
+
+	return { identity, otherUsers, signal, roomState, sendChat, messages }
 }

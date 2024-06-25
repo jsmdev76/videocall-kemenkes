@@ -41,6 +41,12 @@ export type ServerMessage =
 	| {
 			type: 'muteMic'
 	  }
+	| {
+			type: 'chatMessage'
+			to: string
+			from: string
+			message: string
+	  }
 
 export type MessageFromServer = {
 	from: string
@@ -67,4 +73,10 @@ export type ClientMessage =
 	  }
 	| {
 			type: 'heartBeat'
+	  }
+	| {
+			type: 'chatMessage'
+			to: string
+			from: string
+			message: string
 	  }

@@ -163,4 +163,8 @@ export default class Signal {
 			this.messageQueue.push(message)
 		}
 	}
+
+	async sendChat(data:{from: string, to:string, message:string}) {
+		await this.sendMessage({type: "chatMessage", ...data})
+	}
 }

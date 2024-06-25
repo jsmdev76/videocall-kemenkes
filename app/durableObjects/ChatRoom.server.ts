@@ -73,7 +73,6 @@ export class ChatRoom {
 					const username = await getUsername(request)
 					assertNonNullable(username)
 
-					console.log("username : - ",username)
 					// To accept the WebSocket request, we create a WebSocketPair (which is like a socketpair,
 					// i.e. two WebSockets that talk to each other), we return one end of the pair in the
 					// response, and we operate on the other end. Note that this API is not part of the
@@ -248,15 +247,15 @@ export class ChatRoom {
 						}
 						break
 					case 'directMessage':
-						const { to, message } = data
-						const recipient = this.sessions.find((s) => s.id === to)
-						if (recipient) {
-							await this.sendMessage(recipient, {
-								type: 'directMessage',
-								from: session.user.name,
-								message,
-							})
-						}
+						// const { to, message } = data
+						// const recipient = this.sessions.find((s) => s.id === to)
+						// if (recipient) {
+						// 	await this.sendMessage(recipient, {
+						// 		type: 'directMessage',
+						// 		from: session.user.name,
+						// 		message,
+						// 	})
+						// }
 						break
 
 					case 'muteUser':
@@ -269,6 +268,69 @@ export class ChatRoom {
 							})
 							this.broadcastState()
 						}
+						break
+
+					case 'chatMessage':
+						const { from, message } = data
+						const sender = this.sessions.find((s) => s.id === from)
+						if (sender) {
+							const senderRole = sender.user.role
+
+							if (senderRole === 'whisper') {
+								const recipients = this.sessions.filter(
+									(s) => s.user.role === 'agent'
+								)
+								console.log('Penerima (agents):', recipients)
+
+								if (recipients.length > 0) {
+									for (const recipient of recipients) {
+										await this.sendMessage(recipient, {
+											to: recipient.user.name,
+											type: 'chatMessage',
+											from: sender.user.name,
+											message,
+										})
+									}
+
+									await this.sendMessage(sender, {
+										to: 'Agents',
+										type: 'chatMessage',
+										from: sender.user.name,
+										message,
+									})
+								} else {
+									console.error('Tidak ada penerima dengan peran agent')
+								}
+							} else if (senderRole === 'agent') {
+								const recipient = this.sessions.find(
+									(s) => s.user.role === 'whisper'
+								)
+								console.log('Penerima (whisper):', recipient)
+
+								if (recipient) {
+									await this.sendMessage(recipient, {
+										to: recipient.user.name,
+										type: 'chatMessage',
+										from: sender.user.name,
+										message,
+									})
+
+									await this.sendMessage(sender, {
+										to: recipient.user.name,
+										type: 'chatMessage',
+										from: sender.user.name,
+										message,
+									})
+								} else {
+									console.error('Tidak ada penerima dengan peran whisper')
+								}
+							} else {
+								console.error('Peran pengirim tidak valid')
+							}
+						} else {
+							console.error('Pengirim tidak ditemukan')
+						}
+
 						break
 					default:
 						assertNever(data)

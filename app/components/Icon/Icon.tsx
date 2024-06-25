@@ -25,6 +25,7 @@ import {
 	VideoCameraSlashIcon,
 	WifiIcon,
 	XCircleIcon,
+	ChatBubbleBottomCenterIcon
 } from '@heroicons/react/20/solid'
 import type { FC } from 'react'
 import { cn } from '~/utils/style'
@@ -58,6 +59,7 @@ const iconMap = {
 	ArrowDownOnSquareIcon,
 	ArrowUpOnSquareIcon,
 	WifiIcon,
+	ChatBubble: ChatBubbleBottomCenterIcon
 }
 
 interface IconProps {
