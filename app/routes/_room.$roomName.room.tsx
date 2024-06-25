@@ -294,7 +294,7 @@ function JoinedRoom({
 						}
 						ref={containerRef}
 					>
-						{/* {identity && userMedia.audioStreamTrack && (
+						{identity && userMedia.audioStreamTrack && (
 							<Participant
 								user={identity}
 								isSelf
@@ -305,8 +305,8 @@ function JoinedRoom({
 								pinnedId={pinnedId}
 								setPinnedId={setPinnedId}
 							/>
-						)} */}
-						{identity &&
+						)}
+						{/* {identity &&
 							identity.name !== 'anonymous_$43567243567u' &&
 							userMedia.audioStreamTrack && (
 								<Participant
@@ -319,7 +319,7 @@ function JoinedRoom({
 									pinnedId={pinnedId}
 									setPinnedId={setPinnedId}
 								/>
-							)}
+							)} */}
 
 						{/* {identity &&
 							userMedia.screenShareVideoTrack &&

@@ -93,9 +93,9 @@ export default function useRoom({
 				...user,
 				name: whisperParam || listenerParam || user.name,
 				role: listenerParam ? 'listener' : whisperParam ? 'whisper' : user.role,
-				speaking: false,
+				speaking: user.name.startsWith("anonymous") || listenerParam || whisperParam ? false : true,
 				tracks: {
-					audioEnabled:false
+					audioEnabled: user.name.startsWith("anonymous") || listenerParam || whisperParam ? false : true
 				}
 			}
 		}
