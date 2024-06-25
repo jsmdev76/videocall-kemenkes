@@ -45,8 +45,6 @@ export const MicButton: FC<
 		return false
 	}, toggle)
 
-	console.log(audioMonitorStreamTrack)
-
 	const isSpeaking = useIsSpeaking(audioMonitorStreamTrack)
 
 	const audioUnavailableMessage = audioUnavailableReason

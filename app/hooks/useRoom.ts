@@ -24,6 +24,7 @@ export default function useRoom({
 	// https://epicreact.dev/the-latest-ref-pattern-in-react/
 	const messageHandler = (e: MessageEvent<MessageFromServer>) => {
 		const { message } = e.data
+
 		switch (message.type) {
 			case 'roomState':
 				// prevent updating state if nothing has changed
@@ -89,7 +90,6 @@ export default function useRoom({
 	const identity = useMemo(() => {
 		// roomState.users.find((u) => u.id === userId)
 		const user = roomState.users.find((u) => u.id === userId)
-		console.log(user?.name.startsWith("anonymous") || listenerParam || whisperParam ? false : true)
 		if (user) {
 			return {
 				...user,

@@ -163,7 +163,6 @@ export default function Room() {
 
 	const revalidator = useRevalidator()
 
-	console.log(isListener)
 	useEffect(() => {
 		if (trxCallStatus == 1) {
 			const intervalID = setInterval(() => {
@@ -271,8 +270,6 @@ function JoinedRoom({
 			'%',
 		[totalUsers, containerHeight, containerWidth]
 	)
-
-	console.log(identity)
 
 	return (
 		<PullAudioTracks
