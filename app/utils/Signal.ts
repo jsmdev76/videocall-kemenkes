@@ -164,7 +164,7 @@ export default class Signal {
 		}
 	}
 
-	async sendChat(data:{from: string, to:string, message:string}) {
-		await this.sendMessage({type: "chatMessage", ...data})
+	async sendChat(data:{from: string, roomId:string, message:string}) {
+		await this.sendMessage({type: "chatMessage", ...data, roomId:this.roomName})
 	}
 }

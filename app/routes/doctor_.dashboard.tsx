@@ -45,14 +45,14 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 	// console.log('end', end)
 	// console.log('trxWaitingDate', end);
 	let duration = moment.duration(now.diff(end));
-	console.log('duration', duration);
+	// console.log('duration', duration);
 	// let durationMin = moment.duration(end.diff(now));
 	// let secondsMin = Math.floor(durationMin.asSeconds());
 	let seconds = Math.floor(duration.asSeconds());
 	let maxsecond = 30 - seconds;
 
-	console.log('seconds', seconds)
-	console.log('maxsecond', maxsecond-seconds)
+	// console.log('seconds', seconds)
+	// console.log('maxsecond', maxsecond-seconds)
 
 	return json({data, seconds, maxsecond});
 }

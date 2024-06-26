@@ -76,7 +76,7 @@ export type ClientMessage =
 	  }
 	| {
 			type: 'chatMessage'
-			to: string
+			roomId: string;
 			from: string
 			message: string
 	  }

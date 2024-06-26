@@ -20,14 +20,14 @@ const FloatingChat: React.FC<CustomerServiceChatProps> = ({
 	onOpen,
 }) => {
 	const {
-		room: { identity, sendChat, messages },
+		room: { identity, sendChat, messages, roomState },
 	} = useRoomContext()
 	const [inputMessage, setInputMessage] = useState<string>('')
 
 	const sendMessage = () => {
 		sendChat({
 			message: inputMessage,
-      to: ""
+			roomId: "a",
 		})
 		if (inputMessage.trim()) {
 			setInputMessage('')

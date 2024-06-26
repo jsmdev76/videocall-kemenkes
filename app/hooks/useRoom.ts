@@ -4,6 +4,8 @@ import type { MessageFromServer, RoomState, User } from '~/types/Messages'
 import assertNever from '~/utils/assertNever'
 import useSignal from './useSignal'
 import type { UserMedia } from './useUserMedia'
+import { useRoomUrl } from './useRoomUrl'
+import { useParams } from '@remix-run/react'
 
 export default function useRoom({
 	roomName,
@@ -14,13 +16,15 @@ export default function useRoom({
 }) {
 	const { signal } = useSignal(roomName)
 	const [roomState, setRoomState] = useState<RoomState>({ users: [] })
-	const [messages, setMessages] = useState<{ from: string; message: string }[]>(
+	const [messages, setMessages] = useState<{ from: string; message: string; roomId: string }[]>(
 		[]
 	)
 	const [userId, setUserId] = useState<string>()
 	const queryParams = new URLSearchParams(window.location.search)
 	const whisperParam = queryParams.get('whisper')
 	const listenerParam = queryParams.get('listener')
+
+	console.log("params :", roomName)
 
 	// using the latest ref pattern here so we don't need to keep rebinding
 	// the message handler every time a dependency changes
@@ -68,17 +72,18 @@ export default function useRoom({
 				break
 			case 'chatMessage':
 				setMessages((prevMessages) => [
-					...prevMessages,
-					{ from: message.from, message: message.message },
+					...prevMessages.filter(msg => msg.roomId === roomName),
+					{ from: message.from, message: message.message, roomId: roomName },
 				])
 				break
-			default:
-				assertNever(message)
-				break
-		}
-	}
-
-	const messageHandlerRef = useRef(messageHandler)
+				default:
+					assertNever(message)
+					break
+				}
+			}
+			console.log("roomName ->", messages)
+			
+			const messageHandlerRef = useRef(messageHandler)
 	useIsomorphicLayoutEffect(() => {
 		messageHandlerRef.current = messageHandler
 	})
@@ -113,11 +118,11 @@ export default function useRoom({
 		[userId, roomState.users]
 	)
 
-	const sendChat = ({ message, to }: { message: string; to: string }) => {
+	const sendChat = ({ message }: { message: string; roomId: string }) => {
 		if (identity) {
 			signal.sendChat({
 				from: identity.id,
-				to,
+				roomId: roomName,
 				message,
 			})
 		}

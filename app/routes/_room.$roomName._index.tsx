@@ -101,7 +101,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 	// console.log('end', end)
 	console.log('trxWaitingDate', trxWaitingDate);
 	let duration = moment.duration(now.diff(end));
-	console.log('duration', duration);
+	// console.log('duration', duration);
 	// let durationMin = moment.duration(end.diff(now));
 	// let secondsMin = Math.floor(durationMin.asSeconds());
 	let seconds = Math.floor(duration.asSeconds());
