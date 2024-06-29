@@ -11,6 +11,7 @@ import * as build from '@remix-run/dev/server-build'
 import manifestJSON from '__STATIC_CONTENT_MANIFEST'
 import { mode } from '~/utils/mode'
 import { queue } from './app/queue'
+import getDoctorToken from '~/utils/getDoctorToken.server'
 
 const baseRemixHandler = createRequestHandler(build, mode)
 
@@ -100,9 +101,85 @@ const kvAssetHandler = createKvAssetHandler(JSON.parse(manifestJSON))
 
 export default {
 	async fetch(request: Request, env: any, ctx: any) {
+		const url = new URL(request.url)
+
+		if (url.pathname === '/dashboard') {
+			console.log(env)
+			return handleDoctorWebSocket(request, env, ctx);
+		  }
+
+		  if (url.pathname === '/set-username') {
+			console.log("url", url)
+			// return handleClientWebSocket(request, env, ctx);
+		  }	  
+	  
 		const assetResponse = await kvAssetHandler(request, env, ctx, build)
 		if (assetResponse) return assetResponse
 		return remixHandler(request, env)
 	},
 	queue,
 }
+
+function handleDoctorWebSocket(request: Request, env: any, ctx: any) {
+	const upgradeHeader = request.headers.get('Upgrade');
+	if (!upgradeHeader || upgradeHeader.toLowerCase() !== 'websocket') {
+	  return new Response('Expected Upgrade: websocket', { status: 426 });
+	}
+  
+	const pair = new WebSocketPair();
+	const [client, server] = Object.values(pair);
+  
+	// server.accept();
+	
+	if (!env.DOCTOR_CONNECTIONS) {
+	  env.DOCTOR_CONNECTIONS = [];
+	}
+	env.DOCTOR_CONNECTIONS.push(server);
+  
+	server.addEventListener('close', () => {
+	  env.DOCTOR_CONNECTIONS = env.DOCTOR_CONNECTIONS.filter((conn:any) => conn !== server);
+	});
+  
+	return new Response(null, { 
+	  status: 101, 
+	  webSocket: client,
+	  headers: {
+		'Upgrade': 'websocket',
+		'Connection': 'Upgrade'
+	  }
+	});
+  }
+  
+  function handleClientWebSocket(request: Request, env: any, ctx: any) {
+	const upgradeHeader = request.headers.get('Upgrade');
+	if (!upgradeHeader || upgradeHeader.toLowerCase() !== 'websocket') {
+	  return new Response('Expected Upgrade: websocket', { status: 426 });
+	}
+  
+	const pair = new WebSocketPair();
+	const [client, server] = Object.values(pair);
+	console.log(pair)
+  
+	// server.accept();
+  
+	server.addEventListener('message', (event) => {
+	  const data = JSON.parse(event.data);
+	  if (data.type === 'new_call') {
+		// Broadcast pesan ke semua koneksi doctor
+		if (env.DOCTOR_CONNECTIONS) {
+		  env.DOCTOR_CONNECTIONS.forEach((conn:any) => {
+			conn.send(JSON.stringify(data));
+		  });
+		}
+	  }
+	});
+  
+	return new Response(null, { 
+	  status: 101, 
+	  webSocket: client,
+	  headers: {
+		'Upgrade': 'websocket',
+		'Connection': 'Upgrade'
+	  }
+	});
+  }

@@ -1,7 +1,7 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/cloudflare'
 import { Form, Link, useFetcher, useLoaderData, useNavigate, useRevalidator, useSubmit } from '@remix-run/react'
 import moment from 'moment'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useInterval } from 'react-use'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
@@ -11,7 +11,7 @@ import { setClientToken } from '~/utils/getClientToken.server'
 import getDoctorToken, { removeDoctorToken, setDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 import { playSound } from '~/utils/playSound'
-// import DataApi from '~/api/dataApi.server'
+
 export const loader = async({request, context}: LoaderFunctionArgs) => {
 	const host = context.URL_API;
 	const url = new URL(request.url)
@@ -28,61 +28,22 @@ export const loader = async({request, context}: LoaderFunctionArgs) => {
 		}
 	})
 	let data:any = await response.json();
-	// console.log('data', data)
-	// return data;
 	if(!data.success) {
 		return removeDoctorToken(request, `/doctor`);
-		// throw redirect('/doctor?msg='+data.message);
 	}
 	data = data.data
 	if(data.trxCallStatus == 1) {
 		return setClientToken(request, `/${data.doctor.room}/room`, data.trxClientToken);
-		// return redirect();
 	}
 	let now = moment(new Date()); //todays date
 	let end = (data.trxWaitingDate) ? data.trxWaitingDate : data.trxDate; // another date
-	// console.log('now', now)
-	// console.log('end', end)
-	// console.log('trxWaitingDate', end);
 	let duration = moment.duration(now.diff(end));
-	// console.log('duration', duration);
-	// let durationMin = moment.duration(end.diff(now));
-	// let secondsMin = Math.floor(durationMin.asSeconds());
 	let seconds = Math.floor(duration.asSeconds());
 	let maxsecond = 30 - seconds;
 
-	// console.log('seconds', seconds)
-	// console.log('maxsecond', maxsecond-seconds)
-
 	return json({data, seconds, maxsecond});
 }
-// export const action = async ({ request }: ActionFunctionArgs) => {
-// 	const host = context.URL_API;
-// 	const { username, password } = Object.fromEntries(await request.formData())
-// 	invariant(typeof username === 'string')
-// 	invariant(typeof password === 'string')
-// 	const response = await fetch(`${host}/login`, {
-// 		method: 'post',
-// 		headers: {
-// 			'Content-Type': 'application/json'
-// 		},
-// 		body: JSON.stringify({
-// 			username: username,
-// 			password: password,
-// 		})
-// 	})
-// 	const data:any = await response.json();
-// 	if(!data.success) {
-// 		throw new Response("Info doctor gagal didapat. Silahkan coba beberapa saat lagi", {status: 500});
-// 	}
-// 	// if(data)
-// 		// console.log('data', data.data.trxcall.trxClientToken)
-// 	// 	if(data)
-// 	// 		console.log('data', data)
-// 	// return data;
-// 	const doctorToken = data.data.token;
-// 	return setDoctorToken(doctorToken, request, '/doctor/dashboard');
-// }
+
 export default function DoctorDashboard() {
 	const navigate = useNavigate();
 	const submit = useSubmit();
@@ -96,25 +57,50 @@ export default function DoctorDashboard() {
 	
 	const revalidator = useRevalidator();
 	let intervalID: any = null;
+
 	
-	useEffect(() => {
+	// useEffect(() => {
 		
-		// if(!room) {
-			intervalID = setInterval(() => {
-				if (revalidator.state === "idle") {
-					revalidator.revalidate();
-				}
-			}, 1000)
-		// }
+	// 	// if(!room) {
+	// 		intervalID = setInterval(() => {
+	// 			if (revalidator.state === "idle") {
+	// 				revalidator.revalidate();
+	// 			}
+	// 		}, 1000)
+	// 	// }
 		
-		if(room) {
-			playSound('raiseHand');
-		}
-		// 	revalidator.revalidate();
+	// 	if(room) {
+	// 		playSound('raiseHand');
+	// 	}
+	// 	// 	revalidator.revalidate();
 
 		
-		return () => clearInterval(intervalID);
-	}, [revalidator]);
+	// 	return () => clearInterval(intervalID);
+	// }, [revalidator]);
+
+	useEffect(() => {
+		const ws = new WebSocket(`ws://${window.location.host}/dashboard`);
+		console.log(ws)
+		
+		ws.onmessage = (event) => {
+			console.log(event)
+		  const newData = JSON.parse(event.data);
+		//   setCallData(newData);
+		  if (newData.doctor.room) {
+			playSound('raiseHand');
+		  }
+		};
+		
+		ws.onclose = () => {
+		  console.log('WebSocket connection closed. Attempting to reconnect...');
+		};
+		
+		return () => {
+		  ws.close();
+		};
+	  }, []);
+	  
+	
 	return (
 		<div className="grid h-full gap-4 place-content-center bg-doctor">
 			<div className='grid grid-cols-2 gap-4'>

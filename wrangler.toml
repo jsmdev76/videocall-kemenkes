@@ -1,7 +1,8 @@
-name = "vcall-meets"
+name = "vcall-rhesa"
 # https://developers.cloudflare.com/workers/platform/compatibility-dates
 compatibility_date = "2022-04-05"
-account_id = "c1acc80fc2b1b0e907ee63cd080f1e23"
+# account_id = "c1acc80fc2b1b0e907ee63cd080f1e23"
+account_id = "5a5db1390090a9946d2a39d27caf8e5a" #rhesa
 main = "./build/index.js"
 
 [site]
@@ -13,17 +14,22 @@ main = "./build/index.js"
   globs = ["**/*.js"]
 
 [vars]
-CALLS_APP_ID = "4a469496ab595f316c0ed2d304bc946a"
-URL_API = "http://vcallapi.kacanata.com"
+# CALLS_APP_ID = "4a469496ab595f316c0ed2d304bc946a"
+CALLS_APP_ID = "f56c9e5e159866ede18e6e64801b79e4" #rhesa
+CALLS_APP_SECRET = "03227ee053731cfa8bd48e032a7466c013b98063d0c68608462f45a08611d634" #rhesa
+# URL_API = "http://vcallapi.kacanata.com"
+URL_API = "http://localhost:3000"
 
 [durable_objects]
  bindings = [
-  { name = "rooms", class_name = "ChatRoom" }
+  { name = "rooms", class_name = "ChatRoom" },
+  # { name = "incomingCall", class_name = "IncomingCallMonitor"}
 ]
 
 # Indicate that you want the ChatRoom class to be callable as Durable Objects.
 [[migrations]]
 tag = "v1" # Should be unique for each entry
+# new_classes = ["ChatRoom", "IncomingCallMonitor"]
 new_classes = ["ChatRoom"]
 
 # The necessary secrets are:
