@@ -1,37 +1,30 @@
-import { redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
-import invariant from "tiny-invariant";
-import getDoctorToken from "~/utils/getDoctorToken.server";
-import { setUsername } from "~/utils/getUsername.server";
+import { redirect, type ActionFunctionArgs } from '@remix-run/cloudflare'
+import { setDoctorToken } from '~/utils/getDoctorToken.server'
 
 export const action = async ({
 	params,
 	request,
-	context
-  }: ActionFunctionArgs) => {
-	const host = context.URL_API;
+	context,
+}: ActionFunctionArgs) => {
+	const host = context.URL_API
 	const url = new URL(request.url)
-	let doctorToken = await getDoctorToken(request);
-	console.log('doctorToken', doctorToken);
-	if(!doctorToken) {
-		throw redirect('/doctor');
-	}
-	const response = await fetch(`${host}/trxcall/accept`, {
-		method: 'post',
+	const callId = url.searchParams.get('callId')
+	const roomId = url.searchParams.get('roomId')
+
+	const response = await fetch(`${host}/call/action`, {
+		method: 'POST',
 		headers: {
-			'Authorization': 'Bearer '+doctorToken
-		}
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			callId,
+			action: "accept"
+		}),
+
 	})
-	let data:any = await response.json();
-	console.log('data', data)
-	// return data;
-	if(!data.success) {
-		throw redirect('/doctor?msg='+data.message);
-	}
-	data = data.data
-	const doctor = data.doctor
-	const trxcall = data.trxcall
-	// return json({data});
-    console.log('xxx',data)
-	// return data
-	return setUsername(doctor.name, trxcall.trxClientToken, request, `/${doctor.room}/room`);
-  };
+	let data: any = await response.json()
+	console.log(data)
+	return setDoctorToken("doctor", `${data.data.call.agentName} | Agent`, request, `/${data.data.call.roomId}/room`)
+	// throw redirect(`/${roomId}/room`)
+}

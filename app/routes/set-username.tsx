@@ -1,26 +1,19 @@
-import {
-	json,
-	redirect,
-	type ActionFunctionArgs,
-	type LoaderFunctionArgs,
-} from '@remix-run/cloudflare'
-import { Form, useLoaderData, useNavigation } from '@remix-run/react'
+import { json, redirect, type ActionFunctionArgs } from '@remix-run/cloudflare'
+import { Form, useActionData, useNavigation } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
-import getDoctorToken from '~/utils/getDoctorToken.server'
-import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-	const url = new URL(request.url)
-	let isfull = url.searchParams.get('isfull')
-	let doctorToken = await getDoctorToken(request)
-	if (doctorToken) {
-		return redirect('/doctor/dashboard')
-	}
-	return json({ isfull })
-}
+// export const loader = async ({ request }: LoaderFunctionArgs) => {
+// 	const url = new URL(request.url)
+// 	let isfull = url.searchParams.get('isfull')
+// 	// let doctorToken = await getDoctorToken(request)
+// 	// if (doctorToken) {
+// 	// 	return redirect('/doctor/dashboard')
+// 	// }
+// 	return json({ isfull })
+// }
 export const action = async ({ request, context }: ActionFunctionArgs) => {
 	const host = context.URL_API
 	const url = new URL(request.url)
@@ -30,45 +23,55 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	)
 	invariant(typeof username === 'string')
 	const roomName = crypto.randomUUID().split('-')[0]
-	const response = await fetch(`${host}/trxcall`, {
+	const response = await fetch(`${host}/call/create`, {
 		method: 'post',
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			roomName: roomName,
+			roomId: roomName,
 			clientName: username,
 			latitude: latitude,
 			longitude: longitude,
 		}),
 	})
 	console.log('response', response)
-	const data: any = await response.json()
-	if (!data.success) {
-		if (data.waiting) {
-			throw redirect('/set-username?isfull=1')
-		} else {
-			throw new Response('Panggilan gagal. Silahkan coba beberapa saat lagi', {
-				status: 500,
-			})
-		}
-	}
+	const data: { message: string; success: boolean } = await response.json()
+	// if (!data.success) {
+	// 	if (data.waiting) {
+	// 		throw redirect('/set-username?isfull=1')
+	// 	} else {
+	// 		throw new Response('Panggilan gagal. Silahkan coba beberapa saat lagi', {
+	// 			status: 500,
+	// 		})
+	// 	}
+	// }
 	// if(data)
 	// console.log('data', data.data.trxcall.trxClientToken)
 	// 	if(data)
 	// 		console.log('data.success', data.success)
 	// return data;
-	const trxClientToken = data.data.trxcall.trxClientToken
-	return setUsername(username, trxClientToken, request, '/new?room=' + roomName)
+	// const trxClientToken = data.data.trxcall.trxClientToken
+	if (data.success) {
+		return redirect(`/${roomName}`)
+	} else {
+		return json({ username, data })
+	}
+	// return setUsername(username, trxClientToken, request, '/new?room=' + roomName)
 }
 
 export default function SetUsername() {
-	const { isfull } = useLoaderData<typeof loader>()
-	const [latitude, setLatitude] = useState(1)
-	const [longitude, setLongitude] = useState(1)
+	// const { isfull } = useLoaderData<typeof loader>()
+	const data = useActionData<typeof action>()
+	console.log('hi ini data', data)
+	// const [data, setData] = useState()
+	const [latitude, setLatitude] = useState<string>('')
+	const [longitude, setLongitude] = useState<string>('')
 	const [allowAudio, setAllowAudio] = useState(1)
 	const [callStatus, setCallStatus] = useState('idle')
+	const [isFull, setIsFull] = useState(false)
+
 	const navigation = useNavigation()
 	// let latitude = 0;
 	// let longitude = 0;
@@ -77,8 +80,8 @@ export default function SetUsername() {
 			navigator.geolocation.getCurrentPosition((position) => {
 				console.log('position', position)
 				if (position) {
-					setLatitude(position.coords.latitude)
-					setLongitude(position.coords.longitude)
+					setLatitude(String(position.coords.latitude))
+					setLongitude(String(position.coords.longitude))
 				}
 				console.log('latitude', latitude)
 			})
@@ -102,9 +105,10 @@ export default function SetUsername() {
 		// if(allowAudio == 2) {
 		// 	alert('Silahkan aktifkan microphone untuk memulai sesi.');
 		// }
-	}, [latitude, longitude])
+	}, [latitude, longitude, data, navigation])
 	// console.log('latitude', latitude)
 	// console.log(allowAudio,'allowAudio')
+
 	return (
 		<div className="grid h-full gap-4 place-content-center bg-login">
 			<div className="bg-kemenkes box-logo"></div>
@@ -151,13 +155,19 @@ export default function SetUsername() {
 			) : (
 				''
 			)}
-			{isfull == '1' ? (
+			{/* {isfull == '1' ? (
 				<div className="text-danger">
 					Mohon maaf tenaga medis belum tersedia untuk saat ini.
 					<br /> Silahkan coba beberapa saat lagi.
 				</div>
 			) : (
 				''
+			)} */}
+			{data?.data.message === 'No available agent found' && (
+				<div className="text-danger">
+					Mohon maaf tenaga medis belum tersedia untuk saat ini.
+					<br /> Silahkan coba beberapa saat lagi.
+				</div>
 			)}
 		</div>
 	)

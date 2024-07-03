@@ -5,9 +5,11 @@ import { Button } from './Button'
 import { Icon } from './Icon/Icon'
 import { Tooltip } from './Tooltip'
 
-interface LeaveRoomButtonProps {}
+interface LeaveRoomButtonProps {
+	endpoint: string
+}
 
-export const LeaveRoomButton: FC<LeaveRoomButtonProps> = () => {
+export const LeaveRoomButton: FC<LeaveRoomButtonProps> = ({endpoint}) => {
 	const navigate = useNavigate()
 	const submit = useSubmit()
 	return (
@@ -17,7 +19,7 @@ export const LeaveRoomButton: FC<LeaveRoomButtonProps> = () => {
 				className='btn-leave'
 				onClick={() => {
 					// navigate('/set-username')
-					submit({}, { method: "post", action: "/leaveroom" });
+					submit({}, { method: "post", action: endpoint });
 				}}
 			>
 				<VisuallyHidden>Leave</VisuallyHidden>

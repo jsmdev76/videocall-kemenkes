@@ -28,11 +28,12 @@ export default async function getUsername(request: Request) {
 	const accessUsername = request.headers.get(
 		ACCESS_AUTHENTICATED_USER_EMAIL_HEADER
 	)
-	const url = new URLSearchParams()
-	const listener = url.get("listener")
+	const url = request.url
+	console.log(request.url)
+	// const url = new URLSearchParams()
+	// console.log(url)
+	// const listener = url.get("listener")
 	// console.log("ini listener =>",listener)
-
-	console.log(accessUsername)
 	if (accessUsername) return accessUsername
 
 	const session = await getSession(request.headers.get('Cookie'))
@@ -40,4 +41,5 @@ export default async function getUsername(request: Request) {
 	if (typeof sessionUsername === 'string') return sessionUsername
 
 	return "anonymous_$43567243567u"
+	// return null
 }

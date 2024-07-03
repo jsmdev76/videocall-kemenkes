@@ -8,26 +8,25 @@ export const action = async ({
 	request,
 	context
   }: ActionFunctionArgs) => {
-	const host = context.URL_API;
+	const host = context.URL_API
 	const url = new URL(request.url)
-	let doctorToken = await getDoctorToken(request);
-	console.log('doctorToken', doctorToken);
-	if(!doctorToken) {
-		throw redirect('/doctor');
-	}
-	const response = await fetch(`${host}/trxcall/denied`, {
-		method: 'post',
+	const callId = url.searchParams.get('callId')
+	const roomId = url.searchParams.get('roomId')
+
+	const response = await fetch(`${host}/call/action`, {
+		method: 'POST',
 		headers: {
-			'Authorization': 'Bearer '+doctorToken
-		}
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			callId,
+			action: "deny"
+		}),
+
 	})
-	let data:any = await response.json();
-	console.log('data', data)
-	// return data;
-	if(!data.success) {
-		throw redirect('/doctor/dashboard?msg='+data.message);
-	}
-	
-	// return data
-	return redirect('/doctor/dashboard');
+	let data: any = await response.json()
+	console.log(data)
+	return data
+	// throw redirect(`/${roomId}/room`)
   };

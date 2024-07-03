@@ -29,7 +29,7 @@ import useSounds from '~/hooks/useSounds'
 import useStageManager from '~/hooks/useStageManager'
 import { useUserJoinLeaveToasts } from '~/hooks/useUserJoinLeaveToasts'
 import { calculateLayout } from '~/utils/calculateLayout'
-import { removeClientToken } from '~/utils/getClientToken.server'
+import getClientToken, { removeClientToken } from '~/utils/getClientToken.server'
 import getDoctorToken from '~/utils/getDoctorToken.server'
 import getUsername from '~/utils/getUsername.server'
 import isNonNullable from '~/utils/isNonNullable'
@@ -42,52 +42,54 @@ export const loader = async ({
 	const url = new URL(request.url)
 	const isListener = url.searchParams.has('listener')
 	const isWhisper = url.searchParams.has('whisper')
-	let username = await getUsername(request)
+	// let username = await getUsername(request)
+	let username = "a"
 	const roomName = params.roomName
 	// const trxClientToken = await getClientToken(request)
 	const host = context.URL_API
 	const doctorToken = await getDoctorToken(request)
+	const clientToken = await getUsername(request)
 
-	const response = await fetch(`${host}/room`, {
-		method: 'post',
+	const response = await fetch(`${host}/call/room/${roomName}`, {
+		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({
-			roomName: roomName,
-			isDoctor: doctorToken ? true : false,
-		}),
+		// body: JSON.stringify({
+		// 	roomName: roomName,
+		// 	isDoctor: doctorToken ? true : false,
+		// }),
 	})
 
 	const data: any = await response.json()
-	if (!data.success) {
-		throw new Response(data.message, { status: 500 })
-	}
+	console.log({doctorToken, clientToken})
+	// if (!data.success) {
+	// 	throw new Response(data.message, { status: 500 })
+	// }
 
-	const trxcall = data.data.trxcall
-	if (trxcall.trxCallStatus >= 2) {
-		await removeClientToken(request, `/end-room`)
-		if (doctorToken) {
-			throw redirect('/doctor')
-		} else {
-			throw redirect('/end-room')
-		}
-	}
+	// const trxcall = data.data.trxcall
+	// if (trxcall.trxCallStatus >= 2) {
+	// 	await removeClientToken(request, `/end-room`)
+	// 	if (doctorToken) {
+	// 		throw redirect('/doctor')
+	// 	} else {
+	// 		throw redirect('/end-room')
+	// 	}
+	// }
 
-	const startDate = new Date(trxcall.trxUserDate)
-	const endDate = new Date()
-	const diffMinutes = (endDate.getTime() - startDate.getTime()) / 60000
-	if (diffMinutes > 1 && doctorToken) {
-		throw redirect('/doctor')
-	}
+	// const startDate = new Date(trxcall.trxUserDate)
+	// const endDate = new Date()
+	// const diffMinutes = (endDate.getTime() - startDate.getTime()) / 60000
+	// if (diffMinutes > 1 && doctorToken) {
+	// 	throw redirect('/doctor')
+	// }
 
 	return json({
 		username,
 		bugReportsEnabled: Boolean(context.FEEDBACK_QUEUE && context.FEEDBACK_URL),
 		mode: context.mode,
-		trxcall,
-		doctorToken,
 		isListener,
+		data
 	})
 }
 
@@ -153,9 +155,10 @@ export default function Room() {
 	const { joined } = useRoomContext()
 	const navigate = useNavigate()
 	const { roomName } = useParams()
-	const { mode, bugReportsEnabled, trxcall, doctorToken, isListener } =
+	const { mode, bugReportsEnabled, isListener, data } =
 		useLoaderData<typeof loader>()
-	const trxCallStatus = trxcall.trxCallStatus
+
+		console.log(data)
 
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
@@ -163,16 +166,16 @@ export default function Room() {
 
 	const revalidator = useRevalidator()
 
-	useEffect(() => {
-		if (trxCallStatus == 1) {
-			const intervalID = setInterval(() => {
-				if (revalidator.state === 'idle') {
-					revalidator.revalidate()
-				}
-			}, 5000)
-			return () => clearInterval(intervalID)
-		}
-	}, [revalidator, trxCallStatus])
+	// useEffect(() => {
+	// 	if (trxCallStatus == 1) {
+	// 		const intervalID = setInterval(() => {
+	// 			if (revalidator.state === 'idle') {
+	// 				revalidator.revalidate()
+	// 			}
+	// 		}, 5000)
+	// 		return () => clearInterval(intervalID)
+	// 	}
+	// }, [revalidator, trxCallStatus])
 
 	useEffect(() => {
 		window.onbeforeunload = () =>
@@ -186,6 +189,7 @@ export default function Room() {
 			<JoinedRoom
 				bugReportsEnabled={bugReportsEnabled}
 				isListener={isListener}
+				callId={data.data.callId}
 			/>
 		</Toast.Provider>
 	)
@@ -194,9 +198,11 @@ export default function Room() {
 function JoinedRoom({
 	bugReportsEnabled,
 	isListener,
+	callId
 }: {
 	bugReportsEnabled: boolean
 	isListener: boolean
+	callId: string
 }) {
 	const {
 		userMedia,
@@ -291,6 +297,16 @@ function JoinedRoom({
 						}
 						ref={containerRef}
 					>
+						{/* <Participant
+									user={{name: "a", id: "id", role:"role", raisedHand: false, speaking: false, joined: true, tracks: {}}}
+									isSelf
+									flipId={'identity user'}
+									ref={firstFlexChildRef}
+									videoTrack={userMedia.videoStreamTrack}
+									audioTrack={userMedia.audioStreamTrack}
+									pinnedId={pinnedId}
+									setPinnedId={setPinnedId}
+								/> */}
 						{/* {identity && userMedia.audioStreamTrack && (
 							<Participant
 								user={identity}
@@ -450,7 +466,7 @@ function JoinedRoom({
                         className="hidden md:block"
                     /> */}
 					<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
-					<LeaveRoomButton />
+					<LeaveRoomButton endpoint={`/api/endcall/${callId}`} />
 				</div>
 			</div>
 			<HighPacketLossWarningsToast />
