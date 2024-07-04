@@ -21,14 +21,14 @@ export const action = async ({
 	// 	else
 	// 		throw redirect('/set-username');
 	// }
-	const response = await fetch(`${host}/call/action`, {
+	const response = await fetch(`${host}/call/cancel`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
-			action: "end",
-			callId: params.callId
+			callId: Number(params.callId),
+			reason: "client"
 		})
 	})
 	let data:any = await response.json();

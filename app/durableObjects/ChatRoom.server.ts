@@ -271,14 +271,14 @@ export class ChatRoom {
 						break
 
 					case 'chatMessage':
-						const { from, message } = data
+						const { from, message, roomId } = data
 						const sender = this.sessions.find((s) => s.id === from)
 						if (sender) {
 							const senderRole = sender.user.role
 
 							if (senderRole === 'whisper') {
 								const recipients = this.sessions.filter(
-									(s) => s.user.role === 'agent'
+									(s) => s.user.role === 'agent' && s.user.joined
 								)
 								console.log('Penerima (agents):', recipients)
 
@@ -289,6 +289,7 @@ export class ChatRoom {
 											type: 'chatMessage',
 											from: sender.user.name,
 											message,
+											roomId,
 										})
 									}
 
@@ -297,13 +298,18 @@ export class ChatRoom {
 										type: 'chatMessage',
 										from: sender.user.name,
 										message,
+										roomId,
 									})
 								} else {
-									console.error('Tidak ada penerima dengan peran agent')
+									console.error('Tidak ada agent yang aktif di room ini')
+									await this.sendMessage(sender, {
+										type: 'error',
+										error: 'Tidak ada agent yang aktif di room ini',
+									})
 								}
 							} else if (senderRole === 'agent') {
 								const recipient = this.sessions.find(
-									(s) => s.user.role === 'whisper'
+									(s) => s.user.role === 'whisper' && s.user.joined
 								)
 								console.log('Penerima (whisper):', recipient)
 
@@ -313,6 +319,7 @@ export class ChatRoom {
 										type: 'chatMessage',
 										from: sender.user.name,
 										message,
+										roomId,
 									})
 
 									await this.sendMessage(sender, {
@@ -320,17 +327,25 @@ export class ChatRoom {
 										type: 'chatMessage',
 										from: sender.user.name,
 										message,
+										roomId,
 									})
 								} else {
-									console.error('Tidak ada penerima dengan peran whisper')
+									console.error('Tidak ada whisper yang aktif di room ini')
+									await this.sendMessage(sender, {
+										type: 'error',
+										error: 'Tidak ada whisper yang aktif di room ini',
+									})
 								}
 							} else {
 								console.error('Peran pengirim tidak valid')
+								await this.sendMessage(sender, {
+									type: 'error',
+									error: 'Peran pengirim tidak valid',
+								})
 							}
 						} else {
 							console.error('Pengirim tidak ditemukan')
 						}
-
 						break
 					default:
 						assertNever(data)

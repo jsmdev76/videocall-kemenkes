@@ -7,6 +7,13 @@ import type { UserMedia } from './useUserMedia'
 import { useRoomUrl } from './useRoomUrl'
 import { useParams } from '@remix-run/react'
 
+type Role = 'listener' | 'whisper' | 'agent' | 'client'
+
+const isValidRole = (role: string | null): role is Role => {
+  return role === 'listener' || role === 'whisper' || role === 'agent' || role === 'client'
+}
+
+
 export default function useRoom({
 	roomName,
 	userMedia,
@@ -16,21 +23,34 @@ export default function useRoom({
 }) {
 	const { signal } = useSignal(roomName)
 	const [roomState, setRoomState] = useState<RoomState>({ users: [] })
+	const [error, setError] = useState<string | null>(null)
 	const [messages, setMessages] = useState<{ from: string; message: string; roomId: string }[]>(
 		[]
 	)
 	const [userId, setUserId] = useState<string>()
 	const queryParams = new URLSearchParams(window.location.search)
-	const whisperParam = queryParams.get('whisper')
-	const listenerParam = queryParams.get('listener')
+	const roleParam = queryParams.get('role')
+	// const whisperParam = queryParams.get('whisper')
+	// const listenerParam = queryParams.get('listener')
 
 	console.log("params :", roomName)
+
+	useEffect(() => {
+		if (roleParam && !isValidRole(roleParam)) {
+		  setError(`Invalid role: ${roleParam}. Valid roles are: listener, whisper, agent, client.`)
+		} else {
+		  setError(null)
+		}
+	  }, [roleParam])
+	
 
 	// using the latest ref pattern here so we don't need to keep rebinding
 	// the message handler every time a dependency changes
 	// https://epicreact.dev/the-latest-ref-pattern-in-react/
 	const messageHandler = (e: MessageEvent<MessageFromServer>) => {
 		const { message } = e.data
+
+		console.log(message)
 
 		switch (message.type) {
 			case 'roomState':
@@ -44,12 +64,14 @@ export default function useRoom({
 						if (user.id === userId) {
 							return {
 								...user,
-								name: whisperParam || listenerParam || user.name,
-								role: listenerParam
-									? 'listener'
-									: whisperParam
-										? 'whisper'
-										: user.role,
+								name: roleParam === "whisper" || roleParam === "listener" ? roleParam : user.name,
+								role: isValidRole(roleParam) ? roleParam : user.role,
+								// name: whisperParam || listenerParam || user.name,
+								// role: listenerParam
+								// 	? 'listener'
+								// 	: whisperParam
+								// 		? 'whisper'
+								// 		: user.role,
 							}
 						}
 						return user
@@ -73,9 +95,10 @@ export default function useRoom({
 			case 'chatMessage':
 				setMessages((prevMessages) => [
 					...prevMessages.filter(msg => msg.roomId === roomName),
-					{ from: message.from, message: message.message, roomId: roomName },
-				])
-				break
+					{ from: message.from, message: message.message, roomId: message.roomId },
+				  ])
+				  break
+				
 				default:
 					assertNever(message)
 					break
@@ -106,19 +129,19 @@ export default function useRoom({
 		if (user) {
 			return {
 				...user,
-				name: whisperParam || listenerParam || user.name,
-				role: listenerParam ? 'listener' : whisperParam ? 'whisper' : user.role,
+				name: user.name,
+				role: user.role,
 			}
 		}
 		return user
-	}, [roomState.users, userId, whisperParam, listenerParam])
+	}, [roomState.users, userId, roleParam])
 
 	const otherUsers = useMemo(
 		() => roomState.users.filter((u) => u.id !== userId && u.joined),
 		[userId, roomState.users]
 	)
 
-	const sendChat = ({ message }: { message: string; roomId: string }) => {
+	const sendChat = ({ message }: { message: string }) => {
 		if (identity) {
 			signal.sendChat({
 				from: identity.id,
@@ -128,5 +151,5 @@ export default function useRoom({
 		}
 	}
 
-	return { identity, otherUsers, signal, roomState, sendChat, messages }
+	return { identity, otherUsers, signal, roomState, sendChat, messages, error }
 }

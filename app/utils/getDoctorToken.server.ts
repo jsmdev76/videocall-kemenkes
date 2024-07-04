@@ -1,5 +1,5 @@
 import { redirect } from '@remix-run/cloudflare'
-import { commitSession, getSession } from '~/session'
+import { commitSession, destroySession, getSession } from '~/session'
 
 export async function setDoctorToken(
 	doctorToken: string,
@@ -26,12 +26,21 @@ export async function removeDoctorToken(
 ) {
 	const session = await getSession(request.headers.get('Cookie'))
 	session.set('doctortoken', '')
+
+	const destroyCookie = await destroySession(session);
+
+  throw redirect(returnUrl, {
+    headers: {
+      'Set-Cookie': destroyCookie,
+    },
+  });
+
 	// window.localStorage.removeItem("isDoctor");
-	throw redirect(returnUrl, {
-		headers: {
-			'Set-Cookie': await commitSession(session),
-		},
-	})
+	// throw redirect(returnUrl, {
+	// 	headers: {
+	// 		'Set-Cookie': await commitSession(session),
+	// 	},
+	// })
 }
 
 /**

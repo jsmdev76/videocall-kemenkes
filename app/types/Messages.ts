@@ -46,6 +46,7 @@ export type ServerMessage =
 			to: string
 			from: string
 			message: string
+			roomId: string
 	  }
 
 export type MessageFromServer = {

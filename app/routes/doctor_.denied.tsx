@@ -1,4 +1,4 @@
-import { redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
+import { json, redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
 import invariant from "tiny-invariant";
 import getDoctorToken from "~/utils/getDoctorToken.server";
 import { setUsername } from "~/utils/getUsername.server";
@@ -12,6 +12,10 @@ export const action = async ({
 	const url = new URL(request.url)
 	const callId = url.searchParams.get('callId')
 	const roomId = url.searchParams.get('roomId')
+	const username = url.searchParams.get('username')
+	const id = url.searchParams.get('id')
+
+	console.log(url)
 
 	const response = await fetch(`${host}/call/action`, {
 		method: 'POST',
@@ -27,6 +31,7 @@ export const action = async ({
 	})
 	let data: any = await response.json()
 	console.log(data)
-	return data
-	// throw redirect(`/${roomId}/room`)
+	// return data
+	// return json({data})
+	throw redirect(`/doctor/dashboard?username=${username}&id=${id}`)
   };

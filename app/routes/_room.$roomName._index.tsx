@@ -40,7 +40,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 		},
 		// body: JSON.stringify({ roomId: roomName }),
 	  });
-	  const data: {success: boolean; message: string; data: {isAccepted: boolean; callStatus: number; clientName: string; agentName: string;}} = await response.json();
+	  const data: {success: boolean; message: string; data: {isAccepted: boolean; callStatus: number; clientName: string; agentName: string; agentId: number; callId: string}} = await response.json();
 
 	  if (data.data.isAccepted) {
 		// return redirect(`/${roomName}/room`)
@@ -117,18 +117,45 @@ export default function Lobby() {
 	const [remainingTime, setRemainingTime] = useState<number>(30)
 
 	useEffect(() => {
-        if (remainingTime <= 0) {
-            alert('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.')
-            // navigate('/set-username')
-            return
-        }
+		// if (data.data.callStatus === 1 && remainingTime < 30) {
+		// 	alert(data.message)
+		// 	navigate(`/${roomName}/room`)
+		// }
+		// if (data.data.callStatus === 3 && remainingTime > 0) {
+		// 	alert(data.message)
+		// 	navigate('/set-username')
+		// }
+        // if (remainingTime <= 0) {
+        //     alert('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.')
+        //     // navigate('/set-username')
+        //     return
+        // }
 
-        const timerId = setInterval(() => {
-            setRemainingTime(prevTime => prevTime - 1)
-        }, 1000)
+        // const timerId = setInterval(() => {
+        //     setRemainingTime(prevTime => prevTime - 1)
+        // }, 1000)
 
-        return () => clearInterval(timerId)
-    }, [remainingTime, navigate])
+        // return () => clearInterval(timerId)
+		const handleStatusAndNavigation = () => {
+			if (data.data.callStatus === 1 && remainingTime < 30) {
+				alert(data.message);
+				navigate(`/${roomName}/room`);
+			} else if (data.data.callStatus === 3 && remainingTime > 0) {
+				alert(data.message);
+				navigate('/set-username');
+			} else if (remainingTime <= 0) {
+				alert('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
+				return;
+			}
+		};
+	
+		const timerId = setInterval(() => {
+			handleStatusAndNavigation();
+			setRemainingTime(prevTime => prevTime - 1);
+		}, 1000);
+	
+		return () => clearInterval(timerId);	
+    }, [remainingTime, navigate, data, roomName])
 
 
 
@@ -223,7 +250,7 @@ export default function Lobby() {
 					<MicButton />
 					<CameraButton />
 					<SettingsButton />
-					<LeaveRoomButton endpoint='' />
+					<LeaveRoomButton endpoint={`/api/cancelcall/${data.data.callId}`} />
 					{/* <CopyButton></CopyButton> */}
 				</div>
 			</div>

@@ -10,6 +10,7 @@ export const action = async ({
 	context
   }: ActionFunctionArgs) => {
 	const host = context.URL_API;
+    console.log(params)
 	let trxClientToken = await getClientToken(request);
 	let doctorToken = await getDoctorToken(request);
 	console.log('trxClientToken', trxClientToken);
@@ -20,27 +21,40 @@ export const action = async ({
 	// 	else
 	// 		throw redirect('/set-username');
 	// }
-	// const response = await fetch(`${host}/call/action`, {
-	// 	method: 'post',
-	// 	headers: {
-	// 		'Content-Type': 'application/json'
-	// 	},
-	// 	body: JSON.stringify({
-	// 		action: "end",
-	// 		callId: ""
-	// 	})
-	// })
-	// let data:any = await response.json();
-	// console.log('data', data)
-	// // return data;
-	// if(!data.success) {
-	// 	throw new Response(data.message, {status: 500});
-	// }
+
+	let action = "end"
+	if (doctorToken) {
+		action = "agentLeft"
+	} else if (trxClientToken) {
+		action = "clientLeft"
+	} else {
+		action = "end"
+	}
+	const response = await fetch(`${host}/call/action`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			action,
+			roomId: params.callId
+		})
+	})
+	let data:any = await response.json();
+	console.log('data', data)
+	// return data;
+	if(!data.success) {
+		throw new Response(data.message, {status: 500});
+	}
 	// clear session
 	let url = '/end-room';
 	// if(doctorToken)
 	// 	url = '/doctor/dashboard';
 	console.log('url', url);
 	// return url;
-	return removeClientToken(request, url);
+	if (doctorToken) {
+		return removeDoctorToken(request, url)
+	} else {
+		return removeClientToken(request, url);
+	}
   };

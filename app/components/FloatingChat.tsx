@@ -27,7 +27,6 @@ const FloatingChat: React.FC<CustomerServiceChatProps> = ({
 	const sendMessage = () => {
 		sendChat({
 			message: inputMessage,
-			roomId: "a",
 		})
 		if (inputMessage.trim()) {
 			setInputMessage('')

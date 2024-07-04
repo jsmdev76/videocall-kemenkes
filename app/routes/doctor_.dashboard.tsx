@@ -1,6 +1,8 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/cloudflare'
 import {
 	Form,
+	useActionData,
+	useFetcher,
 	useLoaderData,
 	useNavigate,
 	useRevalidator,
@@ -66,7 +68,8 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 export default function DoctorDashboard() {
 	const navigate = useNavigate()
 	const submit = useSubmit()
-	const {data: checkNewCall, username} = useLoaderData<typeof loader>()
+	const {data: checkNewCall, username, id} = useLoaderData<typeof loader>()
+	const actionData = useActionData()
 	console.log(checkNewCall)
 	// const { username,id, data: checkNewCall } = useLoaderData<typeof loader>()
 	// console.log(username,id)
@@ -120,20 +123,20 @@ export default function DoctorDashboard() {
 					<div className="call-icon"></div>
 					<p className="mb-3">Panggilan masuk dari klien.</p>
 					<p className="mb-3">
-						{/* <b>
+						<b>
 							{checkNewCall.data.call.clientName} &nbsp;
-							{geolocationUrl ? (
+							{/* {geolocationUrl ? (
 								<a href={geolocationUrl} target="_blank" className="txt-link">
 									(Lihat Lokasi)
 								</a>
 							) : (
 								''
-							)}
-						</b> */}
+							)} */}
+						</b>
 					</p>
 					<div className="loader-icon"></div>
 					<div className="flex items-end gap-4 place-content-center">
-						<Form action={`/doctor/denied?callId=${checkNewCall.data.call.id}&roomId=${checkNewCall.data.call.roomId}`} method="post" className="text-center">
+						<Form action={`/doctor/denied?callId=${checkNewCall.data.call.id}&roomId=${checkNewCall.data.call.roomId}&username=${username}&id=${id}`} method="post" className="text-center">
 							<Button className="text-xs bg-danger" type="submit">
 								x
 							</Button>
