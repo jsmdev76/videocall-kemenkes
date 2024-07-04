@@ -30,13 +30,14 @@ export default function useRoom({
 	const [userId, setUserId] = useState<string>()
 	const queryParams = new URLSearchParams(window.location.search)
 	const roleParam = queryParams.get('role')
+	const usernameParam = queryParams.get("username")
 	// const whisperParam = queryParams.get('whisper')
 	// const listenerParam = queryParams.get('listener')
 
 	console.log("params :", roomName)
 
 	useEffect(() => {
-		if (roleParam && !isValidRole(roleParam)) {
+		if (!roleParam && !isValidRole(roleParam)) {
 		  setError(`Invalid role: ${roleParam}. Valid roles are: listener, whisper, agent, client.`)
 		} else {
 		  setError(null)

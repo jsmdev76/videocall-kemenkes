@@ -1,10 +1,11 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
-import { json } from '@remix-run/cloudflare'
+import { json, redirect } from '@remix-run/cloudflare'
 import {
 	useLoaderData,
 	useNavigate,
 	useParams,
 	useRevalidator,
+	useSearchParams,
 } from '@remix-run/react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Flipper } from 'react-flip-toolkit'
@@ -43,8 +44,9 @@ export const loader = async ({
 	const username = url.searchParams.get('username')
 	const roomName = params.roomName
 	const doctorToken = await getDoctorToken(request)
+
 	if (role && username && roomName) {
-			if (!doctorToken) {
+		if (!doctorToken) {
 			await setDoctorToken(
 				'doctor',
 				`${username} | Agent`,
@@ -111,7 +113,9 @@ export const loader = async ({
 		bugReportsEnabled: Boolean(context.FEEDBACK_QUEUE && context.FEEDBACK_URL),
 		mode: context.mode,
 		data,
-		roomName
+		roomName,
+		role,
+		username
 	})
 }
 
@@ -174,12 +178,10 @@ function useGridDebugControls(
 }
 
 export default function Room() {
-	const { joined } = useRoomContext()
+	const { joined, room: {error} } = useRoomContext()
 	const navigate = useNavigate()
 	const { roomName } = useParams()
 	const { mode, bugReportsEnabled, data } = useLoaderData<typeof loader>()
-
-	console.log(data)
 
 	useEffect(() => {
 		if (!joined && mode !== 'development') navigate(`/${roomName}`)
@@ -204,7 +206,7 @@ export default function Room() {
 	}, [])
 
 	if (!joined && mode !== 'development') return null
-
+	if (error) return <div>{error}</div>
 	return (
 		<Toast.Provider>
 			<JoinedRoom
@@ -293,6 +295,8 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
+	console.log(identity)
+
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
@@ -365,10 +369,7 @@ function JoinedRoom({
 							)} */}
 						{actorsOnStage.map((user) => {
 							if (user.name.startsWith('anonymous')) return null
-							if (
-								(identity?.role === 'client' && user.role === 'listener') ||
-								user.role === 'whisper'
-							)
+							if (identity?.role === 'client' && (user.name === 'whisper' || user.name === 'listener'))
 								return null
 
 							return (

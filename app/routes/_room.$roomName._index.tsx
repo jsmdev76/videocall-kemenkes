@@ -28,11 +28,9 @@ import getUsername, { setUsername } from '~/utils/getUsername.server'
 
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
-
+	const host = context.URL_API;
 	const roomName = params.roomName
 	
-	const host = context.URL_API;
-
 	const response = await fetch(`${host}/call/client/${roomName}`, {
 		method: 'GET',
 		headers: {
@@ -44,17 +42,17 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 
 	  if (data.data.isAccepted) {
 		// return redirect(`/${roomName}/room`)
-		return setUsername(data.data.clientName, "client", request, `/${roomName}/room`)
+		return setUsername(data.data.clientName, "client", request, `/${roomName}/room?role=client&username=${data.data.clientName}`)
 	  }
 
 	  console.log(data)
 
-	return json({ data })
+	return json({ data, host })
 }
 
 
 export default function Lobby() {
-	const { data} = useLoaderData<typeof loader>();
+	const { data, host} = useLoaderData<typeof loader>();
 	console.log(data)
 	const submit = useSubmit();
 	// console.log('datares', datares)
@@ -117,26 +115,7 @@ export default function Lobby() {
 	const [remainingTime, setRemainingTime] = useState<number>(30)
 
 	useEffect(() => {
-		// if (data.data.callStatus === 1 && remainingTime < 30) {
-		// 	alert(data.message)
-		// 	navigate(`/${roomName}/room`)
-		// }
-		// if (data.data.callStatus === 3 && remainingTime > 0) {
-		// 	alert(data.message)
-		// 	navigate('/set-username')
-		// }
-        // if (remainingTime <= 0) {
-        //     alert('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.')
-        //     // navigate('/set-username')
-        //     return
-        // }
-
-        // const timerId = setInterval(() => {
-        //     setRemainingTime(prevTime => prevTime - 1)
-        // }, 1000)
-
-        // return () => clearInterval(timerId)
-		const handleStatusAndNavigation = () => {
+		const handleStatusAndNavigation = async () => {
 			if (data.data.callStatus === 1 && remainingTime < 30) {
 				alert(data.message);
 				navigate(`/${roomName}/room`);
@@ -145,18 +124,38 @@ export default function Lobby() {
 				navigate('/set-username');
 			} else if (remainingTime <= 0) {
 				alert('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
+				try {
+					const response = await fetch(`/api/cancelcall/${data.data.callId}`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+					});
+					console.log(response)
+					if (response.ok) {
+						navigate('/set-username');
+					} else {
+						throw new Error('Gagal membatalkan panggilan');
+					}
+				} catch (error) {
+					console.error('Error:', error);
+					// Handle error scenario if needed
+				}
 				return;
 			}
 		};
 	
-		const timerId = setInterval(() => {
+		const timerId = setInterval(async () => {
 			handleStatusAndNavigation();
 			setRemainingTime(prevTime => prevTime - 1);
+			if (revalidator.state === "idle") {
+				revalidator.revalidate();
+			}
 		}, 1000);
 	
-		return () => clearInterval(timerId);	
-    }, [remainingTime, navigate, data, roomName])
-
+		return () => clearInterval(timerId);
+	}, [remainingTime, navigate, data, roomName, host, revalidator]);
+	
 
 
 	return (
