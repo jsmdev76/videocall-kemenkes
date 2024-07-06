@@ -1,23 +1,27 @@
-import { json, redirect, type ActionFunctionArgs } from '@remix-run/cloudflare'
-import { Form, useActionData, useNavigation } from '@remix-run/react'
+import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/cloudflare'
+import { Form, useActionData, useLoaderData, useNavigation } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
+import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
-// export const loader = async ({ request }: LoaderFunctionArgs) => {
-// 	const url = new URL(request.url)
-// 	let isfull = url.searchParams.get('isfull')
-// 	// let doctorToken = await getDoctorToken(request)
-// 	// if (doctorToken) {
-// 	// 	return redirect('/doctor/dashboard')
-// 	// }
-// 	return json({ isfull })
-// }
+
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+	const url = new URL(request.url)
+	let username = url.searchParams.get('username')
+	// let doctorToken = await getDoctorToken(request)
+	// if (doctorToken) {
+	// 	return redirect('/doctor/dashboard')
+	// }
+	return json({ username })
+}
+
+
 export const action = async ({ request, context }: ActionFunctionArgs) => {
 	const host = context.URL_API
 	const url = new URL(request.url)
-	const isFull = url.searchParams.get('isfull')
 	const { username, latitude, longitude } = Object.fromEntries(
 		await request.formData()
 	)
@@ -30,6 +34,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
+			url: `${url.origin}/${roomName}/room`,
 			roomId: roomName,
 			clientName: username,
 			latitude: latitude,
@@ -54,7 +59,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	// return data;
 	// const trxClientToken = data.data.trxcall.trxClientToken
 	if (data.success) {
-		return redirect(`/${roomName}`)
+		return setUsername(username, "client", request, `/${roomName}`)
+		// return redirect(`/${roomName}`)
 	} else {
 		return json({ username, data })
 	}
@@ -62,7 +68,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 }
 
 export default function SetUsername() {
-	// const { isfull } = useLoaderData<typeof loader>()
+	const { username } = useLoaderData<typeof loader>()
 	const data = useActionData<typeof action>()
 	console.log('hi ini data', data)
 	// const [data, setData] = useState()
@@ -131,6 +137,7 @@ export default function SetUsername() {
 						type="text"
 						id="username"
 						name="username"
+						defaultValue={username || ""}
 					/>
 					<Input type="hidden" id="latitude" name="latitude" value={latitude} />
 					<Input

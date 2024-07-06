@@ -7,7 +7,7 @@ import type { UserMedia } from './useUserMedia'
 import { useRoomUrl } from './useRoomUrl'
 import { useParams } from '@remix-run/react'
 
-type Role = 'listener' | 'whisper' | 'agent' | 'client'
+type Role = 'listener' | 'whisper' | 'agent' | 'client' | 'recorder'
 
 const isValidRole = (role: string | null): role is Role => {
   return role === 'listener' || role === 'whisper' || role === 'agent' || role === 'client'

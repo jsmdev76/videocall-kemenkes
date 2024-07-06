@@ -46,12 +46,13 @@ export const loader = async ({
 	const doctorToken = await getDoctorToken(request)
 
 	if (role && username && roomName) {
-		if (!doctorToken) {
+		if (!doctorToken && role === "agent") {
 			await setDoctorToken(
 				'doctor',
 				`${username} | Agent`,
 				request,
-				`/${roomName}/room?username=${username}&role?=${role}`
+				// `/pagenotfound`
+				`/${roomName}/room?username=${username}&role=${role}`
 			)
 		}
 
@@ -183,9 +184,9 @@ export default function Room() {
 	const { roomName } = useParams()
 	const { mode, bugReportsEnabled, data } = useLoaderData<typeof loader>()
 
-	useEffect(() => {
-		if (!joined && mode !== 'development') navigate(`/${roomName}`)
-	}, [joined, mode, navigate, roomName])
+	// useEffect(() => {
+	// 	if (!joined && mode !== 'development') navigate(`/${roomName}`)
+	// }, [joined, mode, navigate, roomName])
 
 	const revalidator = useRevalidator()
 
@@ -205,7 +206,7 @@ export default function Room() {
 			'Sesi akan berakhir jika anda keluar. Anda yakin?'
 	}, [])
 
-	if (!joined && mode !== 'development') return null
+	// if (!joined && mode !== 'development') return null
 	if (error) return <div>{error}</div>
 	return (
 		<Toast.Provider>
@@ -462,7 +463,7 @@ function JoinedRoom({
 					<Toast.Viewport />
 				</Flipper>
 				<div className="flex flex-wrap items-center justify-center gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
-					{identity?.role === 'agent' || identity?.role === 'whisper' ? (
+					{otherUsers.find((item) => item.role === "whisper" && (identity?.role === 'agent' || identity?.role === 'whisper')) ? (
 						<FloatingChat
 							isOpen={isChatOpen}
 							onClose={() => setIsChatOpen(false)}
