@@ -16,7 +16,8 @@ export const LeaveRoomButton: FC<LeaveRoomButtonProps> = ({endpoint}) => {
 		<Tooltip content="Leave">
 			<Button
 				displayType="danger"
-				className='btn-leave'
+				className="py-2 px-4 md:py-3 md:px-10 lg:py-3 lg:px-16 transition-colors duration-200 hover:bg-red-600"
+				// className='btn-leave'
 				onClick={() => {
 					// navigate('/set-username')
 					submit({}, { method: "post", action: endpoint });

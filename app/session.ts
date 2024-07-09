@@ -6,7 +6,8 @@ export const { getSession, commitSession, destroySession } =
 		cookie: {
 			name: '__session',
 			secrets: ['oooOOooOOoOOoOOOOoo'],
-			sameSite: true,
+			sameSite: "none",
 			httpOnly: true,
+			secure: true
 		},
 	})

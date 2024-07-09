@@ -1,13 +1,12 @@
 import type { LoaderFunctionArgs } from '@remix-run/cloudflare'
-import { json, redirect } from '@remix-run/cloudflare'
+import { json } from '@remix-run/cloudflare'
 import {
 	useLoaderData,
 	useNavigate,
 	useParams,
 	useRevalidator,
-	useSearchParams,
 } from '@remix-run/react'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flipper } from 'react-flip-toolkit'
 import { useMeasure, useMount, useWindowSize } from 'react-use'
 import { Button } from '~/components/Button'
@@ -46,7 +45,7 @@ export const loader = async ({
 	const doctorToken = await getDoctorToken(request)
 
 	if (role && username && roomName) {
-		if (!doctorToken && role === "agent") {
+		if (!doctorToken && role === 'agent') {
 			await setDoctorToken(
 				'doctor',
 				`${username} | Agent`,
@@ -116,7 +115,7 @@ export const loader = async ({
 		data,
 		roomName,
 		role,
-		username
+		username,
 	})
 }
 
@@ -179,7 +178,10 @@ function useGridDebugControls(
 }
 
 export default function Room() {
-	const { joined, room: {error} } = useRoomContext()
+	const {
+		joined,
+		room: { error },
+	} = useRoomContext()
 	const navigate = useNavigate()
 	const { roomName } = useParams()
 	const { mode, bugReportsEnabled, data } = useLoaderData<typeof loader>()
@@ -296,199 +298,142 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
-	console.log(identity)
-
+	console.log({ identity, actorsOnStage })
 	return (
 		<PullAudioTracks
 			audioTracks={otherUsers.map((u) => u.tracks.audio).filter(isNonNullable)}
 		>
-			<div className="flex flex-col h-full bg-white dark:bg-zinc-800">
+			<div className="flex flex-col h-screen bg-gray-100">
 				<Flipper
 					flipKey={totalUsers}
-					className="relative flex-grow overflow-hidden isolate"
+					className="relative flex-grow overflow-hidden"
 				>
 					<div
-						className="absolute inset-0 h-full w-full bg-black isolate flex flex-wrap justify-around gap-[--gap] p-[--gap]"
-						style={
-							{
-								'--gap': '1rem',
-								'--flex-container-width': flexContainerWidth,
-								// '--participant-max-width': firstFlexChildWidth + 'px',
-							} as any
-						}
+						className="absolute inset-0 h-full w-full bg-gradient-to-r from-gray-700 to-gray-500 flex flex-col md:flex-row"
 						ref={containerRef}
 					>
-						{/* <Participant
-									user={{name: "a", id: "id", role:"role", raisedHand: false, speaking: false, joined: true, tracks: {}}}
-									isSelf
-									flipId={'identity user'}
-									ref={firstFlexChildRef}
-									videoTrack={userMedia.videoStreamTrack}
-									audioTrack={userMedia.audioStreamTrack}
-									pinnedId={pinnedId}
-									setPinnedId={setPinnedId}
-								/> */}
-						{/* {identity && userMedia.audioStreamTrack && (
-							<Participant
-								user={identity}
-								isSelf
-								flipId={'identity user'}
-								ref={firstFlexChildRef}
-								videoTrack={userMedia.videoStreamTrack}
-								audioTrack={userMedia.audioStreamTrack}
-								pinnedId={pinnedId}
-								setPinnedId={setPinnedId}
-							/>
-						)} */}
-						{identity &&
-							identity.name !== 'anonymous_$43567243567u' &&
-							userMedia.audioStreamTrack && (
-								<Participant
-									user={identity}
-									isSelf
-									flipId={'identity user'}
-									ref={firstFlexChildRef}
-									videoTrack={userMedia.videoStreamTrack}
-									audioTrack={userMedia.audioStreamTrack}
-									pinnedId={pinnedId}
-									setPinnedId={setPinnedId}
-								/>
-							)}
+						{/* Main video grid */}
+						<div className="flex-grow flex items-start justify-center p-4">
+							{actorsOnStage.map((user) => {
+								if (user.name.startsWith('anonymous')) return null
+								if (
+									identity?.role === 'client' &&
+									(user.name === 'whisper' || user.name === 'listener')
+								)
+									return null
+								if (user.role === 'whisper') return null
+								if (identity?.role !== 'client' && user.role !== 'client')
+									return null
 
-						{/* {identity &&
-							userMedia.screenShareVideoTrack &&
-							userMedia.screenShareEnabled && (
-								<Participant
-									user={identity}
-									flipId={'identity user screenshare'}
-									isSelf
-									isScreenShare
-									videoTrack={userMedia.screenShareVideoTrack}
-									pinnedId={pinnedId}
-									setPinnedId={setPinnedId}
-								/>
-							)} */}
-						{actorsOnStage.map((user) => {
-							if (user.name.startsWith('anonymous')) return null
-							if (identity?.role === 'client' && (user.name === 'whisper' || user.name === 'listener'))
-								return null
-
-							return (
-								<Fragment key={user.id}>
+								return (
 									<PullVideoTrack
+										key={user.id}
 										video={user.tracks.video}
 										audio={user.tracks.audio}
 									>
 										{({ videoTrack, audioTrack }) => (
+											<div className="w-full aspect-video">
+												{/* <h1>ini main video grid</h1> */}
+												<Participant
+													user={user}
+													flipId={user.id}
+													videoTrack={videoTrack}
+													audioTrack={audioTrack}
+													pinnedId={pinnedId}
+													setPinnedId={setPinnedId}
+												/>
+											</div>
+										)}
+									</PullVideoTrack>
+								)
+							})}
+						</div>
+
+						{/* Sidebar for self-view and additional participants */}
+						<div className="flex flex-row md:flex-col md:w-64 p-4 space-y-0 space-x-4 md:space-x-0 md:space-y-4 overflow-x-auto md:overflow-y-auto">
+							{identity &&
+								identity.name !== 'anonymous_$43567243567u' &&
+								userMedia.audioStreamTrack && (
+									<div className="flex-shrink-0 w-48 md:w-full aspect-video rounded-lg overflow-hidden shadow-lg">
+										{/* <h1>ini identity</h1> */}
+										<Participant
+											user={identity}
+											isSelf
+											flipId={'identity user'}
+											ref={firstFlexChildRef}
+											videoTrack={userMedia.videoStreamTrack}
+											audioTrack={userMedia.audioStreamTrack}
+											pinnedId={pinnedId}
+											setPinnedId={setPinnedId}
+										/>
+									</div>
+								)}
+							{otherUsers
+								.filter(
+									(item) => item.role !== 'client' && item.role === 'whisper'
+								)
+								.map((item) => {
+									if (identity?.role === 'client' && item.role === 'whisper')
+										return null
+									return (
+										<div
+											key={item.id}
+											className="flex-shrink-0 w-48 md:w-full aspect-video rounded-lg overflow-hidden shadow-lg"
+										>
+											{/* <h1>ini other user</h1> */}
 											<Participant
-												user={user}
-												flipId={user.id}
-												videoTrack={videoTrack}
-												audioTrack={audioTrack}
+												user={item}
+												isSelf
+												flipId={'identity user'}
+												ref={firstFlexChildRef}
+												videoTrack={userMedia.videoStreamTrack}
+												audioTrack={userMedia.audioStreamTrack}
 												pinnedId={pinnedId}
 												setPinnedId={setPinnedId}
 											/>
-										)}
-									</PullVideoTrack>
-									{/* {user.tracks.screenshare && user.tracks.screenShareEnabled && (
-									<PullVideoTrack video={user.tracks.screenshare}>
-										{({ videoTrack }) => (
-											<Participant
-												user={user}
-												videoTrack={videoTrack}
-												flipId={user.id + 'screenshare'}
-												isScreenShare
-												pinnedId={pinnedId}
-												setPinnedId={setPinnedId}
-											/>
-										)}
-									</PullVideoTrack>
-								)} */}
-								</Fragment>
-							)
-						})}
-
-						{/* {isListener || identity?.role === "agent" && (
-							<Participant
-								user={{
-									id: 'listener',
-									joined: true,
-									name: 'Listener',
-									role: 'listener',
-									raisedHand: false,
-									speaking: false,
-									tracks: {},
-								}}
-								isSelf={false}
-								flipId="listener"
-								pinnedId={pinnedId}
-								setPinnedId={setPinnedId}
-							/>
-						)} */}
-						{/* {listener && (
-							<Participant
-								user={{
-									id: 'listener',
-									joined: false,
-									name: 'Listener',
-									role: 'listener',
-									raisedHand: false,
-									speaking: false,
-									tracks: {},
-								}}
-								isSelf={false}
-								key={listener}
-								flipId={listener}
-								pinnedId={pinnedId}
-								setPinnedId={setPinnedId}
-							/>
-						)} */}
-
-						{/* {identity &&
-							userMedia.audioStreamTrack &&
-							userMedia.videoStreamTrack &&
-							fakeUsers.map((uid) => (
-								<Participant
-									user={identity}
-									isSelf
-									videoTrack={userMedia.videoStreamTrack}
-									audioTrack={userMedia.audioStreamTrack}
-									key={uid}
-									flipId={uid.toString()}
-									pinnedId={pinnedId}
-									setPinnedId={setPinnedId}
-								/>
-							))} */}
+										</div>
+									)
+								})}
+						</div>
 					</div>
 					<Toast.Viewport />
 				</Flipper>
-				<div className="flex flex-wrap items-center justify-center gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
-					{otherUsers.find((item) => item.role === "whisper" && (identity?.role === 'agent' || identity?.role === 'whisper')) ? (
-						<FloatingChat
-							isOpen={isChatOpen}
-							onClose={() => setIsChatOpen(false)}
-							onOpen={() => setIsChatOpen(true)}
-						/>
-					) : null}
-					<GridDebugControls />
-					<MicButton warnWhenSpeakingWhileMuted />
-					<CameraButton />
-					{/* <ScreenshareButton />
-                    <RaiseHandButton
-                        raisedHand={raisedHand}
-                        onClick={() => setRaisedHand(!raisedHand)}
-                    />
-                    <ParticipantsButton
-                        identity={identity}
-                        otherUsers={otherUsers}
-                        className="hidden md:block"
-                    /> */}
-					<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
-					<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
+
+				{/* Bottom control bar */}
+				<div className="bg-white shadow-lg p-4">
+					<div className="max-w-7xl mx-auto flex items-center justify-between">
+						<div className="flex items-center space-x-2 justify-center flex-grow">
+							<MicButton warnWhenSpeakingWhileMuted />
+							<CameraButton />
+							{(identity?.role === 'agent' || identity?.role === 'whisper') && (
+								<Button
+									onClick={() => setIsChatOpen(!isChatOpen)}
+									className="relative"
+								>
+									<Icon
+										type="ChatBubble"
+										className={isChatOpen ? 'text-blue-500' : ''}
+									/>
+									{isChatOpen && (
+										<span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-red-400" />
+									)}
+								</Button>
+							)}
+							<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
+							<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
+						</div>
+					</div>
 				</div>
 			</div>
 			<HighPacketLossWarningsToast />
 			<IceDisconnectedToast />
+			{isChatOpen && (
+				<FloatingChat
+					isOpen={isChatOpen}
+					onClose={() => setIsChatOpen(false)}
+					onOpen={() => setIsChatOpen(true)}
+				/>
+			)}
 		</PullAudioTracks>
 	)
 }

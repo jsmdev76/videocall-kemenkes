@@ -62,6 +62,7 @@ export default function Lobby() {
 	const { roomName } = useParams()
 	const navigate = useNavigate()
 	const { setJoined, userMedia, room } = useRoomContext()
+	console.log(room.messages)
 	const { videoStreamTrack, audioStreamTrack, audioEnabled } = userMedia
 
 	const joinedUsers = new Set(
@@ -74,49 +75,12 @@ export default function Lobby() {
 		
 	const revalidator = useRevalidator();
 	let intervalID: any = null;
-	// useEffect(() => {
-	// 	// console.log('room', roomName)
-	// 	// console.log('trxCallStatus', trxCallStatus)
-	// 	// console.log('seconds', seconds)
-	// 	if(trxCallStatus == 0 && seconds < 30) {
-	// 		intervalID = setInterval(() => {
-	// 			if (revalidator.state === "idle") {
-	// 				revalidator.revalidate();
-	// 			}
-	// 		}, 1000)
-	// 	}
 
-	// 	if(trxCallStatus == 1) {
-	// 		clearInterval(intervalID)
-	// 		setTimeout(function() {
-	// 			setJoined(true)
-	// 			// we navigate here with javascript instead of an a
-	// 			// tag because we don't want it to be possible to join
-	// 			// the room without the JS having loaded
-	// 			navigate('room')	
-	// 		}, 1000);
-			
-	// 	}
-	// 	console.log('seconds', seconds);
-	// 	if (seconds >= 30 || maxsecond <= 0) {
-	// 		const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
-			
-	// 		navigate(`/${roomName}`);
-	// 	}
-		
-	// 	console.log('trxCallStatus', trxCallStatus);
-	// 	if(trxCallStatus == 99) {
-	// 		const a = window.confirm('Mohon maaf tenaga medis belum tersedia untuk saat ini. Silahkan coba beberapa saat lagi.');
-	// 		navigate(`/set-username`);
-	// 	}
-	// 	return () => clearInterval(intervalID);
-	// }, [revalidator]);
-
-	const [remainingTime, setRemainingTime] = useState<number>(30)
+	const [remainingTime, setRemainingTime] = useState<number>(60)
 
 	useEffect(() => {
 		const handleStatusAndNavigation = async () => {
-			if (data.data.callStatus === 1 && remainingTime < 30) {
+			if (data.data.callStatus === 1 && remainingTime < 60) {
 				alert(data.message);
 				navigate(`/${roomName}/room`);
 			} else if (data.data.callStatus === 3 && remainingTime > 0) {

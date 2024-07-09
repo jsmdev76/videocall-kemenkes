@@ -38,6 +38,14 @@ export async function loader({
 				email: 'rhesadav48@gmail.com',
 				id: 1,
 			},
+			{
+				email: 'mala.widiyanto@gmail.com',
+				id: 2
+			},
+			{
+				email: 'rhesadav29@gmail.com',
+				id: 3
+			},
 		]
 		return json<LoaderData>({ emails })
 	} catch (error) {
