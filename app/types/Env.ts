@@ -14,4 +14,5 @@ export type Env = {
 	MAX_WEBCAM_BITRATE?: string
 	MAX_WEBCAM_QUALITY_LEVEL?: string
 	URL_API?: string
+	API_SECRET_KEY?: string
 }

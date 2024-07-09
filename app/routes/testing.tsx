@@ -74,6 +74,7 @@ export async function action({
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'x-api-key': context.API_SECRET_KEY as string
 				},
 				body: JSON.stringify({ to, subject, title, content }),
 			})

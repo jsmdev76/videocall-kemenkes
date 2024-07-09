@@ -8,7 +8,7 @@ import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
 
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	let username = url.searchParams.get('username')
 	// let doctorToken = await getDoctorToken(request)
@@ -32,6 +32,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
+			'x-api-key': context.API_SECRET_KEY as string
 		},
 		body: JSON.stringify({
 			url: `${url.origin}/${roomName}/room`,

@@ -35,6 +35,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 		method: 'GET',
 		headers: {
 		  'Content-Type': 'application/json',
+		  'x-api-key': context.API_SECRET_KEY as string
 		},
 		// body: JSON.stringify({ roomId: roomName }),
 	  });

@@ -60,6 +60,7 @@ export const loader = async ({
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
+				'x-api-key': context.API_SECRET_KEY as string
 			},
 			body: JSON.stringify({
 				roomId: roomName,
@@ -79,6 +80,7 @@ export const loader = async ({
 		method: 'get',
 		headers: {
 			'Content-Type': 'application/json',
+			'x-api-key': context.API_SECRET_KEY as string
 		},
 		// body: JSON.stringify({
 		// 	roomName: roomName,

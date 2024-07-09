@@ -24,7 +24,8 @@ export const action = async ({
 	const response = await fetch(`${host}/call/cancel`, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			'x-api-key': context.API_SECRET_KEY as string
 		},
 		body: JSON.stringify({
 			callId: Number(params.callId),

@@ -53,6 +53,9 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 	// let maxsecond = 30 - seconds
 	const response = await fetch(`${host}/call/agent/${id}`, {
 		method: "GET",
+		headers: {
+			'x-api-key': context.API_SECRET_KEY as string
+		}
 	})
 
 	const data:{message: string; success:boolean; data:any} = await response.json()
