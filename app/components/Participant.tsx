@@ -71,18 +71,25 @@ export const Participant = forwardRef<
 		}, [flipId, isScreenShare, setPinnedId])
 
 		return (
-			<div className="grow shrink bg-gradient-blue h-full" ref={ref}>
+			<div
+				className="grow shrink bg-gradient-blue text-base basis-[calc(var(--flex-container-width)_-_var(--gap)_*_3)]"
+				ref={ref}
+			>
 				<Flipped flipId={flipId + pinned}>
 					<div
 						className={cn(
 							'h-full mx-auto overflow-hidden text-white opacity-0 animate-fadeIn',
 							pinned
-								? 'absolute inset-0 w-full z-10 rounded-none bg-black'
+								? 'absolute inset-0 h-full w-full z-10 rounded-none bg-black'
 								: 'relative max-w-[--participant-max-width] rounded-xl'
 						)}
 					>
 						{!isScreenShare && (
-							<div className="absolute inset-0 grid place-items-center">
+							<div
+								className={cn(
+									'absolute inset-0 h-full w-full grid place-items-center'
+								)}
+							>
 								<div className="h-[2em] w-[2em] grid place-items-center text-4xl md:text-6xl 2xl:text-8xl relative">
 									{data?.photob64 ? (
 										<div>
@@ -90,7 +97,7 @@ export const Participant = forwardRef<
 												className="absolute inset-0 w-full h-full rounded-full"
 												audioTrack={audioTrack}
 												type="box"
-											/>
+											></AudioGlow>
 											<img
 												className="rounded-full"
 												src={`data:image/png;base64,${data.photob64}`}
@@ -108,6 +115,7 @@ export const Participant = forwardRef<
 													{user.name.charAt(0)}
 												</AudioGlow>
 											)}
+											{/* {user.name.charAt(0)} */}
 										</span>
 									)}
 								</div>
@@ -194,7 +202,7 @@ export const Participant = forwardRef<
 									'pointer-events-none absolute inset-0 h-full w-full border-4 border-blue-400',
 									!pinned && 'rounded-xl'
 								)}
-							/>
+							></div>
 						)}
 					</div>
 				</Flipped>

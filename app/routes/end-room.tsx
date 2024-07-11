@@ -6,7 +6,7 @@ import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from '~/utils/constants'
 import getClientToken from '~/utils/getClientToken.server'
-import getDoctorToken from '~/utils/getDoctorToken.server'
+import getDoctorToken, { removeDoctorToken } from '~/utils/getDoctorToken.server'
 import { setUsername } from '~/utils/getUsername.server'
 // import DataApi from '~/api/dataApi.server'
 export const loader = async({request}: LoaderFunctionArgs) => {
@@ -14,7 +14,7 @@ export const loader = async({request}: LoaderFunctionArgs) => {
 	let isfull = url.searchParams.get('isfull')
 	let doctorToken = await getDoctorToken(request);
 	if(doctorToken) {
-		return redirect('/doctor/dashboard');
+		return removeDoctorToken(request, "/end-room")
 	}
 	return json({isfull});
 }

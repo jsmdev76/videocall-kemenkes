@@ -44,9 +44,9 @@ export const action = async ({
 	let data:any = await response.json();
 	console.log('data', data)
 	// return data;
-	if(!data.success) {
-		throw new Response(data.message, {status: 500});
-	}
+	// if(!data.success) {
+	// 	throw new Response(data.message, {status: 500});
+	// }
 	// clear session
 	let url = '/end-room';
 	// if(doctorToken)

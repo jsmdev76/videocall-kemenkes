@@ -59,6 +59,8 @@ export default function useRoom({
 				if (JSON.stringify(message.state) === JSON.stringify(roomState)) break
 				// setRoomState(message.state)
 
+				console.log({identity,state: message.state})
+
 				const modifiedState = {
 					...message.state,
 					users: message.state.users.map((user: User) => {
