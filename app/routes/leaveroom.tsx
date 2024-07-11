@@ -37,7 +37,7 @@ export const action = async ({
 	// 	throw new Response(data.message, {status: 500});
 	// }
 	// clear session
-	let url = '/end-room';
+	let url = '/end-room/client';
 	// if(doctorToken)
 	// 	url = '/doctor/dashboard';
 	console.log('url', url);

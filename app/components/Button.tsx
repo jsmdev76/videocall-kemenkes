@@ -24,6 +24,11 @@ const displayTypeMap = {
 		'bg-red-600 hover:bg-red-700',
 		'border-red-600 hover:border-red-700',
 	],
+	chat: [
+		'text-white',
+		'bg-blue-600 hover:bg-blue-700',
+		'border-blue-600 hover:border-blue-700',
+	]
 }
 
 export type ButtonProps = Omit<JSX.IntrinsicElements['button'], 'ref'> & {

@@ -48,14 +48,13 @@ export const action = async ({
 	// 	throw new Response(data.message, {status: 500});
 	// }
 	// clear session
-	let url = '/end-room';
+	// let url = '/end-room';
 	// if(doctorToken)
 	// 	url = '/doctor/dashboard';
-	console.log('url', url);
 	// return url;
 	if (doctorToken) {
-		return removeDoctorToken(request, url)
+		return removeDoctorToken(request, "/end-room/agent")
 	} else {
-		return removeClientToken(request, url);
+		return removeClientToken(request, "/end-room/client");
 	}
   };

@@ -5,7 +5,7 @@ import assertNever from '~/utils/assertNever'
 import useSignal from './useSignal'
 import type { UserMedia } from './useUserMedia'
 import { useRoomUrl } from './useRoomUrl'
-import { useParams } from '@remix-run/react'
+import { useNavigate, useParams } from '@remix-run/react'
 
 type Role = 'listener' | 'whisper' | 'agent' | 'client' | 'recorder'
 
@@ -22,6 +22,7 @@ export default function useRoom({
 	userMedia: UserMedia
 }) {
 	const { signal } = useSignal(roomName)
+	const navigate = useNavigate()
 	const [roomState, setRoomState] = useState<RoomState>({ users: [] })
 	const [error, setError] = useState<string | null>(null)
 	const [messages, setMessages] = useState<{ from: string; message: string; roomId: string }[]>(
@@ -60,6 +61,24 @@ export default function useRoom({
 				// setRoomState(message.state)
 
 				console.log({identity,state: message.state})
+
+				const currentUserRole = identity?.role;
+				
+				const agentLeft = currentUserRole === "agent" && !message.state.users.some((item) => item.role === "client");
+				const clientLeft = currentUserRole === "client" && !message.state.users.some((item) => item.role === "agent");
+			
+				if (agentLeft || clientLeft) {
+					if (currentUserRole === "agent") {
+						// Jika agent, tunggu beberapa saat sebelum meninggalkan ruangan
+						setTimeout(() => {
+						  navigate("/end-room/agent");
+						}, 3000); // Tunggu 3 detik
+					  } else {
+						// Jika client, langsung tinggalkan ruangan
+						navigate("/end-room/client");
+					  }
+					  break;					
+				}
 
 				const modifiedState = {
 					...message.state,

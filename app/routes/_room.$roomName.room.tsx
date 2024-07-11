@@ -495,7 +495,8 @@ function JoinedRoom({
 					) ? (
 						<>
 							<Button
-								displayType="secondary"
+								displayType="chat"
+								className='bg-blue-600'
 								onClick={() => setIsChatOpen(!isChatOpen)}
 							>
 								<Icon type={'ChatBubble'} />
