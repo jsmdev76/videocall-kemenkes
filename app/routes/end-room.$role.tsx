@@ -9,7 +9,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 	let isfull = url.searchParams.get('isfull')
 	let doctorToken = await getDoctorToken(request)
 	if (doctorToken) {
-		return removeDoctorToken(request, '/end-room')
+		return removeDoctorToken(request, '/end-room/agent')
 	}
 	return json({ isfull, params })
 }
