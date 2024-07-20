@@ -67,18 +67,18 @@ export default function useRoom({
 				const agentLeft = currentUserRole === "agent" && !message.state.users.some((item) => item.role === "client");
 				const clientLeft = currentUserRole === "client" && !message.state.users.some((item) => item.role === "agent");
 			
-				if (agentLeft || clientLeft) {
-					if (currentUserRole === "agent") {
-						// Jika agent, tunggu beberapa saat sebelum meninggalkan ruangan
-						setTimeout(() => {
-						  navigate("/end-room/agent");
-						}, 3000); // Tunggu 3 detik
-					  } else {
-						// Jika client, langsung tinggalkan ruangan
-						navigate("/end-room/client");
-					  }
-					  break;					
-				}
+				// if (agentLeft || clientLeft) {
+				// 	if (currentUserRole === "agent") {
+				// 		// Jika agent, tunggu beberapa saat sebelum meninggalkan ruangan
+				// 		setTimeout(() => {
+				// 		  navigate("/end-room/agent");
+				// 		}, 3000); // Tunggu 3 detik
+				// 	  } else {
+				// 		// Jika client, langsung tinggalkan ruangan
+				// 		navigate("/end-room/client");
+				// 	  }
+				// 	  break;					
+				// }
 
 				const modifiedState = {
 					...message.state,

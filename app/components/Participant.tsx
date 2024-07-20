@@ -105,7 +105,7 @@ export const Participant = forwardRef<
 											/>
 										</div>
 									) : (
-										<span className="relative grid w-full h-full uppercase rounded-full place-items-center bg-zinc-500 bg-kemenkes">
+										<span className="relative grid w-full h-full uppercase rounded-full place-items-center bg-zinc-200 bg-kemenkes">
 											{user.speaking && (
 												<AudioGlow
 													type="text"
