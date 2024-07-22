@@ -32,6 +32,24 @@ import { calculateLayout } from '~/utils/calculateLayout'
 import getDoctorToken, { setDoctorToken } from '~/utils/getDoctorToken.server'
 import isNonNullable from '~/utils/isNonNullable'
 
+interface IDataRoomServer {
+	success: boolean
+	message: string
+	data: {
+		isActive: boolean
+		roomId: string
+		callStatus: number
+		participant: {
+			client: string
+			agent: string
+			agentId: number
+		}
+		callId: number
+		clientLocation: string
+		startedAt: string
+	}
+}
+
 export const loader = async ({
 	request,
 	context,
@@ -65,10 +83,10 @@ export const loader = async ({
 			body: JSON.stringify({
 				roomId: roomName,
 				action: 'accept',
+				startAt: new Date(),
 			}),
 		})
 		let data: any = await response.json()
-		console.log(data)
 	}
 
 	console.log({ role, username, roomName })
@@ -88,7 +106,8 @@ export const loader = async ({
 		// }),
 	})
 
-	const data: any = await response.json()
+	const data: IDataRoomServer = await response.json()
+	console.log('data room', data)
 	// console.log({doctorToken, clientToken})
 	// if (!data.success) {
 	// 	throw new Response(data.message, { status: 500 })
@@ -188,6 +207,23 @@ export default function Room() {
 	const { roomName } = useParams()
 	const { mode, bugReportsEnabled, data } = useLoaderData<typeof loader>()
 
+	function formatDuration(start: string, now: Date) {
+		const startDate = new Date(start)
+		const diffInMs = now.getTime() - startDate.getTime() // Selisih dalam milidetik
+		const totalSeconds = Math.floor(diffInMs / 1000)
+		const hours = Math.floor(totalSeconds / 3600)
+		const minutes = Math.floor((totalSeconds % 3600) / 60)
+		const seconds = totalSeconds % 60
+
+		return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+	}
+
+	console.log({
+		start: data.data.startedAt,
+		now: new Date(),
+		res: formatDuration(data.data.startedAt, new Date()),
+	})
+
 	// useEffect(() => {
 	// 	if (!joined && mode !== 'development') navigate(`/${roomName}`)
 	// }, [joined, mode, navigate, roomName])
@@ -217,6 +253,7 @@ export default function Room() {
 			<JoinedRoom
 				bugReportsEnabled={bugReportsEnabled}
 				roomId={roomName as string}
+				clientLocation={JSON.parse(data.data.clientLocation)}
 			/>
 		</Toast.Provider>
 	)
@@ -225,9 +262,11 @@ export default function Room() {
 function JoinedRoom({
 	bugReportsEnabled,
 	roomId,
+	clientLocation,
 }: {
 	bugReportsEnabled: boolean
 	roomId: string
+	clientLocation: { latitude: string; longitude: string }
 }) {
 	const navigate = useNavigate()
 	const {
@@ -251,6 +290,43 @@ function JoinedRoom({
 	const totalUsers = 1 + fakeUsers.length + otherUsers.length
 	const [raisedHand, setRaisedHand] = useState(false)
 	const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+	const [callDuration, setCallDuration] = useState<string>('00:00')
+	const [callStartTime, setCallStartTime] = useState<number>(Date.now())
+	const [endCallTime, setEndCallTime] = useState<number>(
+		Date.now() + 30 * 60000
+	) //ini 30 menit
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const currentTime = Date.now();
+			const elapsedTime = currentTime - callStartTime;
+			const remainingTime = endCallTime - currentTime;
+	  
+			const minutes = Math.floor(elapsedTime / 60000);
+			const seconds = Math.floor((elapsedTime % 60000) / 1000);
+			
+			const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+			const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+	  
+			setCallDuration(`${formattedMinutes}:${formattedSeconds}`);
+	  
+			if (remainingTime <= 2 * 60000 && remainingTime > 0 && identity?.role === "agent") {
+			  const extendCall = window.confirm("Waktu panggilan tersisa 2 menit lagi. Apakah anda ingin menambahkan lagi?");
+			  if (extendCall) {
+				setEndCallTime(endCallTime + 10 * 60000); // Extend call 10 min
+			  } else {
+				clearInterval(interval);
+			  }
+			}
+	  
+			if (remainingTime <= 0) {
+			  clearInterval(interval);
+			}
+		  }, 1000);
+	  
+		  return () => clearInterval(interval);
+	  
+	}, [])
 
 	const speaking = useIsSpeaking(userMedia.audioStreamTrack)
 
@@ -487,31 +563,35 @@ function JoinedRoom({
 					</div>
 					<Toast.Viewport />
 				</Flipper>
-				<div className="flex flex-wrap items-center justify-center gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
-					{otherUsers.find(
-						(item) =>
-							(item.role === 'whisper' || item.role === 'agent') &&
-							(identity?.role === 'agent' || identity?.role === 'whisper')
-					) ? (
-						<>
-							<Button
-								displayType="chat"
-								className='bg-blue-600'
-								onClick={() => setIsChatOpen(!isChatOpen)}
-							>
-								<Icon type={'ChatBubble'} />
-							</Button>
-							<FloatingChat
-								isOpen={isChatOpen}
-								onClose={() => setIsChatOpen(false)}
-								onOpen={() => setIsChatOpen(true)}
-							/>
-						</>
-					) : null}
-					<GridDebugControls />
-					<MicButton warnWhenSpeakingWhileMuted />
-					<CameraButton />
-					{/* <ScreenshareButton />
+				<div className="flex flex-wrap items-center justify-between gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
+					<span className="flex items-center justify-center text-gray-500 dark:text">
+						{callDuration} | {identity?.name.replace('|', '')}
+					</span>
+					<div className="flex items-center gap-2">
+						{otherUsers.find(
+							(item) =>
+								(item.role === 'whisper' || item.role === 'agent') &&
+								(identity?.role === 'agent' || identity?.role === 'whisper')
+						) ? (
+							<>
+								<Button
+									displayType="chat"
+									className="bg-blue-600"
+									onClick={() => setIsChatOpen(!isChatOpen)}
+								>
+									<Icon type={'ChatBubble'} />
+								</Button>
+								<FloatingChat
+									isOpen={isChatOpen}
+									onClose={() => setIsChatOpen(false)}
+									onOpen={() => setIsChatOpen(true)}
+								/>
+							</>
+						) : null}
+						<GridDebugControls />
+						<MicButton warnWhenSpeakingWhileMuted />
+						<CameraButton />
+						{/* <ScreenshareButton />
                     <RaiseHandButton
                         raisedHand={raisedHand}
                         onClick={() => setRaisedHand(!raisedHand)}
@@ -521,8 +601,19 @@ function JoinedRoom({
                         otherUsers={otherUsers}
                         className="hidden md:block"
                     /> */}
-					<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
-					<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
+						<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
+						<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
+					</div>
+					<Button
+						onClick={() =>
+							window.open(
+								`http://maps.google.com/maps?q=${clientLocation.latitude},${clientLocation.longitude}`,
+								'_blank'
+							)
+						}
+					>
+						Lihat Lokasi
+					</Button>
 				</div>
 			</div>
 			<HighPacketLossWarningsToast />
