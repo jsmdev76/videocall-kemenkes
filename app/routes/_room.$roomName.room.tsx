@@ -5,6 +5,7 @@ import {
 	useNavigate,
 	useParams,
 	useRevalidator,
+	useSubmit,
 } from '@remix-run/react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Flipper } from 'react-flip-toolkit'
@@ -254,6 +255,7 @@ export default function Room() {
 				bugReportsEnabled={bugReportsEnabled}
 				roomId={roomName as string}
 				clientLocation={JSON.parse(data.data.clientLocation)}
+				data={data}
 			/>
 		</Toast.Provider>
 	)
@@ -263,12 +265,15 @@ function JoinedRoom({
 	bugReportsEnabled,
 	roomId,
 	clientLocation,
+	data,
 }: {
 	bugReportsEnabled: boolean
 	roomId: string
 	clientLocation: { latitude: string; longitude: string }
+	data: IDataRoomServer
 }) {
 	const navigate = useNavigate()
+	const submit = useSubmit()
 	const {
 		userMedia,
 		peer,
@@ -290,43 +295,86 @@ function JoinedRoom({
 	const totalUsers = 1 + fakeUsers.length + otherUsers.length
 	const [raisedHand, setRaisedHand] = useState(false)
 	const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
-	const [callDuration, setCallDuration] = useState<string>('00:00')
-	const [callStartTime, setCallStartTime] = useState<number>(Date.now())
+	const callStartTime = new Date(data.data.startedAt).getTime()
+
+	function formatDuration(start: number, now: number) {
+		const diffInMs = now - start // Difference in milliseconds
+		const totalSeconds = Math.floor(diffInMs / 1000)
+		const hours = Math.floor(totalSeconds / 3600)
+		const minutes = Math.floor((totalSeconds % 3600) / 60)
+		const seconds = totalSeconds % 60
+
+		return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+	}
+
+	const [callDuration, setCallDuration] = useState<string>(
+		formatDuration(callStartTime, Date.now())
+	)
 	const [endCallTime, setEndCallTime] = useState<number>(
-		Date.now() + 30 * 60000
-	) //ini 30 menit
+		callStartTime + 30 * 60000
+	) // 30 minutes
 
 	useEffect(() => {
+		const storedStartTime = localStorage.getItem('callStartTime')
+		const startTime = storedStartTime
+			? parseInt(storedStartTime, 10)
+			: Date.now()
+
+		if (!storedStartTime) {
+			localStorage.setItem('callStartTime', startTime.toString())
+		}
+
 		const interval = setInterval(() => {
-			const currentTime = Date.now();
-			const elapsedTime = currentTime - callStartTime;
-			const remainingTime = endCallTime - currentTime;
-	  
-			const minutes = Math.floor(elapsedTime / 60000);
-			const seconds = Math.floor((elapsedTime % 60000) / 1000);
-			
-			const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-			const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-	  
-			setCallDuration(`${formattedMinutes}:${formattedSeconds}`);
-	  
+			const currentTime = Date.now()
+			setCallDuration(formatDuration(startTime, currentTime))
+
+			const remainingTime = endCallTime - currentTime
+
 			if (remainingTime <= 2 * 60000 && remainingTime > 0 && identity?.role === "agent") {
-			  const extendCall = window.confirm("Waktu panggilan tersisa 2 menit lagi. Apakah anda ingin menambahkan lagi?");
-			  if (extendCall) {
-				setEndCallTime(endCallTime + 10 * 60000); // Extend call 10 min
-			  } else {
-				clearInterval(interval);
-			  }
+				const extendCall = window.confirm(
+					'Waktu panggilan tersisa 2 menit lagi. Apakah anda ingin menambahkan lagi?'
+				)
+				if (extendCall) {
+					extendCallDuration()
+				}
 			}
-	  
+
 			if (remainingTime <= 0) {
-			  clearInterval(interval);
+				clearInterval(interval)
+				localStorage.removeItem("callStartTime")
+				submit({}, { method: "post", action: `/api/endcall/${roomId}` });
 			}
-		  }, 1000);
+		}, 1000)
+
+		return () => clearInterval(interval)
+	}, [callStartTime, endCallTime])
+
+	const extendCallDuration = async () => {
+		const newEndTime = endCallTime + 10 * 60000; // Tambah 10 menit
+		setEndCallTime(newEndTime);
 	  
-		  return () => clearInterval(interval);
+		// try {
+		//   const response = await fetch(`/api/call/extend`, {
+		// 	method: 'POST',
+		// 	headers: {
+		// 	  'Content-Type': 'application/json',
+		// 	},
+		// 	body: JSON.stringify({
+		// 	  roomId: roomId,
+		// 	  newEndTime: newEndTime,
+		// 	}),
+		//   });
 	  
-	}, [])
+		//   if (!response.ok) {
+		// 	throw new Error('Failed to extend call duration');
+		//   }
+		// } catch (error) {
+		//   console.error('Error extending call duration:', error);
+		//   // Handle error (e.g., show error message to user)
+		// }
+	  };
+	  
+	  
 
 	const speaking = useIsSpeaking(userMedia.audioStreamTrack)
 
@@ -564,9 +612,12 @@ function JoinedRoom({
 					<Toast.Viewport />
 				</Flipper>
 				<div className="flex flex-wrap items-center justify-between gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
-					<span className="flex items-center justify-center text-gray-500 dark:text">
-						{callDuration} | {identity?.name.replace('|', '')}
-					</span>
+					<div className='flex gap-2'>
+						<span className="flex items-center justify-center text-gray-500 dark:text">
+							{callDuration} | {identity?.name.replace('|', '')}
+						</span>
+						<Button onClick={extendCallDuration} >Extend</Button>
+					</div>
 					<div className="flex items-center gap-2">
 						{otherUsers.find(
 							(item) =>

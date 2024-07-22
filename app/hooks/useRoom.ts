@@ -52,7 +52,7 @@ export default function useRoom({
 	const messageHandler = (e: MessageEvent<MessageFromServer>) => {
 		const { message } = e.data
 
-		console.log(message)
+		// console.log(message)
 
 		switch (message.type) {
 			case 'roomState':

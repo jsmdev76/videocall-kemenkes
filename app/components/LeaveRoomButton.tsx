@@ -20,6 +20,7 @@ export const LeaveRoomButton: FC<LeaveRoomButtonProps> = ({endpoint}) => {
 				// className='btn-leave'
 				onClick={() => {
 					// navigate('/set-username')
+					localStorage.removeItem("callStartTime")
 					submit({}, { method: "post", action: endpoint });
 				}}
 			>

@@ -18,7 +18,7 @@ main = "./build/index.js"
 CALLS_APP_ID = "f56c9e5e159866ede18e6e64801b79e4" #rhesa
 CALLS_APP_SECRET = "03227ee053731cfa8bd48e032a7466c013b98063d0c68608462f45a08611d634" #rhesa
 # URL_API = "http://vcallapi.kacanata.com"
-URL_API = "http://localhost:3000"
+URL_API = "http://localhost:3001"
 API_SECRET_KEY = "hDonkke4trpu4aGeQSCBMKGr0WcgmIti"
 
 [durable_objects]
