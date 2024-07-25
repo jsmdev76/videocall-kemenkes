@@ -307,42 +307,57 @@ function JoinedRoom({
 		return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 	}
 
+	function formatRemainingTime(endTime: number, now: number) {
+		const diffInMs = endTime - now // Difference in milliseconds
+		const totalSeconds = Math.floor(diffInMs / 1000)
+		const hours = Math.floor(totalSeconds / 3600)
+		const minutes = Math.floor((totalSeconds % 3600) / 60)
+		const seconds = totalSeconds % 60
+
+		return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+	}
+
 	const [callDuration, setCallDuration] = useState<string>(
 		formatDuration(callStartTime, Date.now())
 	)
 	const [endCallTime, setEndCallTime] = useState<number>(
 		callStartTime + 30 * 60000
 	) // 30 minutes
+	const [remainingTime, setRemainingTime] = useState<string>('30:00:00')
 
 	useEffect(() => {
-		const storedStartTime = localStorage.getItem('callStartTime')
-		const startTime = storedStartTime
-			? parseInt(storedStartTime, 10)
-			: Date.now()
+		const storedEndTime = localStorage.getItem('callEndTime')
+		const initialEndTime = storedEndTime
+			? parseInt(storedEndTime, 10)
+			: Date.now() + 30 * 60000 // 30 minutes from now if not stored
 
-		if (!storedStartTime) {
-			localStorage.setItem('callStartTime', startTime.toString())
-		}
+		setEndCallTime(initialEndTime)
+		localStorage.setItem('callEndTime', initialEndTime.toString())
 
 		const interval = setInterval(() => {
 			const currentTime = Date.now()
-			setCallDuration(formatDuration(startTime, currentTime))
+			const timeRemaining = initialEndTime - currentTime
 
-			const remainingTime = endCallTime - currentTime
-
-			if (remainingTime <= 2 * 60000 && remainingTime > 0 && identity?.role === "agent") {
-				const extendCall = window.confirm(
-					'Waktu panggilan tersisa 2 menit lagi. Apakah anda ingin menambahkan lagi?'
-				)
-				if (extendCall) {
-					extendCallDuration()
-				}
-			}
-
-			if (remainingTime <= 0) {
+			if (timeRemaining <= 0) {
 				clearInterval(interval)
-				localStorage.removeItem("callStartTime")
-				submit({}, { method: "post", action: `/api/endcall/${roomId}` });
+				setRemainingTime('00:00:00')
+				localStorage.removeItem('callEndTime')
+				submit({}, { method: 'post', action: `/api/endcall/${roomId}` })
+			} else {
+				setRemainingTime(formatRemainingTime(initialEndTime, currentTime))
+
+				if (
+					timeRemaining <= 2 * 60000 &&
+					timeRemaining > 0 &&
+					identity?.role === 'agent'
+				) {
+					const extendCall = window.confirm(
+						'Waktu panggilan tersisa 2 menit lagi. Apakah anda ingin menambahkan lagi?'
+					)
+					if (extendCall) {
+						extendCallDuration()
+					}
+				}
 			}
 		}, 1000)
 
@@ -350,9 +365,15 @@ function JoinedRoom({
 	}, [callStartTime, endCallTime])
 
 	const extendCallDuration = async () => {
-		const newEndTime = endCallTime + 10 * 60000; // Tambah 10 menit
-		setEndCallTime(newEndTime);
-	  
+		const currentTime = Date.now()
+		const currentEndTime = parseInt(
+			localStorage.getItem('callEndTime') || '0',
+			10
+		)
+		const newEndTime = Math.max(currentEndTime, currentTime) + 10 * 60000 // Add 10 minutes
+		setEndCallTime(newEndTime)
+		localStorage.setItem('callEndTime', newEndTime.toString())
+
 		// try {
 		//   const response = await fetch(`/api/call/extend`, {
 		// 	method: 'POST',
@@ -364,7 +385,7 @@ function JoinedRoom({
 		// 	  newEndTime: newEndTime,
 		// 	}),
 		//   });
-	  
+
 		//   if (!response.ok) {
 		// 	throw new Error('Failed to extend call duration');
 		//   }
@@ -372,9 +393,7 @@ function JoinedRoom({
 		//   console.error('Error extending call duration:', error);
 		//   // Handle error (e.g., show error message to user)
 		// }
-	  };
-	  
-	  
+	}
 
 	const speaking = useIsSpeaking(userMedia.audioStreamTrack)
 
@@ -612,11 +631,18 @@ function JoinedRoom({
 					<Toast.Viewport />
 				</Flipper>
 				<div className="flex flex-wrap items-center justify-between gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
-					<div className='flex gap-2'>
-						<span className="flex items-center justify-center text-gray-500 dark:text">
-							{callDuration} | {identity?.name.replace('|', '')}
+					<div className="flex items-center gap-2">
+						<span className="text-white">
+							{remainingTime} | {identity?.name.replace('|', '')}
 						</span>
-						<Button onClick={extendCallDuration} >Extend</Button>
+						{identity?.role === 'agent' && (
+							<button
+								className="bg-gray-900 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+								onClick={extendCallDuration}
+							>
+								Extend
+							</button>
+						)}
 					</div>
 					<div className="flex items-center gap-2">
 						{otherUsers.find(
@@ -655,16 +681,18 @@ function JoinedRoom({
 						<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
 						<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
 					</div>
-					<Button
+					<button
 						onClick={() =>
 							window.open(
 								`http://maps.google.com/maps?q=${clientLocation.latitude},${clientLocation.longitude}`,
 								'_blank'
 							)
 						}
+						className="flex items-center gap-2 hover:underline px-6 py-2"
 					>
+						<Icon type="openNewTab" />
 						Lihat Lokasi
-					</Button>
+					</button>
 				</div>
 			</div>
 			<HighPacketLossWarningsToast />
