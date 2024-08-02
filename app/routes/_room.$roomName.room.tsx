@@ -683,6 +683,7 @@ function JoinedRoom({
 						<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
 						<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
 					</div>
+					{identity?.role === "agent" && (
 					<button
 						onClick={() =>
 							window.open(
@@ -695,6 +696,7 @@ function JoinedRoom({
 						<Icon type="openNewTab" />
 						Lihat Lokasi
 					</button>
+					)}
 				</div>
 			</div>
 			<HighPacketLossWarningsToast />
