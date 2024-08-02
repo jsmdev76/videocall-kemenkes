@@ -324,6 +324,7 @@ function JoinedRoom({
 		callStartTime + 30 * 60000
 	) // 30 minutes
 	const [remainingTime, setRemainingTime] = useState<string>('30:00:00')
+	const [isExtended, setIsExtended] = useState<boolean>(false)
 
 	useEffect(() => {
 		const storedEndTime = localStorage.getItem('callEndTime')
@@ -372,6 +373,7 @@ function JoinedRoom({
 		)
 		const newEndTime = Math.max(currentEndTime, currentTime) + 10 * 60000 // Add 10 minutes
 		setEndCallTime(newEndTime)
+		setIsExtended(true)
 		localStorage.setItem('callEndTime', newEndTime.toString())
 
 		// try {
@@ -635,12 +637,12 @@ function JoinedRoom({
 						<span className="text-white">
 							{remainingTime} | {identity?.name.replace('|', '')}
 						</span>
-						{identity?.role === 'agent' && (
+						{identity?.role === 'agent' && !isExtended && (
 							<button
 								className="bg-gray-900 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
 								onClick={extendCallDuration}
 							>
-								Extend
+								Extend Time
 							</button>
 						)}
 					</div>
