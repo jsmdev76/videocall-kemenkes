@@ -683,20 +683,22 @@ function JoinedRoom({
 						<OverflowMenu bugReportsEnabled={bugReportsEnabled} />
 						<LeaveRoomButton endpoint={`/api/endcall/${roomId}`} />
 					</div>
-					{identity?.role === "agent" && (
-					<button
-						onClick={() =>
-							window.open(
-								`http://maps.google.com/maps?q=${clientLocation.latitude},${clientLocation.longitude}`,
-								'_blank'
-							)
-						}
-						className="flex items-center gap-2 hover:underline px-6 py-2"
-					>
-						<Icon type="openNewTab" />
-						Lihat Lokasi
-					</button>
-					)}
+					<div>
+						{identity?.role === 'agent' && (
+							<button
+								onClick={() =>
+									window.open(
+										`http://maps.google.com/maps?q=${clientLocation.latitude},${clientLocation.longitude}`,
+										'_blank'
+									)
+								}
+								className="flex items-center gap-2 hover:underline px-6 py-2"
+							>
+								<Icon type="openNewTab" />
+								Lihat Lokasi
+							</button>
+						)}
+					</div>
 				</div>
 			</div>
 			<HighPacketLossWarningsToast />
