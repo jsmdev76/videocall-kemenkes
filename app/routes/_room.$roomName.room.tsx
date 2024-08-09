@@ -279,7 +279,7 @@ function JoinedRoom({
 		peer,
 		joined,
 		pushedTracks,
-		room: { otherUsers, signal, identity },
+		room: { otherUsers, signal, identity, callDuration, callExtended, extendCallDuration },
 	} = useRoomContext()
 
 	const { GridDebugControls, fakeUsers } = useGridDebugControls({
@@ -295,106 +295,16 @@ function JoinedRoom({
 	const totalUsers = 1 + fakeUsers.length + otherUsers.length
 	const [raisedHand, setRaisedHand] = useState(false)
 	const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+	const [isExtended, setIsExtended] = useState<boolean>(false)
 	const callStartTime = new Date(data.data.startedAt).getTime()
 
-	function formatDuration(start: number, now: number) {
-		const diffInMs = now - start // Difference in milliseconds
-		const totalSeconds = Math.floor(diffInMs / 1000)
-		const hours = Math.floor(totalSeconds / 3600)
-		const minutes = Math.floor((totalSeconds % 3600) / 60)
-		const seconds = totalSeconds % 60
-
-		return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-	}
-
-	function formatRemainingTime(endTime: number, now: number) {
-		const diffInMs = endTime - now // Difference in milliseconds
-		const totalSeconds = Math.floor(diffInMs / 1000)
-		const hours = Math.floor(totalSeconds / 3600)
-		const minutes = Math.floor((totalSeconds % 3600) / 60)
-		const seconds = totalSeconds % 60
-
-		return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-	}
-
-	const [callDuration, setCallDuration] = useState<string>(
-		formatDuration(callStartTime, Date.now())
-	)
-	const [endCallTime, setEndCallTime] = useState<number>(
-		callStartTime + 30 * 60000
-	) // 30 minutes
-	const [remainingTime, setRemainingTime] = useState<string>('30:00:00')
-	const [isExtended, setIsExtended] = useState<boolean>(false)
-
-	useEffect(() => {
-		const storedEndTime = localStorage.getItem('callEndTime')
-		const initialEndTime = storedEndTime
-			? parseInt(storedEndTime, 10)
-			: Date.now() + 30 * 60000 // 30 minutes from now if not stored
-
-		setEndCallTime(initialEndTime)
-		localStorage.setItem('callEndTime', initialEndTime.toString())
-
-		const interval = setInterval(() => {
-			const currentTime = Date.now()
-			const timeRemaining = initialEndTime - currentTime
-
-			if (timeRemaining <= 0) {
-				clearInterval(interval)
-				setRemainingTime('00:00:00')
-				localStorage.removeItem('callEndTime')
-				submit({}, { method: 'post', action: `/api/endcall/${roomId}` })
-			} else {
-				setRemainingTime(formatRemainingTime(initialEndTime, currentTime))
-
-				if (
-					timeRemaining <= 2 * 60000 &&
-					timeRemaining > 0 &&
-					identity?.role === 'agent'
-				) {
-					const extendCall = window.confirm(
-						'Waktu panggilan tersisa 2 menit lagi. Apakah anda ingin menambahkan lagi?'
-					)
-					if (extendCall) {
-						extendCallDuration()
-					}
-				}
-			}
-		}, 1000)
-
-		return () => clearInterval(interval)
-	}, [callStartTime, endCallTime])
-
-	const extendCallDuration = async () => {
-		const currentTime = Date.now()
-		const currentEndTime = parseInt(
-			localStorage.getItem('callEndTime') || '0',
-			10
-		)
-		const newEndTime = Math.max(currentEndTime, currentTime) + 10 * 60000 // Add 10 minutes
-		setEndCallTime(newEndTime)
-		setIsExtended(true)
-		localStorage.setItem('callEndTime', newEndTime.toString())
-
-		// try {
-		//   const response = await fetch(`/api/call/extend`, {
-		// 	method: 'POST',
-		// 	headers: {
-		// 	  'Content-Type': 'application/json',
-		// 	},
-		// 	body: JSON.stringify({
-		// 	  roomId: roomId,
-		// 	  newEndTime: newEndTime,
-		// 	}),
-		//   });
-
-		//   if (!response.ok) {
-		// 	throw new Error('Failed to extend call duration');
-		//   }
-		// } catch (error) {
-		//   console.error('Error extending call duration:', error);
-		//   // Handle error (e.g., show error message to user)
-		// }
+	const formatDuration = (seconds: number) => {
+		const h = Math.floor(seconds / 3600)
+		const m = Math.floor((seconds % 3600) / 60)
+		const s = Math.floor(seconds % 60)
+		return `${h.toString().padStart(2, '0')}:${m
+			.toString()
+			.padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 	}
 
 	const speaking = useIsSpeaking(userMedia.audioStreamTrack)
@@ -447,23 +357,17 @@ function JoinedRoom({
 		[totalUsers, containerHeight, containerWidth]
 	)
 
-	// useEffect(() => {
-	// 	const isAgent = identity?.role === 'agent';
-	// 	const isClient = identity?.role === 'client';
+	const handleExtendTime = async () => {
+		// submit({}, { method: 'post', action: `/api/extendcall?roomId=${roomId}` })
+		setIsExtended(true)
+		extendCallDuration(10*60)
+	}
 
-	// 	if (isAgent || isClient) {
-	// 	  const otherRole = isAgent ? 'client' : 'agent';
-	// 	  const otherUser = otherUsers.find(user => user.role === otherRole);
-
-	// 	  if (!otherUser) {
-	// 		// console.log("exit")
-	// 		// Jika user lain (agent/client) tidak ada, arahkan ke halaman keluar
-	// 		navigate(`/end-room`);
-	// 	  }
-	// 	}
-	//   }, [otherUsers, identity, navigate]);
-
-	console.log(actorsOnStage)
+	useEffect(() => {
+		if (callDuration <= 0) {
+			submit({}, { method: 'post', action: `/api/endcall/${roomId}` })
+		}
+	},[callDuration])
 
 	return (
 		<PullAudioTracks
@@ -635,12 +539,12 @@ function JoinedRoom({
 				<div className="flex flex-wrap items-center justify-between gap-2 p-2 text-sm md:gap-4 md:p-5 md:text-base tool-incall-box">
 					<div className="flex items-center gap-2">
 						<span className="text-white">
-							{remainingTime} | {identity?.name.replace('|', '')}
+							{formatDuration(callDuration)} | {identity?.name.replace('|', '')}
 						</span>
 						{identity?.role === 'agent' && !isExtended && (
 							<button
 								className="bg-gray-900 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-								onClick={extendCallDuration}
+								onClick={handleExtendTime}
 							>
 								Extend Time
 							</button>

@@ -30,6 +30,7 @@ export class ChatRoom {
 	sessions: Session[]
 	lastTimestamp: number
 	stateSyncInterval: NodeJS.Timeout | null = null
+	callDuration: number = 30 * 60
 
 	constructor(state: DurableObjectState, env: AppLoadContext) {
 		this.storage = state.storage
@@ -52,6 +53,8 @@ export class ChatRoom {
 			this.sessions = (await this.storage.get<Session[]>('sessions')) ?? []
 			this.sessions.forEach((s) => this.setupHeartbeatInterval(s))
 		})
+
+		setInterval(this.updateCallDuration, 1000)
 	}
 
 	// The system will call fetch() whenever an HTTP request is sent to this Object. Such requests
@@ -95,6 +98,50 @@ export class ChatRoom {
 		})
 	}
 
+	updateCallDuration = () => {
+		if (this.callDuration >= 0) {
+			this.callDuration -= 1
+			this.sessions.forEach((session) => {
+				this.sendMessage(session, {
+					type: 'callDurationUpdate',
+					duration: this.callDuration,
+				})
+			})
+		}
+		// this.sessions.forEach((session) => {
+		// 	if (!session.quit) {
+		// 		this.callDuration = this.callDuration - 1
+		// 		if (this.callDuration <= 0) {
+		// 			this.handleCallEnd(session)
+		// 		} else {
+		// 			this.sendMessage(session, {
+		// 				type: 'callDurationUpdate',
+		// 				duration: this.callDuration,
+		// 			})
+		// 		}
+		// 	}
+		// })
+	}
+
+	extendCallDuration = (sessionId: string, extension: number) => {
+		const session = this.sessions.find((s) => s.id === sessionId)
+		if (session && session.user.role === 'agent') {
+			this.callDuration += extension
+			this.broadcast({
+				type: 'callDurationExtended',
+				newMaxDuration: this.callDuration,
+			})
+		}
+	}
+
+	handleCallEnd = (session: Session) => {
+		this.sendMessage(session, {
+			type: 'callEnded',
+			reason: 'maxDurationReached',
+		})
+		this.handleUserLeft(session)
+	}
+
 	async sendMessage<M extends ServerMessage>(session: Session, message: M) {
 		// 1 is OPEN readyState
 		// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
@@ -131,7 +178,9 @@ export class ChatRoom {
 		this.broadcast({
 			type: 'roomState',
 			state: {
-				users: this.sessions.map((s) => s.user),
+				users: this.sessions.map((s) => ({
+					...s.user,
+				})),
 			},
 		})
 	}
@@ -267,6 +316,12 @@ export class ChatRoom {
 								type: 'muteMic',
 							})
 							this.broadcastState()
+						}
+						break
+
+					case 'extendCallDuration':
+						if (session.user.role === 'agent') {
+							this.extendCallDuration(session.id, data.extension)
 						}
 						break
 

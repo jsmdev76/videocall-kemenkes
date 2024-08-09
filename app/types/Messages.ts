@@ -48,6 +48,23 @@ export type ServerMessage =
 			message: string
 			roomId: string
 	  }
+	| {
+			type: 'chatMessage'
+			to: string
+			from: string
+			message: string
+			roomId: string
+	  }
+	| {
+			type: 'chatMessage'
+			to: string
+			from: string
+			message: string
+			roomId: string
+	  }
+	| { type: 'callDurationUpdate'; duration: number }
+	| { type: 'callDurationExtended'; newMaxDuration: number }
+	| { type: 'callEnded'; reason: string }
 
 export type MessageFromServer = {
 	from: string
@@ -77,7 +94,8 @@ export type ClientMessage =
 	  }
 	| {
 			type: 'chatMessage'
-			roomId: string;
+			roomId: string
 			from: string
 			message: string
 	  }
+	| { type: 'extendCallDuration'; extension: number }
