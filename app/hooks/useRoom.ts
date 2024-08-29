@@ -137,14 +137,14 @@ export default function useRoom({
 					},
 				])
 				break
-			case 'callDurationExtended':
-				setCallExtended(message.newMaxDuration)
-				break
-			case 'callDurationUpdate':
-				setCallDuration(message.duration)
-				break
-			case 'callEnded':
-				break
+			// case 'callDurationExtended':
+			// 	setCallExtended(message.newMaxDuration)
+			// 	break
+			// case 'callDurationUpdate':
+			// 	setCallDuration(message.duration)
+			// 	break
+			// case 'callEnded':
+			// 	break
 			default:
 				assertNever(message)
 				break
@@ -197,10 +197,11 @@ export default function useRoom({
 		}
 	}
 
-	const extendCallDuration = async (extensionTime: number) => {
-		await signal.extendCallDuration(extensionTime)
-	}
+	// const extendCallDuration = async (extensionTime: number) => {
+	// 	await signal.extendCallDuration(extensionTime)
+	// }
 
 
-	return { identity, otherUsers, signal, roomState, sendChat, messages, error, callDuration, callExtended, extendCallDuration }
+	// return { identity, otherUsers, signal, roomState, sendChat, messages, error, callDuration, callExtended, extendCallDuration }
+	return { identity, otherUsers, signal, roomState, sendChat, messages, error, callDuration, callExtended }
 }

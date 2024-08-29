@@ -279,7 +279,8 @@ function JoinedRoom({
 		peer,
 		joined,
 		pushedTracks,
-		room: { otherUsers, signal, identity, callDuration, callExtended, extendCallDuration },
+		// room: { otherUsers, signal, identity, callDuration, callExtended, extendCallDuration },
+		room: { otherUsers, signal, identity, callDuration, callExtended },
 	} = useRoomContext()
 
 	const { GridDebugControls, fakeUsers } = useGridDebugControls({
@@ -360,7 +361,7 @@ function JoinedRoom({
 	const handleExtendTime = async () => {
 		// submit({}, { method: 'post', action: `/api/extendcall?roomId=${roomId}` })
 		setIsExtended(true)
-		extendCallDuration(10*60)
+		// extendCallDuration(10*60)
 	}
 
 	useEffect(() => {

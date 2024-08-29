@@ -54,7 +54,7 @@ export class ChatRoom {
 			this.sessions.forEach((s) => this.setupHeartbeatInterval(s))
 		})
 
-		setInterval(this.updateCallDuration, 1000)
+		// setInterval(this.updateCallDuration, 1000)
 	}
 
 	// The system will call fetch() whenever an HTTP request is sent to this Object. Such requests
@@ -98,49 +98,49 @@ export class ChatRoom {
 		})
 	}
 
-	updateCallDuration = () => {
-		if (this.callDuration >= 0) {
-			this.callDuration -= 1
-			this.sessions.forEach((session) => {
-				this.sendMessage(session, {
-					type: 'callDurationUpdate',
-					duration: this.callDuration,
-				})
-			})
-		}
-		// this.sessions.forEach((session) => {
-		// 	if (!session.quit) {
-		// 		this.callDuration = this.callDuration - 1
-		// 		if (this.callDuration <= 0) {
-		// 			this.handleCallEnd(session)
-		// 		} else {
-		// 			this.sendMessage(session, {
-		// 				type: 'callDurationUpdate',
-		// 				duration: this.callDuration,
-		// 			})
-		// 		}
-		// 	}
-		// })
-	}
+	// updateCallDuration = () => {
+	// 	if (this.callDuration >= 0) {
+	// 		this.callDuration -= 1
+	// 		this.sessions.forEach((session) => {
+	// 			this.sendMessage(session, {
+	// 				type: 'callDurationUpdate',
+	// 				duration: this.callDuration,
+	// 			})
+	// 		})
+	// 	}
+	// 	// this.sessions.forEach((session) => {
+	// 	// 	if (!session.quit) {
+	// 	// 		this.callDuration = this.callDuration - 1
+	// 	// 		if (this.callDuration <= 0) {
+	// 	// 			this.handleCallEnd(session)
+	// 	// 		} else {
+	// 	// 			this.sendMessage(session, {
+	// 	// 				type: 'callDurationUpdate',
+	// 	// 				duration: this.callDuration,
+	// 	// 			})
+	// 	// 		}
+	// 	// 	}
+	// 	// })
+	// }
 
-	extendCallDuration = (sessionId: string, extension: number) => {
-		const session = this.sessions.find((s) => s.id === sessionId)
-		if (session && session.user.role === 'agent') {
-			this.callDuration += extension
-			this.broadcast({
-				type: 'callDurationExtended',
-				newMaxDuration: this.callDuration,
-			})
-		}
-	}
+	// extendCallDuration = (sessionId: string, extension: number) => {
+	// 	const session = this.sessions.find((s) => s.id === sessionId)
+	// 	if (session && session.user.role === 'agent') {
+	// 		this.callDuration += extension
+	// 		this.broadcast({
+	// 			type: 'callDurationExtended',
+	// 			newMaxDuration: this.callDuration,
+	// 		})
+	// 	}
+	// }
 
-	handleCallEnd = (session: Session) => {
-		this.sendMessage(session, {
-			type: 'callEnded',
-			reason: 'maxDurationReached',
-		})
-		this.handleUserLeft(session)
-	}
+	// handleCallEnd = (session: Session) => {
+	// 	this.sendMessage(session, {
+	// 		type: 'callEnded',
+	// 		reason: 'maxDurationReached',
+	// 	})
+	// 	this.handleUserLeft(session)
+	// }
 
 	async sendMessage<M extends ServerMessage>(session: Session, message: M) {
 		// 1 is OPEN readyState
@@ -319,11 +319,11 @@ export class ChatRoom {
 						}
 						break
 
-					case 'extendCallDuration':
-						if (session.user.role === 'agent') {
-							this.extendCallDuration(session.id, data.extension)
-						}
-						break
+					// case 'extendCallDuration':
+					// 	if (session.user.role === 'agent') {
+					// 		this.extendCallDuration(session.id, data.extension)
+					// 	}
+					// 	break
 
 					case 'chatMessage':
 						const { from, message, roomId } = data

@@ -168,7 +168,7 @@ export default class Signal {
 		await this.sendMessage({type: "chatMessage", ...data, roomId:this.roomName})
 	}
 
-	async extendCallDuration(extensionTime: number) {
-		await this.sendMessage({ type: 'extendCallDuration', extension: extensionTime });
-	}
+	// async extendCallDuration(extensionTime: number) {
+	// 	await this.sendMessage({ type: 'extendCallDuration', extension: extensionTime });
+	// }
 }
