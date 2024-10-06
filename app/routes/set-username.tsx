@@ -17,7 +17,8 @@ import { setUsername } from '~/utils/getUsername.server'
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 	const url = new URL(request.url)
 	const username = url.searchParams.get('username')
-	return json({ username })
+	const opt = url.searchParams.get('opt')
+	return json({ username, opt })
 }
 
 interface ActionData {
@@ -33,9 +34,11 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	const email = formData.get('email') as string | undefined
 	const phone = formData.get('phone') as string | undefined
 	const message = formData.get('message') as string | undefined
+	const callbackTime = formData.get('callbackTime') as string | undefined
 	const username = formData.get('username') as string | undefined
 	const latitude = formData.get('latitude') as string | undefined
 	const longitude = formData.get('longitude') as string | undefined
+	const opt = formData.get('opt') as string | undefined
 
 	const errors: { [key: string]: string } = {}
 
@@ -62,6 +65,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 				email,
 				phone,
 				message,
+				callbackTime,
 			}),
 		})
 
@@ -103,6 +107,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 				clientName: username,
 				latitude: latitude,
 				longitude: longitude,
+				opt: opt,
 			}),
 		})
 
@@ -124,7 +129,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 }
 
 export default function SetUsername() {
-	const { username } = useLoaderData<typeof loader>()
+	const { username, opt } = useLoaderData<typeof loader>()
 	const data = useActionData<typeof action>()
 	const [latitude, setLatitude] = useState<string>('')
 	const [longitude, setLongitude] = useState<string>('')
@@ -210,6 +215,7 @@ export default function SetUsername() {
 						name="longitude"
 						value={longitude}
 					/>
+					<Input type="hidden" id="opt" name="opt" value={opt || ""} />
 				</div>
 				{navigation.state === 'idle' ? (
 					<Button className="text-xs bg-blue" type="submit">
@@ -369,6 +375,25 @@ function Modal({ onClose }: { onClose: () => void }) {
 						/>
 						{errors.phone && (
 							<p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+						)}
+					</div>
+					<div>
+						<label
+							htmlFor="callbackTime"
+							className="block text-sm font-medium text-gray-700 mb-1"
+						>
+							Waktu yang Diinginkan untuk Dihubungi Kembali
+						</label>
+						<input
+							type="datetime-local"
+							id="callbackTime"
+							name="callbackTime"
+							className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+								errors.callbackTime ? 'border-red-500' : 'border-gray-300'
+							}`}
+						/>
+						{errors.callbackTime && (
+							<p className="mt-1 text-sm text-red-600">{errors.callbackTime}</p>
 						)}
 					</div>
 					<div>
