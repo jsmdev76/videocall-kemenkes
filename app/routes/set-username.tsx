@@ -39,6 +39,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 	const latitude = formData.get('latitude') as string | undefined
 	const longitude = formData.get('longitude') as string | undefined
 	const opt = formData.get('opt') as string | undefined
+	const uid = formData.get('uid') as string | undefined
 
 	const errors: { [key: string]: string } = {}
 
@@ -108,6 +109,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 				latitude: latitude,
 				longitude: longitude,
 				opt: opt,
+				uid: uid,
 			}),
 		})
 
