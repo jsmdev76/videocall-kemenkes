@@ -1,4 +1,4 @@
-name = "vcall-rhesa"
+name = "vcall-synergix"
 # https://developers.cloudflare.com/workers/platform/compatibility-dates
 compatibility_date = "2022-04-05"
 # account_id = "c1acc80fc2b1b0e907ee63cd080f1e23"
@@ -14,10 +14,15 @@ main = "./build/index.js"
   globs = ["**/*.js"]
 
 [vars]
-# CALLS_APP_ID = "4a469496ab595f316c0ed2d304bc946a"
-CALLS_APP_ID = "f56c9e5e159866ede18e6e64801b79e4" #rhesa
-CALLS_APP_SECRET = "03227ee053731cfa8bd48e032a7466c013b98063d0c68608462f45a08611d634" #rhesa
+## CALLS_APP_ID = "4a469496ab595f316c0ed2d304bc946a"
+#CALLS_APP_ID = "f56c9e5e159866ede18e6e64801b79e4" #rhesa
+#CALLS_APP_SECRET = "03227ee053731cfa8bd48e032a7466c013b98063d0c68608462f45a08611d634" #rhesa
 # URL_API = "http://vcallapi.kacanata.com"
+#URL_API = "http://localhost:3001"
+#API_SECRET_KEY = "hDonkke4trpu4aGeQSCBMKGr0WcgmIti"
+
+CALLS_APP_ID = "0033f29b655281d13245e8030c196988"
+CALLS_APP_SECRET = "2e245bd792cf1fb81705732c481d340d85984a040e44d42ea0b7a35a646a58f8"
 URL_API = "http://localhost:3001"
 API_SECRET_KEY = "hDonkke4trpu4aGeQSCBMKGr0WcgmIti"
 
