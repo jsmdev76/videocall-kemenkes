@@ -2,7 +2,8 @@ name = "vcall-synergix"
 # https://developers.cloudflare.com/workers/platform/compatibility-dates
 compatibility_date = "2022-04-05"
 # account_id = "c1acc80fc2b1b0e907ee63cd080f1e23"
-account_id = "5a5db1390090a9946d2a39d27caf8e5a" #rhesa
+#account_id = "5a5db1390090a9946d2a39d27caf8e5a" #rhesa
+account_id = "78c6094f9f4436ffa33f98cbddec5a83" #synergix
 main = "./build/index.js"
 
 [site]
