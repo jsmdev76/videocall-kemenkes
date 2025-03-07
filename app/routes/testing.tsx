@@ -40,11 +40,11 @@ export async function loader({
 			},
 			{
 				email: 'mala.widiyanto@gmail.com',
-				id: 2
+				id: 2,
 			},
 			{
 				email: 'rhesadav29@gmail.com',
-				id: 3
+				id: 3,
 			},
 		]
 		return json<LoaderData>({ emails })
@@ -74,7 +74,7 @@ export async function action({
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'x-api-key': context.API_SECRET_KEY as string
+					'x-api-key': context.API_SECRET_KEY as string,
 				},
 				body: JSON.stringify({ to, subject, title, content }),
 			})

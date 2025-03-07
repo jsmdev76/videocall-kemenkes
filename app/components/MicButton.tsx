@@ -24,12 +24,14 @@ export const MicButton: FC<
 			audioUnavailableReason,
 			audioMonitorStreamTrack,
 		},
-		room: {
-			identity
-		}
+		room: { identity },
 	} = useRoomContext()
 
-	if (identity?.name.startsWith("anonymous") || identity?.role === "whisper" || identity?.role === "listener" ) {
+	if (
+		identity?.name.startsWith('anonymous') ||
+		identity?.role === 'whisper' ||
+		identity?.role === 'listener'
+	) {
 		turnMicOff()
 	}
 

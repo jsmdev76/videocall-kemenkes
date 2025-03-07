@@ -40,6 +40,6 @@ export default async function getUsername(request: Request) {
 	const sessionUsername = session.get('username')
 	if (typeof sessionUsername === 'string') return sessionUsername
 
-	return "anonymous_$43567243567u"
+	return 'anonymous_$43567243567u'
 	// return null
 }

@@ -1,13 +1,10 @@
-import { json, redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
-import invariant from "tiny-invariant";
-import getDoctorToken from "~/utils/getDoctorToken.server";
-import { setUsername } from "~/utils/getUsername.server";
+import { redirect, type ActionFunctionArgs } from '@remix-run/cloudflare'
 
 export const action = async ({
 	params,
 	request,
-	context
-  }: ActionFunctionArgs) => {
+	context,
+}: ActionFunctionArgs) => {
 	const host = context.URL_API
 	const url = new URL(request.url)
 	const callId = url.searchParams.get('callId')
@@ -22,17 +19,16 @@ export const action = async ({
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			'x-api-key': context.API_SECRET_KEY as string
+			'x-api-key': context.API_SECRET_KEY as string,
 		},
 		body: JSON.stringify({
 			callId,
-			action: "deny"
+			action: 'deny',
 		}),
-
 	})
 	let data: any = await response.json()
 	console.log(data)
 	// return data
 	// return json({data})
 	throw redirect(`/doctor/dashboard?username=${username}&id=${id}`)
-  };
+}

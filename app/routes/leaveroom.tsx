@@ -1,19 +1,19 @@
-import { redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
-import invariant from "tiny-invariant";
-import getClientToken, { removeClientToken } from "~/utils/getClientToken.server";
-import getDoctorToken, { removeDoctorToken } from "~/utils/getDoctorToken.server";
-import getUsername, { setUsername } from "~/utils/getUsername.server";
+import { type ActionFunctionArgs } from '@remix-run/cloudflare'
+import getClientToken, {
+	removeClientToken,
+} from '~/utils/getClientToken.server'
+import getDoctorToken from '~/utils/getDoctorToken.server'
 
 export const action = async ({
 	params,
 	request,
-	context
-  }: ActionFunctionArgs) => {
-	const host = context.URL_API;
-	let trxClientToken = await getClientToken(request);
-	let doctorToken = await getDoctorToken(request);
-	console.log('trxClientToken', trxClientToken);
-	console.log('doctorToken', doctorToken);
+	context,
+}: ActionFunctionArgs) => {
+	const host = context.URL_API
+	let trxClientToken = await getClientToken(request)
+	let doctorToken = await getDoctorToken(request)
+	console.log('trxClientToken', trxClientToken)
+	console.log('doctorToken', doctorToken)
 	// if(!trxClientToken) {
 	// 	if(doctorToken)
 	// 		throw redirect('/doctor');
@@ -37,10 +37,10 @@ export const action = async ({
 	// 	throw new Response(data.message, {status: 500});
 	// }
 	// clear session
-	let url = '/end-room/client';
+	let url = '/end-room/client'
 	// if(doctorToken)
 	// 	url = '/doctor/dashboard';
-	console.log('url', url);
+	console.log('url', url)
 	// return url;
-	return removeClientToken(request, url);
-  };
+	return removeClientToken(request, url)
+}

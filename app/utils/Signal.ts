@@ -79,8 +79,12 @@ export default class Signal {
 			this.#ws.addEventListener('error', (event) => {
 				console.log('WebSocket error', event)
 				clearInterval(this.heartBeatInterval)
-				this.#eventTarget.dispatchEvent(new CustomEvent('error', {detail: event}))
-				this.#eventTarget.dispatchEvent(new CustomEvent('disconnected', {detail: event}))
+				this.#eventTarget.dispatchEvent(
+					new CustomEvent('error', { detail: event })
+				)
+				this.#eventTarget.dispatchEvent(
+					new CustomEvent('disconnected', { detail: event })
+				)
 				reject(event)
 				this.connected = null
 				if (!this.disposed && navigator.onLine) {
@@ -90,8 +94,12 @@ export default class Signal {
 			this.#ws.addEventListener('close', (event) => {
 				console.log('WebSocket closed')
 				clearInterval(this.heartBeatInterval)
-				this.#eventTarget.dispatchEvent(new CustomEvent('error', {detail: event}))
-				this.#eventTarget.dispatchEvent(new CustomEvent('disconnected',{detail: event}))
+				this.#eventTarget.dispatchEvent(
+					new CustomEvent('error', { detail: event })
+				)
+				this.#eventTarget.dispatchEvent(
+					new CustomEvent('disconnected', { detail: event })
+				)
 				reject(event)
 				this.connected = null
 				if (!this.disposed && navigator.onLine) {
@@ -164,8 +172,12 @@ export default class Signal {
 		}
 	}
 
-	async sendChat(data:{from: string, roomId:string, message:string}) {
-		await this.sendMessage({type: "chatMessage", ...data, roomId:this.roomName})
+	async sendChat(data: { from: string; roomId: string; message: string }) {
+		await this.sendMessage({
+			type: 'chatMessage',
+			...data,
+			roomId: this.roomName,
+		})
 	}
 
 	// async extendCallDuration(extensionTime: number) {

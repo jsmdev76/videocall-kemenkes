@@ -9,7 +9,7 @@ interface LeaveRoomButtonProps {
 	endpoint: string
 }
 
-export const LeaveRoomButton: FC<LeaveRoomButtonProps> = ({endpoint}) => {
+export const LeaveRoomButton: FC<LeaveRoomButtonProps> = ({ endpoint }) => {
 	const navigate = useNavigate()
 	const submit = useSubmit()
 	return (
@@ -20,8 +20,8 @@ export const LeaveRoomButton: FC<LeaveRoomButtonProps> = ({endpoint}) => {
 				// className='btn-leave'
 				onClick={() => {
 					// navigate('/set-username')
-					localStorage.removeItem("callStartTime")
-					submit({}, { method: "post", action: endpoint });
+					localStorage.removeItem('callStartTime')
+					submit({}, { method: 'post', action: endpoint })
 				}}
 			>
 				<VisuallyHidden>Leave</VisuallyHidden>

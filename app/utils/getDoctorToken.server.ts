@@ -27,13 +27,13 @@ export async function removeDoctorToken(
 	const session = await getSession(request.headers.get('Cookie'))
 	session.set('doctortoken', '')
 
-	const destroyCookie = await destroySession(session);
+	const destroyCookie = await destroySession(session)
 
-  throw redirect(returnUrl, {
-    headers: {
-      'Set-Cookie': destroyCookie,
-    },
-  });
+	throw redirect(returnUrl, {
+		headers: {
+			'Set-Cookie': destroyCookie,
+		},
+	})
 
 	// window.localStorage.removeItem("isDoctor");
 	// throw redirect(returnUrl, {

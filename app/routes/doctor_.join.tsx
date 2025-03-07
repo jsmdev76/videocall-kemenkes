@@ -1,4 +1,4 @@
-import { redirect, type ActionFunctionArgs } from '@remix-run/cloudflare'
+import { type ActionFunctionArgs } from '@remix-run/cloudflare'
 import { setDoctorToken } from '~/utils/getDoctorToken.server'
 
 export const action = async ({
@@ -16,16 +16,20 @@ export const action = async ({
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			'x-api-key': context.API_SECRET_KEY as string
+			'x-api-key': context.API_SECRET_KEY as string,
 		},
 		body: JSON.stringify({
 			callId,
-			action: "accept"
+			action: 'accept',
 		}),
-
 	})
 	let data: any = await response.json()
 	console.log(data)
-	return setDoctorToken("doctor", `${data.data.call.agentName} | Agent`, request, `/${data.data.call.roomId}/room`)
+	return setDoctorToken(
+		'doctor',
+		`${data.data.call.agentName} | Agent`,
+		request,
+		`/${data.data.call.roomId}/room`
+	)
 	// throw redirect(`/${roomId}/room`)
 }

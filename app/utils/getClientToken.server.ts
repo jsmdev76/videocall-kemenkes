@@ -1,11 +1,10 @@
 import { redirect } from '@remix-run/cloudflare'
 import { commitSession, getSession } from '~/session'
-import { ACCESS_AUTHENTICATED_USER_EMAIL_HEADER } from './constants'
 
 export async function setClientToken(
 	request: Request,
 	returnUrl: string,
-	trxClientToken: string,
+	trxClientToken: string
 ) {
 	const session = await getSession(request.headers.get('Cookie'))
 	session.set('clienttoken', trxClientToken)

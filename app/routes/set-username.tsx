@@ -95,6 +95,17 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 		const host = context.URL_API
 		const roomName = crypto.randomUUID().split('-')[0]
+
+		console.log('host', host)
+		console.log('username', username)
+		console.log('latitude', latitude)
+		console.log('longitude', longitude)
+		console.log('roomName', roomName)
+		console.log('opt', opt)
+		console.log('uid', uid)
+		console.log('x-api-key', context.API_SECRET_KEY)
+		console.log('url-origin', url.origin)
+
 		const response = await fetch(`${host}/call/create`, {
 			method: 'post',
 			headers: {
@@ -186,83 +197,196 @@ export default function SetUsername() {
 	}, [data, navigation])
 
 	return (
-		<div className="grid h-full gap-4 place-content-center bg-login">
-			<div className="bg-kemenkes box-logo"></div>
-			<h1 className="text-3xl font-bold text-blue">Konsultasi</h1>
-			<p className="text-blue">
-				Anda akan terhubung ke layanan konseling 24 jam dengan durasi 30 menit
-				per sesi. <br />
-				Izinkan akses lokasi agar konselor dapat memberikan pelayanan yang
-				optimal.{' '}
-			</p>
-			<Form className="flex items-end gap-4" method="post">
-				<input type="hidden" name="formType" value="startConsultation" />
-				<div className="grid gap-3">
-					<label htmlFor="username" className="text-blue">
-						Masukkan nama Anda untuk memulai
-					</label>
-					<Input
-						autoComplete="off"
-						autoFocus
-						required
-						type="text"
-						id="username"
-						name="username"
-						defaultValue={username || ''}
-					/>
-					<Input type="hidden" id="latitude" name="latitude" value={latitude} />
-					<Input
-						type="hidden"
-						id="longitude"
-						name="longitude"
-						value={longitude}
-					/>
-					<Input type="hidden" id="opt" name="opt" value={opt || ""} />
-				</div>
-				{navigation.state === 'idle' ? (
-					<Button className="text-xs bg-blue" type="submit">
-						Hubungi Konselor
-					</Button>
-				) : (
-					'Menghubungi Konselor...'
-				)}
-			</Form>
-			{allowAudio === 2 && (
-				<div className="text-danger">
-					Silahkan aktifkan microphone untuk memulai sesi.
-				</div>
-			)}
-			{statusMessage && (
-				<div
-					className={`flex flex-col gap-2 text-${data?.success ? 'success' : 'danger'}`}
-				>
-					{statusMessage}
-					{!data?.success && (
-						<div>
-							<Button
-								className="text-xs bg-blue"
-								onClick={() => setShowModal(true)}
-							>
-								Tinggalkan Pesan
-							</Button>
+		<>
+			{/*<div className="grid h-full gap-4 place-content-center bg-login">*/}
+			{/*	<div className="bg-kemenkes box-logo"></div>*/}
+			{/*	<h1 className="text-3xl font-bold text-blue">Konsultasi</h1>*/}
+			{/*	<p className="text-blue">*/}
+			{/*		Anda akan terhubung ke layanan konseling 24 jam dengan durasi 30 menit*/}
+			{/*		per sesi. <br />*/}
+			{/*		Izinkan akses lokasi agar konselor dapat memberikan pelayanan yang*/}
+			{/*		optimal.{' '}*/}
+			{/*	</p>*/}
+			{/*	<Form className="flex items-end gap-4" method="post">*/}
+			{/*		<input type="hidden" name="formType" value="startConsultation" />*/}
+			{/*		<div className="grid gap-3">*/}
+			{/*			<label htmlFor="username" className="text-blue">*/}
+			{/*				Masukkan nama Anda untuk memulai*/}
+			{/*			</label>*/}
+			{/*			<Input*/}
+			{/*				autoComplete="off"*/}
+			{/*				autoFocus*/}
+			{/*				required*/}
+			{/*				type="text"*/}
+			{/*				id="username"*/}
+			{/*				name="username"*/}
+			{/*				defaultValue={username || ''}*/}
+			{/*				className={`text-white`}*/}
+			{/*			/>*/}
+			{/*			<Input*/}
+			{/*				type="hidden"*/}
+			{/*				id="latitude"*/}
+			{/*				name="latitude"*/}
+			{/*				value={latitude}*/}
+			{/*			/>*/}
+			{/*			<Input*/}
+			{/*				type="hidden"*/}
+			{/*				id="longitude"*/}
+			{/*				name="longitude"*/}
+			{/*				value={longitude}*/}
+			{/*			/>*/}
+			{/*			<Input type="hidden" id="opt" name="opt" value={opt || ''} />*/}
+			{/*		</div>*/}
+			{/*		{navigation.state === 'idle' ? (*/}
+			{/*			<Button className="text-xs bg-blue" type="submit">*/}
+			{/*				Hubungi Konselor*/}
+			{/*			</Button>*/}
+			{/*		) : (*/}
+			{/*			'Menghubungi Konselor...'*/}
+			{/*		)}*/}
+			{/*	</Form>*/}
+			{/*	{allowAudio === 2 && (*/}
+			{/*		<div className="text-danger">*/}
+			{/*			Silahkan aktifkan microphone untuk memulai sesi.*/}
+			{/*		</div>*/}
+			{/*	)}*/}
+			{/*	{statusMessage && (*/}
+			{/*		<div*/}
+			{/*			className={`flex flex-col gap-2 text-${*/}
+			{/*				data?.success ? 'success' : 'danger'*/}
+			{/*			}`}*/}
+			{/*		>*/}
+			{/*			{statusMessage}*/}
+			{/*			{!data?.success && (*/}
+			{/*				<div>*/}
+			{/*					<Button*/}
+			{/*						className="text-xs bg-blue"*/}
+			{/*						onClick={() => setShowModal(true)}*/}
+			{/*					>*/}
+			{/*						Tinggalkan Pesan*/}
+			{/*					</Button>*/}
+			{/*				</div>*/}
+			{/*			)}*/}
+			{/*		</div>*/}
+			{/*	)}*/}
+			{/*	{showModal && <Modal onClose={() => setShowModal(false)} />}*/}
+			{/*</div>*/}
+
+			<div className="flex items-center justify-center h-screen bg-gray-100">
+				<div className="container lg:p-10">
+					<div className="flex flex-col lg:flex-row items-center bg-gray-100 p-6 lg:p-10 rounded-lg">
+						<div className="container flex justify-center p-6 lg:p-10">
+							<div className="lg:w-3/4 w-full text-center lg:text-left mb-6 lg:mb-0">
+								<img
+									src="./logo-kemenkes.png"
+									alt="consultation"
+									className="block mx-auto lg:ml-0 mb-4"
+								/>
+								<h2 className="text-xl font-semibold text-gray-800 mt-6">
+									Consultation
+								</h2>
+								<p className="text-gray-600 mt-2">
+									You will be connected to a 24-hour counseling service with a
+									duration of 30 minutes per session. Allow location access so
+									that counselors can provide optimal service.
+								</p>
+							</div>
 						</div>
-					)}
+
+						<div className="container flex justify-center p-6 lg:p-10">
+							<div className="lg:w-3/4 w-full bg-gray-50 p-11 rounded-lg shadow-md">
+								<h3 className="text-lg font-bold text-gray-800">
+									Masukkan nama Anda untuk memulai
+								</h3>
+
+								<Form method="post">
+									<input
+										type="hidden"
+										name="formType"
+										value="startConsultation"
+									/>
+									<div className="grid gap-3">
+										<div className="mt-4">
+											<input
+												type="text"
+												placeholder="Username"
+												autoComplete="off"
+												autoFocus
+												required
+												id="username"
+												name="username"
+												defaultValue={username || ''}
+												className={`w-full border border-gray-500 p-2 rounded text-sm text-center`}
+											/>
+										</div>
+										<Input
+											type="hidden"
+											id="latitude"
+											name="latitude"
+											value={latitude}
+										/>
+										<Input
+											type="hidden"
+											id="longitude"
+											name="longitude"
+											value={longitude}
+										/>
+										<Input
+											type="hidden"
+											id="opt"
+											name="opt"
+											value={opt || ''}
+										/>
+									</div>
+
+									<div className="mt-6">
+										{navigation.state === 'idle' ? (
+											<Button className="text-xs bg-blue w-full" type="submit">
+												Hubungi Konselor
+											</Button>
+										) : (
+											'Menghubungi Konselor...'
+										)}
+									</div>
+								</Form>
+							</div>
+							{allowAudio === 2 && (
+								<div className="text-danger">
+									Silahkan aktifkan microphone untuk memulai sesi.
+								</div>
+							)}
+							{statusMessage && (
+								<div
+									className={`flex flex-col gap-2 text-${
+										data?.success ? 'success' : 'danger'
+									}`}
+								>
+									{statusMessage}
+									{!data?.success && (
+										<div>
+											<Button
+												className="text-xs bg-blue"
+												onClick={() => setShowModal(true)}
+											>
+												Tinggalkan Pesan
+											</Button>
+										</div>
+									)}
+								</div>
+							)}
+							{showModal && <Modal onClose={() => setShowModal(false)} />}
+						</div>
+					</div>
 				</div>
-			)}
-			{/* {data?.success ? (
-                <h1>Yuhuuu</h1>
-            ): (
-                <h1>Net Not</h1>
-            )} */}
-			{showModal && <Modal onClose={() => setShowModal(false)} />}
-		</div>
+			</div>
+		</>
 	)
 }
 
 function Modal({ onClose }: { onClose: () => void }) {
 	const [errors, setErrors] = useState<{ [key: string]: string }>({})
 	const [isSuccess, setIsSuccess] = useState<boolean>(false)
-
+	
 	const validateForm = (formData: FormData) => {
 		const newErrors: { [key: string]: string } = {}
 		const fields = ['clientName', 'email', 'phone', 'message']
@@ -274,8 +398,9 @@ function Modal({ onClose }: { onClose: () => void }) {
 		}
 		fields.forEach((field) => {
 			if (!formData.get(field)) {
-				newErrors[field] =
-					`${fieldNames[field as keyof typeof fieldNames]} wajib diisi`
+				newErrors[field] = `${
+					fieldNames[field as keyof typeof fieldNames]
+				} wajib diisi`
 			}
 		})
 		setErrors(newErrors)

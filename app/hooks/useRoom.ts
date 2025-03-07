@@ -32,8 +32,8 @@ export default function useRoom({
 		{ from: string; message: string; roomId: string }[]
 	>([])
 	const [userId, setUserId] = useState<string>()
-	const [callDuration, setCallDuration] = useState<number>(30*60)
-	const [callExtended, setCallExtended] = useState<number>(10*60)
+	const [callDuration, setCallDuration] = useState<number>(30 * 60)
+	const [callExtended, setCallExtended] = useState<number>(10 * 60)
 	const queryParams = new URLSearchParams(window.location.search)
 	const roleParam = queryParams.get('role')
 	const usernameParam = queryParams.get('username')
@@ -201,7 +201,16 @@ export default function useRoom({
 	// 	await signal.extendCallDuration(extensionTime)
 	// }
 
-
 	// return { identity, otherUsers, signal, roomState, sendChat, messages, error, callDuration, callExtended, extendCallDuration }
-	return { identity, otherUsers, signal, roomState, sendChat, messages, error, callDuration, callExtended }
+	return {
+		identity,
+		otherUsers,
+		signal,
+		roomState,
+		sendChat,
+		messages,
+		error,
+		callDuration,
+		callExtended,
+	}
 }

@@ -1,9 +1,11 @@
 import {
 	ArrowDownOnSquareIcon,
+	ArrowRightEndOnRectangleIcon,
 	ArrowUpOnSquareIcon,
 	ArrowsPointingInIcon,
 	ArrowsPointingOutIcon,
 	BugAntIcon,
+	ChatBubbleBottomCenterIcon,
 	CheckIcon,
 	ChevronDownIcon,
 	ChevronUpIcon,
@@ -25,8 +27,6 @@ import {
 	VideoCameraSlashIcon,
 	WifiIcon,
 	XCircleIcon,
-	ChatBubbleBottomCenterIcon,
-	ArrowRightEndOnRectangleIcon
 } from '@heroicons/react/20/solid'
 import type { FC } from 'react'
 import { cn } from '~/utils/style'
@@ -61,7 +61,7 @@ const iconMap = {
 	ArrowUpOnSquareIcon,
 	WifiIcon,
 	ChatBubble: ChatBubbleBottomCenterIcon,
-	openNewTab: ArrowRightEndOnRectangleIcon
+	openNewTab: ArrowRightEndOnRectangleIcon,
 }
 
 interface IconProps {

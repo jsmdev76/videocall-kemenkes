@@ -18,7 +18,7 @@ export default function EndRoom() {
 	const { params } = useLoaderData<typeof loader>()
 	console.log(params)
 	return (
-			<div className="flex flex-col items-center justify-center min-h-screen p-6 bg-login">
+		<div className="flex flex-col items-center justify-center min-h-screen p-6 bg-login">
 			<div className="w-full max-w-md space-y-8 text-center">
 				<div className="bg-kemenkes box-logo mx-auto"></div>
 

@@ -28,7 +28,7 @@ const displayTypeMap = {
 		'text-white',
 		'bg-blue-600 hover:bg-blue-700',
 		'border-blue-600 hover:border-blue-700',
-	]
+	],
 }
 
 export type ButtonProps = Omit<JSX.IntrinsicElements['button'], 'ref'> & {

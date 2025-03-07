@@ -1,20 +1,22 @@
-import { redirect, type ActionFunctionArgs } from "@remix-run/cloudflare";
-import invariant from "tiny-invariant";
-import getClientToken, { removeClientToken } from "~/utils/getClientToken.server";
-import getDoctorToken, { removeDoctorToken } from "~/utils/getDoctorToken.server";
-import getUsername, { setUsername } from "~/utils/getUsername.server";
+import { type ActionFunctionArgs } from '@remix-run/cloudflare'
+import getClientToken, {
+	removeClientToken,
+} from '~/utils/getClientToken.server'
+import getDoctorToken, {
+	removeDoctorToken,
+} from '~/utils/getDoctorToken.server'
 
 export const action = async ({
 	params,
 	request,
-	context
-  }: ActionFunctionArgs) => {
-	const host = context.URL_API;
-    console.log(params)
-	let trxClientToken = await getClientToken(request);
-	let doctorToken = await getDoctorToken(request);
-	console.log('trxClientToken', trxClientToken);
-	console.log('doctorToken', doctorToken);
+	context,
+}: ActionFunctionArgs) => {
+	const host = context.URL_API
+	console.log(params)
+	let trxClientToken = await getClientToken(request)
+	let doctorToken = await getDoctorToken(request)
+	console.log('trxClientToken', trxClientToken)
+	console.log('doctorToken', doctorToken)
 	// if(!trxClientToken) {
 	// 	if(doctorToken)
 	// 		throw redirect('/doctor');
@@ -22,26 +24,26 @@ export const action = async ({
 	// 		throw redirect('/set-username');
 	// }
 
-	let action = "end"
+	let action = 'end'
 	if (doctorToken) {
-		action = "agentLeft"
+		action = 'agentLeft'
 	} else if (trxClientToken) {
-		action = "clientLeft"
+		action = 'clientLeft'
 	} else {
-		action = "end"
+		action = 'end'
 	}
 	const response = await fetch(`${host}/call/action`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'x-api-key': context.API_SECRET_KEY as string
+			'x-api-key': context.API_SECRET_KEY as string,
 		},
 		body: JSON.stringify({
 			action,
-			roomId: params.callId
-		})
+			roomId: params.callId,
+		}),
 	})
-	let data:any = await response.json();
+	let data: any = await response.json()
 	console.log('data', data)
 	// return data;
 	// if(!data.success) {
@@ -53,8 +55,8 @@ export const action = async ({
 	// 	url = '/doctor/dashboard';
 	// return url;
 	if (doctorToken) {
-		return removeDoctorToken(request, "/end-room/agent")
+		return removeDoctorToken(request, '/end-room/agent')
 	} else {
-		return removeClientToken(request, "/end-room/client");
+		return removeClientToken(request, '/end-room/client')
 	}
-  };
+}
