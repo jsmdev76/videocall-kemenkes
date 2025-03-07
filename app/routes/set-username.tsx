@@ -280,12 +280,12 @@ export default function SetUsername() {
 								<img
 									src="./logo-kemenkes.png"
 									alt="consultation"
-									className="block mx-auto lg:ml-0 mb-4"
+									className="block lg:ml-0 mb-4"
 								/>
-								<h2 className="text-xl font-semibold text-gray-800 mt-6">
+								<h2 className="ml-3.5 text-xl font-semibold text-gray-800 mt-6">
 									Consultation
 								</h2>
-								<p className="text-gray-600 mt-2">
+								<p className="ml-3.5 text-gray-600 mt-2">
 									You will be connected to a 24-hour counseling service with a
 									duration of 30 minutes per session. Allow location access so
 									that counselors can provide optimal service.
@@ -296,9 +296,9 @@ export default function SetUsername() {
 						<div className="container flex justify-center p-6 lg:p-10">
 							<div className="lg:w-3/4 w-full bg-gray-50 p-11 rounded-lg shadow-md">
 								<h3 className="text-lg font-bold text-gray-800">
-									Masukkan nama Anda untuk memulai
+									Masukkan nama anda untuk memulai
 								</h3>
-
+								
 								<Form method="post">
 									<input
 										type="hidden"
@@ -306,7 +306,7 @@ export default function SetUsername() {
 										value="startConsultation"
 									/>
 									<div className="grid gap-3">
-										<div className="mt-4">
+										<div className="my-6">
 											<input
 												type="text"
 												placeholder="Username"
@@ -339,7 +339,7 @@ export default function SetUsername() {
 										/>
 									</div>
 
-									<div className="mt-6">
+									<div className="mt-8">
 										{navigation.state === 'idle' ? (
 											<Button className="text-xs bg-blue w-full" type="submit">
 												Hubungi Konselor
@@ -349,31 +349,33 @@ export default function SetUsername() {
 										)}
 									</div>
 								</Form>
-							</div>
-							{allowAudio === 2 && (
-								<div className="text-danger">
-									Silahkan aktifkan microphone untuk memulai sesi.
-								</div>
-							)}
-							{statusMessage && (
-								<div
-									className={`flex flex-col gap-2 text-${
-										data?.success ? 'success' : 'danger'
-									}`}
-								>
-									{statusMessage}
-									{!data?.success && (
-										<div>
-											<Button
-												className="text-xs bg-blue"
-												onClick={() => setShowModal(true)}
-											>
-												Tinggalkan Pesan
-											</Button>
+								<div className="mt-4">
+									{allowAudio === 2 && (
+										<div className="text-danger">
+											Silahkan aktifkan microphone untuk memulai sesi.
+										</div>
+									)}
+									{statusMessage && (
+										<div
+											className={`flex flex-col gap-2 text-${
+												data?.success ? 'success' : 'danger'
+											}`}
+										>
+											{statusMessage}
+											{!data?.success && (
+												<div>
+													<Button
+														className="text-xs bg-blue"
+														onClick={() => setShowModal(true)}
+													>
+														Tinggalkan Pesan
+													</Button>
+												</div>
+											)}
 										</div>
 									)}
 								</div>
-							)}
+							</div>
 							{showModal && <Modal onClose={() => setShowModal(false)} />}
 						</div>
 					</div>
