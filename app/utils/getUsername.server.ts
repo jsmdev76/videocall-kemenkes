@@ -8,6 +8,11 @@ export async function setUsername(
 	request: Request,
 	returnUrl: string = '/'
 ) {
+	console.log("ini request =>",request)
+	console.log("ini returnUrl =>",returnUrl)
+	console.log("ini trxClientToken =>",trxClientToken)
+	console.log("ini username =>",username)
+	
 	const session = await getSession(request.headers.get('Cookie'))
 	session.set('username', username)
 	session.set('clienttoken', trxClientToken)

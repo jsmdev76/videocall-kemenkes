@@ -24,7 +24,7 @@ main = "./build/index.js"
 
 CALLS_APP_ID = "0033f29b655281d13245e8030c196988"
 CALLS_APP_SECRET = "2e245bd792cf1fb81705732c481d340d85984a040e44d42ea0b7a35a646a58f8"
-URL_API = "http://172.31.0.201:3000/"
+URL_API = "http://147.139.163.153:3000"
 API_SECRET_KEY = "hDonkke4trpu4aGeQSCBMKGr0WcgmIti"
 
 [durable_objects]

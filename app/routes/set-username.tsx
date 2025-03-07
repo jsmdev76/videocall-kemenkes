@@ -83,6 +83,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 			success: true,
 			message: 'Permintaan konsultasi berhasil dikirim!',
 		})
+		
 	} else if (formType === 'startConsultation') {
 		if (!username) errors.username = 'Nama pengguna diperlukan'
 
@@ -95,43 +96,39 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 		const host = context.URL_API
 		const roomName = crypto.randomUUID().split('-')[0]
-
-		console.log('host', host)
-		console.log('username', username)
-		console.log('latitude', latitude)
-		console.log('longitude', longitude)
-		console.log('roomName', roomName)
-		console.log('opt', opt)
-		console.log('uid', uid)
-		console.log('x-api-key', context.API_SECRET_KEY)
-		console.log('url-origin', url.origin)
-
-		const response = await fetch(`${host}/call/create`, {
-			method: 'post',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-				'x-api-key': context.API_SECRET_KEY as string,
-			},
-			body: JSON.stringify({
-				url: `${url.origin}/${roomName}/room`,
-				roomId: roomName,
-				clientName: username,
-				latitude: latitude,
-				longitude: longitude,
-				opt: opt,
-				uid: uid,
-			}),
-		})
-
-		const data: any = await response.json()
-		if (data.success) {
-			return setUsername(username as string, 'client', request, `/${roomName}`)
-		} else {
-			return json<ActionData>({
-				success: false,
-				message: data.message || 'Terjadi kesalahan saat memulai sesi.',
+		
+		try {
+			const response = await fetch(`${host}/call/create`, {
+				method: 'post',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					'x-api-key': context.API_SECRET_KEY as string,
+				},
+				body: JSON.stringify({
+					url: `${url.origin}/${roomName}/room`,
+					roomId: roomName,
+					clientName: username,
+					latitude: latitude,
+					longitude: longitude,
+					opt: opt,
+					uid: uid,
+				}),
 			})
+			
+			if (response) {
+				return setUsername(username as string, 'client', request, `/${roomName}`)
+			} else {
+				return json<ActionData>({
+					success: false,
+					message: 'Terjadi kesalahan saat memulai sesi.',
+				})
+			}
+		} catch (error) {
+			return {
+				success: false,
+				message: 'An error occurred while creating the room.',
+			};
 		}
 	}
 
